@@ -316,12 +316,12 @@ class _ProfileViewState extends State<ProfileView> {
 
   Widget _buildStatisticsSection(BuildContext context, ProfileController p, GamificationController g) {
     final stats = [
-      _StatData(icon: '🔥', value: '${g.streak.value.currentStreak}', label: 'Day Streak'),
-      _StatData(icon: '📅', value: '${p.progress.value.lessonOrder}', label: 'Lessons'),
-      _StatData(icon: '💎', value: '${p.stock.value.palmStock}', label: 'Palms'),
-      _StatData(icon: '⚡', value: '${p.stock.value.injazStock}', label: 'Injaz'),
-      _StatData(icon: '🎯', value: '${p.progress.value.taskOrder}', label: 'Tasks'),
-      _StatData(icon: '🏅', value: '${g.achievements.where((a) => a.achieved).length}', label: 'Achievements'),
+      _StatData(icon: '🔥', value: '${g.streak.value.currentStreak}', label: 'Task Completed'),
+      _StatData(icon: '📅', value: '${p.progress.value.lessonOrder}', label: 'Lessons Completed'),
+      _StatData(icon: '💎', value: '${p.stock.value.palmStock}', label: 'Total Dates'),
+      _StatData(icon: '⚡', value: '${p.stock.value.injazStock}', label: 'Total Injaz Gained'),
+      _StatData(icon: '🎯', value: '${p.progress.value.taskOrder}', label: 'Achievements Unlocked'),
+      _StatData(icon: '🏅', value: '${g.achievements.where((a) => a.achieved).length}', label: 'Badges Earned'),
     ];
 
     return Column(
@@ -349,7 +349,7 @@ class _ProfileViewState extends State<ProfileView> {
             crossAxisCount: 2,
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
-            childAspectRatio: 2.2,
+            childAspectRatio: 1.7,
           ),
           itemCount: stats.length,
           itemBuilder: (context, index) {
@@ -385,7 +385,7 @@ class _ProfileViewState extends State<ProfileView> {
                     child: Text(
                       stat.label,
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 12,
                         color: Colors.grey.shade600,
                       ),
                     ),
