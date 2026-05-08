@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../common/empty_state.dart';import '../../common/app_motion.dart';
+import '../../common/empty_state.dart';
+import '../../common/app_motion.dart';
 import '../../common/responsive.dart';
 import '../../constants/app_colors.dart';
 
@@ -14,10 +15,17 @@ class LeaderboardView extends StatefulWidget {
 class _LeaderboardViewState extends State<LeaderboardView> {
   String timeFilter = 'weekly';
 
-  // The GitHub web reference currently uses a hardcoded `leaderboardData` array.
-  // Keep Flutter real-data-only: this list must be populated by an API service
-  // once a real leaderboard endpoint is provided by the backend/Postman collection.
-  final List<LeaderboardEntry> entries = const [];
+  // Demo data matching the reference image
+  final List<LeaderboardEntry> entries = const [
+    LeaderboardEntry(rank: 1, name: 'Maryland Winkles', injaz: 948, avatar: 'MW'),
+    LeaderboardEntry(rank: 2, name: 'Andrew Ainsley', injaz: 872, avatar: 'AA'),
+    LeaderboardEntry(rank: 3, name: 'Charlotte Hanlin', injaz: 769, avatar: 'CH'),
+    LeaderboardEntry(rank: 4, name: 'Florencio Dollore', injaz: 723, avatar: 'FD'),
+    LeaderboardEntry(rank: 5, name: 'Roselle Ehram', injaz: 640, avatar: 'RE'),
+    LeaderboardEntry(rank: 6, name: 'Darron Kulinowzi', injaz: 596, avatar: 'DK'),
+    LeaderboardEntry(rank: 7, name: 'Clinton Mcclure', injaz: 537, avatar: 'CM'),
+    LeaderboardEntry(rank: 8, name: 'Darcell Ballentine', injaz: 481, avatar: 'DB'),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -25,35 +33,52 @@ class _LeaderboardViewState extends State<LeaderboardView> {
     final remaining = entries.skip(3).toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Leaderboard'),
-        actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.search_rounded))],
-      ),
-      body: PageShell(
-        child: GameListView(
-          children: [
-            Row(
-              children: [
-                Text('Leaderboard', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900)),
-                const SizedBox(width: 10),
-                const Icon(Icons.emoji_events_rounded, color: AppColors.date),
+      backgroundColor: const Color(0xFFF5F5F0),
+      body: SafeArea(
+        child: PageShell(
+          padding: EdgeInsets.zero,
+          child: GameListView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            children: [
+              // Header
+              Row(
+                children: [
+                  Text(
+                    'Leaderboard',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.ink,
+                        ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.emoji_events_rounded, color: AppColors.date, size: 28),
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.search_rounded, color: AppColors.muted),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              _TimeFilters(value: timeFilter, onChanged: (v) => setState(() => timeFilter = v)),
+              const SizedBox(height: 24),
+              if (entries.isEmpty)
+                const EmptyState(
+                  icon: Icons.leaderboard_rounded,
+                  title: 'No real leaderboard data yet',
+                  subtitle: 'The GitHub web app shows this page with hardcoded sample users. No leaderboard API endpoint exists in the provided Postman collection, so the Flutter app does not show demo rankings.',
+                )
+              else ...[
+                _Podium(entries: topThree),
+                const SizedBox(height: 24),
+                ...remaining.map((entry) => Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _LeaderboardRow(entry: entry),
+                    )),
+                const SizedBox(height: 20),
               ],
-            ),
-            const SizedBox(height: 16),
-            _TimeFilters(value: timeFilter, onChanged: (v) => setState(() => timeFilter = v)),
-            const SizedBox(height: 24),
-            if (entries.isEmpty)
-              const EmptyState(
-                icon: Icons.leaderboard_rounded,
-                title: 'No real leaderboard data yet',
-                subtitle: 'The GitHub web app shows this page with hardcoded sample users. No leaderboard API endpoint exists in the provided Postman collection, so the Flutter app does not show demo rankings.',
-              )
-            else ...[
-              _Podium(entries: topThree),
-              const SizedBox(height: 20),
-              ...remaining.map((entry) => _LeaderboardRow(entry: entry)),
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -75,13 +100,27 @@ class _TimeFilters extends StatelessWidget {
         return Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: ChoiceChip(
-              selected: selected,
-              label: Center(child: Text(filter.value)),
-              onSelected: (_) => onChanged(filter.key),
-              selectedColor: AppColors.palm,
-              labelStyle: TextStyle(color: selected ? Colors.white : AppColors.muted, fontWeight: FontWeight.w700),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            child: GestureDetector(
+              onTap: () => onChanged(filter.key),
+              child: AnimatedContainer(
+                duration: AppMotion.fast,
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: selected ? const Color(0xFFE8D5B7) : Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  border: selected ? null : Border.all(color: const Color(0xFFE5E5E5)),
+                ),
+                child: Center(
+                  child: Text(
+                    filter.value,
+                    style: TextStyle(
+                      color: selected ? AppColors.ink : AppColors.muted,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         );
@@ -97,41 +136,216 @@ class _Podium extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    LeaderboardEntry? at(int i) => entries.length > i ? entries[i] : null;
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      mainAxisAlignment: MainAxisAlignment.center,
+    if (entries.length < 3) return const SizedBox.shrink();
+
+    final first = entries[0];
+    final second = entries[1];
+    final third = entries[2];
+
+    return Column(
       children: [
-        _PodiumPlace(entry: at(1), place: 2, height: 86, color: Colors.blueGrey),
-        _PodiumPlace(entry: at(0), place: 1, height: 116, color: AppColors.palm, large: true),
-        _PodiumPlace(entry: at(2), place: 3, height: 72, color: AppColors.date),
+        // 1st place avatar
+        _PodiumAvatar(
+          entry: first,
+          size: 84,
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF9333EA), Color(0xFF7C3AED)],
+          ),
+        ),
+        const SizedBox(height: 8),
+        // Three columns
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 2nd place
+            Expanded(
+              child: Column(
+                children: [
+                  _PodiumAvatar(
+                    entry: second,
+                    size: 64,
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFFCBD5E1), Color(0xFF9CA3AF)],
+                    ),
+                  ),
+                  const SizedBox(height: 1),
+                  _PodiumNameCard(entry: second),
+                  const SizedBox(height: 1),
+                  Text(
+                    '${second.injaz} Injaz',
+                    style: const TextStyle(
+                      color: AppColors.palm,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 15,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  _PodiumBlock(place: 2, height: 110, color: const Color(0xFF9CA3AF)),
+                ],
+              ),
+            ),
+            // 1st place
+            Expanded(
+              child: Column(
+                children: [
+                  const SizedBox(height: 8),
+                  _PodiumNameCard(entry: first, large: false),
+                  const SizedBox(height: 10),
+                  Text(
+                    '${first.injaz} Injaz',
+                    style: const TextStyle(
+                      color: AppColors.palm,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 20,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  _PodiumBlock(place: 1, height: 150, color: AppColors.palm),
+                ],
+              ),
+            ),
+            // 3rd place
+            Expanded(
+              child: Column(
+                children: [
+                  _PodiumAvatar(
+                    entry: third,
+                    size: 64,
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFFFB923C), Color(0xFFEA580C)],
+                    ),
+                  ),
+                  const SizedBox(height: 17),
+                  _PodiumNameCard(entry: third),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${third.injaz} Injaz',
+                    style: const TextStyle(
+                      color: AppColors.palm,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 15,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  _PodiumBlock(place: 3, height: 90, color: const Color(0xFFD97706)),
+                ],
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
 }
 
-class _PodiumPlace extends StatelessWidget {
-  const _PodiumPlace({required this.entry, required this.place, required this.height, required this.color, this.large = false});
+class _PodiumAvatar extends StatelessWidget {
+  const _PodiumAvatar({required this.entry, required this.size, required this.gradient});
 
-  final LeaderboardEntry? entry;
-  final int place;
-  final double height;
-  final Color color;
+  final LeaderboardEntry entry;
+  final double size;
+  final Gradient gradient;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: gradient,
+        border: Border.all(color: Colors.white, width: 4),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Center(
+        child: Text(
+          entry.avatar,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: size * 0.35,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PodiumNameCard extends StatelessWidget {
+  const _PodiumNameCard({required this.entry, this.large = false});
+
+  final LeaderboardEntry entry;
   final bool large;
 
   @override
   Widget build(BuildContext context) {
-    if (entry == null) return const SizedBox.shrink();
-    return Expanded(
-      child: Column(
-        children: [
-          CircleAvatar(radius: large ? 34 : 28, backgroundColor: color, child: Text(entry!.avatar, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900))),
-          const SizedBox(height: 8),
-          Text(entry!.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w800)),
-          Text('${entry!.injaz} Injaz', style: const TextStyle(color: AppColors.date, fontWeight: FontWeight.w800)),
-          const SizedBox(height: 8),
-          Container(height: height, decoration: BoxDecoration(color: color, borderRadius: const BorderRadius.vertical(top: Radius.circular(18))), child: Center(child: Text('$place', style: const TextStyle(fontSize: 34, color: Colors.white, fontWeight: FontWeight.w900)))),
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: large ? 16 : 12, vertical: large ? 12 : 10),
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
         ],
+      ),
+      child: Text(
+        entry.name,
+        textAlign: TextAlign.center,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontWeight: FontWeight.w700,
+          fontSize: large ? 15 : 13,
+          color: AppColors.ink,
+        ),
+      ),
+    );
+  }
+}
+
+class _PodiumBlock extends StatelessWidget {
+  const _PodiumBlock({required this.place, required this.height, required this.color});
+
+  final int place;
+  final double height;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: height,
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Center(
+        child: Text(
+          '$place',
+          style: const TextStyle(
+            fontSize: 40,
+            color: Colors.white,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
       ),
     );
   }
@@ -142,21 +356,110 @@ class _LeaderboardRow extends StatelessWidget {
 
   final LeaderboardEntry entry;
 
+  Color get _avatarColor {
+    switch (entry.avatar) {
+      case 'FD':
+        return const Color(0xFF4ADE80);
+      case 'RE':
+        return const Color(0xFFA855F7);
+      case 'DK':
+        return const Color(0xFFFB923C);
+      case 'CM':
+        return const Color(0xFF2DD4BF);
+      case 'DB':
+        return const Color(0xFFF472B6);
+      default:
+        return AppColors.palm;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: ListTile(
-        leading: CircleAvatar(backgroundColor: AppColors.palm, foregroundColor: Colors.white, child: Text(entry.avatar)),
-        title: Text(entry.name, style: const TextStyle(fontWeight: FontWeight.w800)),
-        subtitle: Text('${entry.injaz} Injaz'),
-        trailing: Text('#${entry.rank}', style: const TextStyle(fontWeight: FontWeight.w900, color: AppColors.date)),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // Rank
+          SizedBox(
+            width: 28,
+            child: Text(
+              '${entry.rank}',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: AppColors.muted,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          // Avatar
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: _avatarColor,
+            ),
+            child: Center(
+              child: Text(
+                entry.avatar,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 14),
+          // Name and score
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  entry.name,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.ink,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${entry.injaz} Injaz',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.muted,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
 class LeaderboardEntry {
-  const LeaderboardEntry({required this.rank, required this.name, required this.injaz, required this.avatar});
+  const LeaderboardEntry({
+    required this.rank,
+    required this.name,
+    required this.injaz,
+    required this.avatar,
+  });
 
   final int rank;
   final String name;
