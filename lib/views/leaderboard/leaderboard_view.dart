@@ -172,17 +172,8 @@ class _Podium extends StatelessWidget {
                       colors: [Color(0xFFCBD5E1), Color(0xFF9CA3AF)],
                     ),
                   ),
-                  const SizedBox(height: 1),
+                  const SizedBox(height: 2),
                   _PodiumNameCard(entry: second),
-                  const SizedBox(height: 1),
-                  Text(
-                    '${second.injaz} Injaz',
-                    style: const TextStyle(
-                      color: AppColors.palm,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 15,
-                    ),
-                  ),
                   const SizedBox(height: 8),
                   _PodiumBlock(place: 2, height: 110, color: const Color(0xFF9CA3AF)),
                 ],
@@ -193,16 +184,7 @@ class _Podium extends StatelessWidget {
               child: Column(
                 children: [
                   const SizedBox(height: 8),
-                  _PodiumNameCard(entry: first, large: false),
-                  const SizedBox(height: 10),
-                  Text(
-                    '${first.injaz} Injaz',
-                    style: const TextStyle(
-                      color: AppColors.palm,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 20,
-                    ),
-                  ),
+                  _PodiumNameCard(entry: first, large: true),
                   const SizedBox(height: 8),
                   _PodiumBlock(place: 1, height: 150, color: AppColors.palm),
                 ],
@@ -221,17 +203,8 @@ class _Podium extends StatelessWidget {
                       colors: [Color(0xFFFB923C), Color(0xFFEA580C)],
                     ),
                   ),
-                  const SizedBox(height: 17),
+                  const SizedBox(height: 21),
                   _PodiumNameCard(entry: third),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${third.injaz} Injaz',
-                    style: const TextStyle(
-                      color: AppColors.palm,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 15,
-                    ),
-                  ),
                   const SizedBox(height: 8),
                   _PodiumBlock(place: 3, height: 90, color: const Color(0xFFD97706)),
                 ],
@@ -268,6 +241,7 @@ class _PodiumAvatar extends StatelessWidget {
           ),
         ],
       ),
+
       child: Center(
         child: Text(
           entry.avatar,
@@ -305,16 +279,31 @@ class _PodiumNameCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Text(
-        entry.name,
-        textAlign: TextAlign.center,
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          fontWeight: FontWeight.w700,
-          fontSize: large ? 15 : 13,
-          color: AppColors.ink,
-        ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            entry.name,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: large ? 15 : 13,
+              color: AppColors.ink,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '${entry.injaz} Injaz',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: AppColors.palm,
+              fontWeight: FontWeight.w800,
+              fontSize: large ? 18 : 14,
+            ),
+          ),
+        ],
       ),
     );
   }
