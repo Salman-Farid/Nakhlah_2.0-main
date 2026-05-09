@@ -9,6 +9,7 @@ import '../views/home/app_shell_view.dart';
 import '../views/lessons/lessons_view.dart';
 import '../views/onboarding/onboarding_form_view.dart';
 import '../views/onboarding/onboarding_view.dart';
+import '../views/gamification/premium_view.dart';
 import '../views/settings/settings_view.dart';
 import '../views/splash/splash_view.dart';
 import 'app_routes.dart';
@@ -35,5 +36,6 @@ class AppPages {
     _page(Routes.lessons, () => const LessonsView()),
     _page(Routes.exercise, () => const ExerciseView()),
     _page(Routes.settings, () => const SettingsView()),
+    _page(Routes.premium, () => const PremiumView()),
   ];
 }

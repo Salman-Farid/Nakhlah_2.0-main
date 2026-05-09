@@ -9,4 +9,5 @@ class Routes {
   static const lessons = '/lessons';
   static const exercise = '/exercise';
   static const settings = '/settings';
+  static const premium = '/premium';
 }
