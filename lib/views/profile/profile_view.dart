@@ -11,6 +11,7 @@ import '../../controllers/auth_controller.dart';
 import '../../controllers/gamification_controller.dart';
 import '../../controllers/profile_controller.dart';
 import '../../models/models.dart';
+import '../../routes/app_routes.dart';
 
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
@@ -117,11 +118,7 @@ class _ProfileViewState extends State<ProfileView> {
             ),
             IconButton(
               onPressed: () {
-                Get.snackbar(
-                  'Settings',
-                  'Settings page coming soon!',
-                  snackPosition: SnackPosition.BOTTOM,
-                );
+                Get.toNamed(Routes.settings);
               },
               icon: const Icon(Icons.settings_outlined, color: AppColors.ink),
             ),

@@ -1,3 +1,239 @@
-import 'package:flutter/material.dart';import 'package:get/get.dart';import '../../common/app_card.dart';import '../../common/app_motion.dart';import '../../common/responsive.dart';import '../../services/cms_service.dart';
-class SettingsView extends StatelessWidget{const SettingsView({super.key});@override Widget build(BuildContext context)=>Scaffold(appBar:AppBar(title:const Text('Settings')),body:PageShell(child:GameListView(children:[AppCard(child:ListTile(leading:const Icon(Icons.help_rounded),title:const Text('Help center'),onTap:()=>_show(context,'Help center',Get.find<CmsService>().helpGuide()))),AppCard(child:ListTile(leading:const Icon(Icons.info_rounded),title:const Text('About Nakhlah'),onTap:()=>_show(context,'About',Get.find<CmsService>().about()))),AppCard(child:ListTile(leading:const Icon(Icons.policy_rounded),title:const Text('Legal documents'),onTap:()=>_show(context,'Legal',Get.find<CmsService>().legal()))),AppCard(child:ListTile(leading:const Icon(Icons.verified_rounded),title:const Text('API coverage'),subtitle:const Text('38 Postman endpoints mapped in services.')))])));
-void _show(BuildContext context,String title,Future<String> f){showModalBottomSheet(context:context,isScrollControlled:true,builder:(_)=>FutureBuilder<String>(future:f,builder:(_,s)=>DraggableScrollableSheet(expand:false,initialChildSize:.8,builder:(_,sc)=>ListView(controller:sc,padding:const EdgeInsets.all(20),children:[Text(title,style:Theme.of(context).textTheme.headlineSmall),const SizedBox(height:12),Text(s.data??s.error?.toString()??'Loading...')]))));}}
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../../common/responsive.dart';
+import '../../constants/app_colors.dart';
+import '../../services/cms_service.dart';
+
+class SettingsView extends StatefulWidget {
+  const SettingsView({super.key});
+
+  @override
+  State<SettingsView> createState() => _SettingsViewState();
+}
+
+class _SettingsViewState extends State<SettingsView> {
+  bool _darkMode = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF9F7F2),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFF9F7F2),
+        elevation: 0,
+        leading: IconButton(
+          onPressed: () => Get.back(),
+          icon: const Icon(Icons.arrow_back_ios, color: AppColors.ink, size: 20),
+        ),
+        title: const Text(
+          'Settings',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: AppColors.ink,
+          ),
+        ),
+        centerTitle: false,
+      ),
+      body: PageShell(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            _buildSettingItem(
+              icon: Icons.person_outline,
+              iconBgColor: const Color(0xFFFFF3E0),
+              iconColor: const Color(0xFFFF9800),
+              title: 'Personal Info',
+              onTap: () {},
+            ),
+            _buildSettingItem(
+              icon: Icons.notifications_none_outlined,
+              iconBgColor: const Color(0xFFFFEBEE),
+              iconColor: const Color(0xFFEF5350),
+              title: 'Notification',
+              onTap: () {},
+            ),
+            _buildSettingItem(
+              icon: Icons.grid_view_outlined,
+              iconBgColor: const Color(0xFFEDE7F6),
+              iconColor: const Color(0xFF7E57C2),
+              title: 'General',
+              onTap: () {},
+            ),
+            _buildSettingItem(
+              icon: Icons.visibility_outlined,
+              iconBgColor: const Color(0xFFFFFDE7),
+              iconColor: const Color(0xFFFFB300),
+              title: 'Accessibility',
+              onTap: () {},
+            ),
+            _buildSettingItem(
+              icon: Icons.shield_outlined,
+              iconBgColor: const Color(0xFFE8F5E9),
+              iconColor: const Color(0xFF66BB6A),
+              title: 'Security',
+              onTap: () {},
+            ),
+            _buildSettingItem(
+              icon: Icons.people_outline,
+              iconBgColor: const Color(0xFFFFF3E0),
+              iconColor: const Color(0xFFFF9800),
+              title: 'Find Friends',
+              onTap: () {},
+            ),
+            _buildToggleItem(
+              icon: Icons.dark_mode_outlined,
+              iconBgColor: const Color(0xFFE3F2FD),
+              iconColor: const Color(0xFF42A5F5),
+              title: 'Dark Mode',
+              value: _darkMode,
+              onChanged: (v) => setState(() => _darkMode = v),
+            ),
+            _buildSettingItem(
+              icon: Icons.help_outline,
+              iconBgColor: const Color(0xFFE0F7FA),
+              iconColor: const Color(0xFF26C6DA),
+              title: 'Help Center',
+              onTap: () => _showSheet(context, 'Help Center', Get.find<CmsService>().helpGuide()),
+            ),
+            _buildSettingItem(
+              icon: Icons.info_outline,
+              iconBgColor: const Color(0xFFEDE7F6),
+              iconColor: const Color(0xFF7E57C2),
+              title: 'About Nakhlah',
+              onTap: () => _showSheet(context, 'About Nakhlah', Get.find<CmsService>().about()),
+            ),
+            const SizedBox(height: 32),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSettingItem({
+    required IconData icon,
+    required Color iconBgColor,
+    required Color iconColor,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: iconBgColor,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: iconColor, size: 22),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.ink,
+                  ),
+                ),
+              ),
+              const Icon(
+                Icons.chevron_right,
+                color: Colors.grey,
+                size: 22,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildToggleItem({
+    required IconData icon,
+    required Color iconBgColor,
+    required Color iconColor,
+    required String title,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: iconBgColor,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: iconColor, size: 22),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.ink,
+                ),
+              ),
+            ),
+            Switch(
+              value: value,
+              onChanged: onChanged,
+              activeThumbColor: AppColors.palm,
+              activeTrackColor: AppColors.palm.withValues(alpha: 0.3),
+              inactiveThumbColor: Colors.white,
+              inactiveTrackColor: Colors.grey.shade300,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showSheet(BuildContext context, String title, Future<String> future) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => FutureBuilder<String>(
+        future: future,
+        builder: (_, snapshot) => DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.8,
+          builder: (_, scrollController) => ListView(
+            controller: scrollController,
+            padding: const EdgeInsets.all(20),
+            children: [
+              Text(title, style: Theme.of(context).textTheme.headlineSmall),
+              const SizedBox(height: 12),
+              Text(snapshot.data ?? snapshot.error?.toString() ?? 'Loading...'),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
