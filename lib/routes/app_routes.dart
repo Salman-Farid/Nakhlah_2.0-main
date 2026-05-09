@@ -11,4 +11,5 @@ class Routes {
   static const settings = '/settings';
   static const premium = '/premium';
   static const purchaseDates = '/purchase-dates';
+  static const payment = '/payment';
 }
