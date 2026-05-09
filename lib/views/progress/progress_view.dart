@@ -46,93 +46,202 @@ class _ProgressViewState extends State<ProgressView> {
                 selectedIndex: _selectedTab,
                 onChanged: (i) => setState(() => _selectedTab = i),
               ),
-              const SizedBox(height: 28),
-              if (_selectedTab == 0) ...[
-                const _SectionHeader(
-                  icon: '📅',
-                  title: 'Daily Quests',
-                  subtitle: 'Reset every day',
-                  badge: '10 quests',
-                ),
-                const SizedBox(height: 16),
-                const _QuestCard(
-                  emoji: '😊',
-                  title: 'Complete Lessons Today',
-                  reward: 100,
-                  current: 0,
-                  required: 1,
-                ),
-                const _QuestCard(
-                  emoji: '📖',
-                  title: 'Earn Injaz Today',
-                  reward: 100,
-                  current: 0,
-                  required: 500,
-                ),
-                const _QuestCard(
-                  emoji: '⏰',
-                  title: 'Practice Lessons',
-                  reward: 100,
-                  current: 0,
-                  required: 2,
-                ),
-                const _QuestCard(
-                  emoji: '😊',
-                  title: 'Complete Tasks',
-                  reward: 100,
-                  current: 0,
-                  required: 1,
-                ),
-                const _QuestCard(
-                  emoji: '⏰',
-                  title: 'Attend Exam',
-                  reward: 500,
-                  current: 0,
-                  required: 1,
-                ),
-                const _QuestCard(
-                  emoji: '✈️',
-                  title: 'Spend Dates for Lives',
-                  reward: 50,
-                  current: 0,
-                  required: 500,
-                ),
-                const _QuestCard(
-                  emoji: '😊',
-                  title: 'Spend Minutes',
-                  reward: 100,
-                  current: 0,
-                  required: 5,
-                ),
-                const _QuestCard(
-                  emoji: '📖',
-                  title: 'Lesson with No Mistakes',
-                  reward: 500,
-                  current: 1,
-                  required: 1,
-                ),
-                const _QuestCard(
-                  emoji: '🛠️',
-                  title: 'Score High Points',
-                  reward: 500,
-                  current: 1,
-                  required: 1,
-                ),
-                const _QuestCard(
-                  emoji: '⏰',
-                  title: 'Share the App',
-                  reward: 10,
-                  current: 0,
-                  required: 1,
-                ),
-              ] else ...[
-                const _BadgesTab(),
-              ],
+              const SizedBox(height: 20),
+              if (_selectedTab == 0) ..._buildTargetTab(),
+              if (_selectedTab == 1) ..._buildBadgesTab(),
             ],
           );
         }),
       ),
     );
+  }
+
+  List<Widget> _buildTargetTab() {
+    return const [
+      _SectionHeader(
+        icon: '📅',
+        title: 'Daily Quests',
+        subtitle: 'Reset every day',
+        badge: '10 quests',
+      ),
+      SizedBox(height: 16),
+      _QuestCard(
+        emoji: '😊',
+        title: 'Complete Lessons Today',
+        reward: 100,
+        current: 0,
+        required: 1,
+      ),
+      _QuestCard(
+        emoji: '📖',
+        title: 'Earn Injaz Today',
+        reward: 100,
+        current: 0,
+        required: 500,
+      ),
+      _QuestCard(
+        emoji: '⏰',
+        title: 'Practice Lessons',
+        reward: 100,
+        current: 0,
+        required: 2,
+      ),
+      _QuestCard(
+        emoji: '😊',
+        title: 'Complete Tasks',
+        reward: 100,
+        current: 0,
+        required: 1,
+      ),
+      _QuestCard(
+        emoji: '⏰',
+        title: 'Attend Exam',
+        reward: 500,
+        current: 0,
+        required: 1,
+      ),
+      _QuestCard(
+        emoji: '✈️',
+        title: 'Spend Dates for Lives',
+        reward: 50,
+        current: 0,
+        required: 500,
+      ),
+      _QuestCard(
+        emoji: '😊',
+        title: 'Spend Minutes',
+        reward: 100,
+        current: 0,
+        required: 5,
+      ),
+      _QuestCard(
+        emoji: '📖',
+        title: 'Lesson with No Mistakes',
+        reward: 500,
+        current: 1,
+        required: 1,
+      ),
+      _QuestCard(
+        emoji: '🛠️',
+        title: 'Score High Points',
+        reward: 500,
+        current: 1,
+        required: 1,
+      ),
+      _QuestCard(
+        emoji: '⏰',
+        title: 'Share the App',
+        reward: 10,
+        current: 0,
+        required: 1,
+      ),
+    ];
+  }
+
+  List<Widget> _buildBadgesTab() {
+    return const [
+      _SearchFilterRow(),
+      SizedBox(height: 24),
+      _SectionHeader(
+        icon: '🔒',
+        title: 'Locked',
+        subtitle: 'Reach the Injaz target to unlock',
+        badge: '10 total',
+      ),
+      SizedBox(height: 16),
+      _BadgeCard(
+        badge: _BadgeData(
+          emoji: '🔋',
+          title: 'The Sweetest',
+          injaz: '1,000',
+          color: Color(0xFFE8D5F0),
+        ),
+      ),
+      _BadgeCard(
+        badge: _BadgeData(
+          emoji: '⏰',
+          title: 'Best Target',
+          injaz: '2,000',
+          color: Color(0xFFF5F0E8),
+        ),
+      ),
+      _BadgeCard(
+        badge: _BadgeData(
+          emoji: '⏰',
+          title: 'Compass Smart',
+          injaz: '3,000',
+          color: Color(0xFFF5F0E8),
+        ),
+      ),
+      _BadgeCard(
+        badge: _BadgeData(
+          emoji: '⏰',
+          title: 'Quiz King',
+          injaz: '4,000',
+          color: Color(0xFFF5F0E8),
+        ),
+      ),
+      _BadgeCard(
+        badge: _BadgeData(
+          emoji: '✈️',
+          title: 'Diamond Winner',
+          injaz: '5,000',
+          color: Color(0xFFE8D5F0),
+        ),
+      ),
+      _BadgeCard(
+        badge: _BadgeData(
+          emoji: '😊',
+          title: 'Shining Star',
+          injaz: '6,000',
+          color: Color(0xFFF5F0E8),
+        ),
+      ),
+      _BadgeCard(
+        badge: _BadgeData(
+          emoji: '⏰',
+          title: 'Quick Fixer',
+          injaz: '7,000',
+          color: Color(0xFFF5F0E8),
+        ),
+      ),
+      _BadgeCard(
+        badge: _BadgeData(
+          emoji: '📖',
+          title: 'The Fastest Man',
+          injaz: '8,000',
+          color: Color(0xFFF5F0E8),
+        ),
+      ),
+      _BadgeCard(
+        badge: _BadgeData(
+          emoji: '✈️',
+          title: 'Smart Learning',
+          injaz: '9,000',
+          color: Color(0xFFE8D5F0),
+        ),
+      ),
+      _BadgeCard(
+        badge: _BadgeData(
+          emoji: '😊',
+          title: 'Most Active',
+          injaz: '10,000',
+          color: Color(0xFFF5F0E8),
+        ),
+      ),
+      SizedBox(height: 20),
+      Center(
+        child: Text(
+          'Your current Activity Injaz: 100',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: AppColors.muted,
+          ),
+        ),
+      ),
+      SizedBox(height: 16),
+    ];
   }
 }
 
@@ -286,7 +395,7 @@ class _SectionHeader extends StatelessWidget {
           ),
         ),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           decoration: BoxDecoration(
             color: const Color(0xFFF4ECFF),
             borderRadius: BorderRadius.circular(16),
@@ -427,55 +536,93 @@ class _BadgeData {
   final Color color;
 }
 
-class _BadgesTab extends StatelessWidget {
-  const _BadgesTab();
+class _BadgeCard extends StatelessWidget {
+  const _BadgeCard({required this.badge});
 
-  static const _badges = [
-    _BadgeData(emoji: '🔋', title: 'The Sweetest', injaz: '1,000', color: Color(0xFFE8D5F0)),
-    _BadgeData(emoji: '⏰', title: 'Best Target', injaz: '2,000', color: Color(0xFFF5F0E8)),
-    _BadgeData(emoji: '⏰', title: 'Compass Smart', injaz: '3,000', color: Color(0xFFF5F0E8)),
-    _BadgeData(emoji: '⏰', title: 'Quiz King', injaz: '4,000', color: Color(0xFFF5F0E8)),
-    _BadgeData(emoji: '✈️', title: 'Diamond Winner', injaz: '5,000', color: Color(0xFFE8D5F0)),
-    _BadgeData(emoji: '😊', title: 'Shining Star', injaz: '6,000', color: Color(0xFFF5F0E8)),
-    _BadgeData(emoji: '⏰', title: 'Quick Fixer', injaz: '7,000', color: Color(0xFFF5F0E8)),
-    _BadgeData(emoji: '📖', title: 'The Fastest Man', injaz: '8,000', color: Color(0xFFF5F0E8)),
-    _BadgeData(emoji: '✈️', title: 'Smart Learning', injaz: '9,000', color: Color(0xFFE8D5F0)),
-    _BadgeData(emoji: '😊', title: 'Most Active', injaz: '10,000', color: Color(0xFFF5F0E8)),
-  ];
+  final _BadgeData badge;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const _SearchFilterRow(),
-        const SizedBox(height: 24),
-        const _SectionHeader(
-          icon: '🔒',
-          title: 'Locked',
-          subtitle: 'Reach the Injaz target to unlock',
-          badge: '10 total',
-        ),
-        const SizedBox(height: 16),
-        ..._badges.map(
-          (b) => Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: _BadgeCard(badge: b),
-          ),
-        ),
-        const SizedBox(height: 20),
-        const Center(
-          child: Text(
-            'Your current Activity Injaz: 100',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: AppColors.muted,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
-          ),
+          ],
         ),
-        const SizedBox(height: 16),
-      ],
+        child: Row(
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: badge.color,
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: Text(badge.emoji, style: const TextStyle(fontSize: 24)),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    badge.title,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.ink,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Text(
+                        '${badge.injaz} Injaz',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.palm,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      const Text(
+                        '•',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.muted,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      const Text(
+                        'Target',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.muted,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.chevron_right,
+              color: AppColors.muted,
+              size: 22,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -490,7 +637,7 @@ class _SearchFilterRow extends StatelessWidget {
         Expanded(
           flex: 3,
           child: Container(
-            height: 44,
+            height: 30,
             padding: const EdgeInsets.symmetric(horizontal: 14),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -523,7 +670,7 @@ class _SearchFilterRow extends StatelessWidget {
         Expanded(
           flex: 2,
           child: Container(
-            height: 44,
+            height: 30,
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -546,94 +693,6 @@ class _SearchFilterRow extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _BadgeCard extends StatelessWidget {
-  const _BadgeCard({required this.badge});
-
-  final _BadgeData badge;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: badge.color,
-              shape: BoxShape.circle,
-            ),
-            alignment: Alignment.center,
-            child: Text(badge.emoji, style: const TextStyle(fontSize: 24)),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  badge.title,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.ink,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Text(
-                      '${badge.injaz} Injaz',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.palm,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    const Text(
-                      '•',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppColors.muted,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    const Text(
-                      'Target',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppColors.muted,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const Icon(
-            Icons.chevron_right,
-            color: AppColors.muted,
-            size: 22,
-          ),
-        ],
-      ),
     );
   }
 }
