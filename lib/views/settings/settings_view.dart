@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../common/responsive.dart';
 import '../../constants/app_colors.dart';
-import '../../services/cms_service.dart';
+import 'settings_detail_view.dart';
 
 class SettingsView extends StatefulWidget {
   const SettingsView({super.key});
@@ -44,42 +44,42 @@ class _SettingsViewState extends State<SettingsView> {
               iconBgColor: const Color(0xFFFFF3E0),
               iconColor: const Color(0xFFFF9800),
               title: 'Personal Info',
-              onTap: () {},
+              onTap: () => Get.to(() => const SettingsDetailView(title: 'Personal Info')),
             ),
             _buildSettingItem(
               icon: Icons.notifications_none_outlined,
               iconBgColor: const Color(0xFFFFEBEE),
               iconColor: const Color(0xFFEF5350),
               title: 'Notification',
-              onTap: () {},
+              onTap: () => Get.to(() => const SettingsDetailView(title: 'Notification')),
             ),
             _buildSettingItem(
               icon: Icons.grid_view_outlined,
               iconBgColor: const Color(0xFFEDE7F6),
               iconColor: const Color(0xFF7E57C2),
               title: 'General',
-              onTap: () {},
+              onTap: () => Get.to(() => const SettingsDetailView(title: 'General')),
             ),
             _buildSettingItem(
               icon: Icons.visibility_outlined,
               iconBgColor: const Color(0xFFFFFDE7),
               iconColor: const Color(0xFFFFB300),
               title: 'Accessibility',
-              onTap: () {},
+              onTap: () => Get.to(() => const SettingsDetailView(title: 'Accessibility')),
             ),
             _buildSettingItem(
               icon: Icons.shield_outlined,
               iconBgColor: const Color(0xFFE8F5E9),
               iconColor: const Color(0xFF66BB6A),
               title: 'Security',
-              onTap: () {},
+              onTap: () => Get.to(() => const SettingsDetailView(title: 'Security')),
             ),
             _buildSettingItem(
               icon: Icons.people_outline,
               iconBgColor: const Color(0xFFFFF3E0),
               iconColor: const Color(0xFFFF9800),
               title: 'Find Friends',
-              onTap: () {},
+              onTap: () => Get.to(() => const SettingsDetailView(title: 'Find Friends')),
             ),
             _buildToggleItem(
               icon: Icons.dark_mode_outlined,
@@ -94,14 +94,14 @@ class _SettingsViewState extends State<SettingsView> {
               iconBgColor: const Color(0xFFE0F7FA),
               iconColor: const Color(0xFF26C6DA),
               title: 'Help Center',
-              onTap: () => _showSheet(context, 'Help Center', Get.find<CmsService>().helpGuide()),
+              onTap: () => Get.to(() => const SettingsDetailView(title: 'Help Center')),
             ),
             _buildSettingItem(
               icon: Icons.info_outline,
               iconBgColor: const Color(0xFFEDE7F6),
               iconColor: const Color(0xFF7E57C2),
               title: 'About Nakhlah',
-              onTap: () => _showSheet(context, 'About Nakhlah', Get.find<CmsService>().about()),
+              onTap: () => Get.to(() => const SettingsDetailView(title: 'About Nakhlah')),
             ),
             const SizedBox(height: 32),
           ],
@@ -214,26 +214,4 @@ class _SettingsViewState extends State<SettingsView> {
     );
   }
 
-  void _showSheet(BuildContext context, String title, Future<String> future) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (_) => FutureBuilder<String>(
-        future: future,
-        builder: (_, snapshot) => DraggableScrollableSheet(
-          expand: false,
-          initialChildSize: 0.8,
-          builder: (_, scrollController) => ListView(
-            controller: scrollController,
-            padding: const EdgeInsets.all(20),
-            children: [
-              Text(title, style: Theme.of(context).textTheme.headlineSmall),
-              const SizedBox(height: 12),
-              Text(snapshot.data ?? snapshot.error?.toString() ?? 'Loading...'),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }
