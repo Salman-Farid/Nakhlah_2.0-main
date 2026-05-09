@@ -6,7 +6,6 @@ import '../../common/loading_state.dart';
 import '../../common/responsive.dart';
 import '../../constants/app_colors.dart';
 import '../../controllers/gamification_controller.dart';
-import '../../models/models.dart';
 
 class ProgressView extends StatefulWidget {
   const ProgressView({super.key});
@@ -49,21 +48,85 @@ class _ProgressViewState extends State<ProgressView> {
               ),
               const SizedBox(height: 28),
               if (_selectedTab == 0) ...[
-                _SectionHeader(
+                const _SectionHeader(
                   icon: '📅',
                   title: 'Daily Quests',
                   subtitle: 'Reset every day',
-                  badge: '${c.quests.length} quests',
+                  badge: '10 quests',
                 ),
                 const SizedBox(height: 16),
-                ...c.quests.map(
-                  (q) => Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: _QuestCard(quest: q),
-                  ),
+                const _QuestCard(
+                  emoji: '😊',
+                  title: 'Complete Lessons Today',
+                  reward: 100,
+                  current: 0,
+                  required: 1,
+                ),
+                const _QuestCard(
+                  emoji: '📖',
+                  title: 'Earn Injaz Today',
+                  reward: 100,
+                  current: 0,
+                  required: 500,
+                ),
+                const _QuestCard(
+                  emoji: '⏰',
+                  title: 'Practice Lessons',
+                  reward: 100,
+                  current: 0,
+                  required: 2,
+                ),
+                const _QuestCard(
+                  emoji: '😊',
+                  title: 'Complete Tasks',
+                  reward: 100,
+                  current: 0,
+                  required: 1,
+                ),
+                const _QuestCard(
+                  emoji: '⏰',
+                  title: 'Attend Exam',
+                  reward: 500,
+                  current: 0,
+                  required: 1,
+                ),
+                const _QuestCard(
+                  emoji: '✈️',
+                  title: 'Spend Dates for Lives',
+                  reward: 50,
+                  current: 0,
+                  required: 500,
+                ),
+                const _QuestCard(
+                  emoji: '😊',
+                  title: 'Spend Minutes',
+                  reward: 100,
+                  current: 0,
+                  required: 5,
+                ),
+                const _QuestCard(
+                  emoji: '📖',
+                  title: 'Lesson with No Mistakes',
+                  reward: 500,
+                  current: 1,
+                  required: 1,
+                ),
+                const _QuestCard(
+                  emoji: '🛠️',
+                  title: 'Score High Points',
+                  reward: 500,
+                  current: 1,
+                  required: 1,
+                ),
+                const _QuestCard(
+                  emoji: '⏰',
+                  title: 'Share the App',
+                  reward: 10,
+                  current: 0,
+                  required: 1,
                 ),
               ] else ...[
-                const _BadgesPlaceholder(),
+                const _BadgesTab(),
               ],
             ],
           );
@@ -243,53 +306,254 @@ class _SectionHeader extends StatelessWidget {
 }
 
 class _QuestCard extends StatelessWidget {
-  const _QuestCard({required this.quest});
+  const _QuestCard({
+    required this.emoji,
+    required this.title,
+    required this.reward,
+    required this.current,
+    required this.required,
+  });
 
-  final QuestStatus quest;
+  final String emoji;
+  final String title;
+  final int reward;
+  final int current;
+  final int required;
 
-  bool get _isCompleted =>
-      quest.status.toLowerCase() == 'completed' ||
-      (quest.required > 0 && quest.current >= quest.required);
+  bool get _isCompleted => current >= required;
 
-  String get _displayTitle {
-    final id = quest.challengeId.toLowerCase();
-    if (id.contains('lesson') && id.contains('complete')) {
-      return 'Complete Lessons Today';
-    }
-    if (id.contains('injaz')) return 'Earn Injaz Today';
-    if (id.contains('practice')) return 'Practice Lessons';
-    if (id.contains('task') && id.contains('complete')) return 'Complete Tasks';
-    if (id.contains('task') && id.contains('today')) return 'Complete Tasks Today';
-    if (id.contains('exam')) return 'Attend Exam';
-    if (id.contains('date') && id.contains('spend')) return 'Spend Dates for Lives';
-    if (id.contains('minute') && id.contains('spend')) return 'Spend Minutes';
-    if (id.contains('mistake')) return 'Lesson with No Mistakes';
-    if (id.contains('score') || id.contains('high')) return 'Score High Points';
-    if (id.contains('share')) return 'Share the App';
-    return quest.challengeId;
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: const BoxDecoration(
+                color: Color(0xFFF5F0E8),
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: Text(emoji, style: const TextStyle(fontSize: 24)),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: _isCompleted ? AppColors.muted : AppColors.ink,
+                      decoration:
+                          _isCompleted ? TextDecoration.lineThrough : null,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Reward: $reward',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppColors.muted,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '$current/$required',
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.palm,
+                  ),
+                ),
+                if (_isCompleted) ...[
+                  const SizedBox(width: 6),
+                  Container(
+                    width: 22,
+                    height: 22,
+                    decoration: const BoxDecoration(
+                      color: AppColors.palm,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.check,
+                      size: 14,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
+}
 
-  String get _emoji {
-    final id = quest.challengeId.toLowerCase();
-    if (id.contains('lesson') && id.contains('complete')) return '😊';
-    if (id.contains('injaz')) return '📖';
-    if (id.contains('practice')) return '⏰';
-    if (id.contains('task') && id.contains('complete')) return '😊';
-    if (id.contains('task') && id.contains('today')) return '😊';
-    if (id.contains('exam')) return '⏰';
-    if (id.contains('date') && id.contains('spend')) return '✈️';
-    if (id.contains('minute') && id.contains('spend')) return '😊';
-    if (id.contains('mistake')) return '📖';
-    if (id.contains('score') || id.contains('high')) return '🛠️';
-    if (id.contains('share')) return '⏰';
-    return '🎯';
-  }
+class _BadgeData {
+  const _BadgeData({
+    required this.emoji,
+    required this.title,
+    required this.injaz,
+    required this.color,
+  });
 
-  String get _progressText {
-    final target = quest.required == 0 ? 1 : quest.required;
-    if (_isCompleted) return '$target/$target';
-    return '${quest.current}/$target';
+  final String emoji;
+  final String title;
+  final String injaz;
+  final Color color;
+}
+
+class _BadgesTab extends StatelessWidget {
+  const _BadgesTab();
+
+  static const _badges = [
+    _BadgeData(emoji: '🔋', title: 'The Sweetest', injaz: '1,000', color: Color(0xFFE8D5F0)),
+    _BadgeData(emoji: '⏰', title: 'Best Target', injaz: '2,000', color: Color(0xFFF5F0E8)),
+    _BadgeData(emoji: '⏰', title: 'Compass Smart', injaz: '3,000', color: Color(0xFFF5F0E8)),
+    _BadgeData(emoji: '⏰', title: 'Quiz King', injaz: '4,000', color: Color(0xFFF5F0E8)),
+    _BadgeData(emoji: '✈️', title: 'Diamond Winner', injaz: '5,000', color: Color(0xFFE8D5F0)),
+    _BadgeData(emoji: '😊', title: 'Shining Star', injaz: '6,000', color: Color(0xFFF5F0E8)),
+    _BadgeData(emoji: '⏰', title: 'Quick Fixer', injaz: '7,000', color: Color(0xFFF5F0E8)),
+    _BadgeData(emoji: '📖', title: 'The Fastest Man', injaz: '8,000', color: Color(0xFFF5F0E8)),
+    _BadgeData(emoji: '✈️', title: 'Smart Learning', injaz: '9,000', color: Color(0xFFE8D5F0)),
+    _BadgeData(emoji: '😊', title: 'Most Active', injaz: '10,000', color: Color(0xFFF5F0E8)),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const _SearchFilterRow(),
+        const SizedBox(height: 24),
+        const _SectionHeader(
+          icon: '🔒',
+          title: 'Locked',
+          subtitle: 'Reach the Injaz target to unlock',
+          badge: '10 total',
+        ),
+        const SizedBox(height: 16),
+        ..._badges.map(
+          (b) => Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: _BadgeCard(badge: b),
+          ),
+        ),
+        const SizedBox(height: 20),
+        const Center(
+          child: Text(
+            'Your current Activity Injaz: 100',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: AppColors.muted,
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
   }
+}
+
+class _SearchFilterRow extends StatelessWidget {
+  const _SearchFilterRow();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          flex: 3,
+          child: Container(
+            height: 44,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: const Color(0xFFE8E0D5)),
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.search, size: 20, color: AppColors.muted),
+                SizedBox(width: 8),
+                Expanded(
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Search badges',
+                      hintStyle: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.muted,
+                      ),
+                      border: InputBorder.none,
+                      isDense: true,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          flex: 2,
+          child: Container(
+            height: 44,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: const Color(0xFFE8E0D5)),
+            ),
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Injaz (Low → High)',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: AppColors.ink,
+                  ),
+                ),
+                Icon(Icons.keyboard_arrow_down, size: 18, color: AppColors.muted),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _BadgeCard extends StatelessWidget {
+  const _BadgeCard({required this.badge});
+
+  final _BadgeData badge;
 
   @override
   Widget build(BuildContext context) {
@@ -311,12 +575,12 @@ class _QuestCard extends StatelessWidget {
           Container(
             width: 52,
             height: 52,
-            decoration: const BoxDecoration(
-              color: Color(0xFFF5F0E8),
+            decoration: BoxDecoration(
+              color: badge.color,
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
-            child: Text(_emoji, style: const TextStyle(fontSize: 24)),
+            child: Text(badge.emoji, style: const TextStyle(fontSize: 24)),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -324,84 +588,51 @@ class _QuestCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _displayTitle,
-                  style: TextStyle(
+                  badge.title,
+                  style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
-                    color: _isCompleted ? AppColors.muted : AppColors.ink,
-                    decoration:
-                        _isCompleted ? TextDecoration.lineThrough : null,
+                    color: AppColors.ink,
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  'Reward: ${quest.reward}',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppColors.muted,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      '${badge.injaz} Injaz',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.palm,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    const Text(
+                      '•',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: AppColors.muted,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    const Text(
+                      'Target',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: AppColors.muted,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                _progressText,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.palm,
-                ),
-              ),
-              if (_isCompleted) ...[
-                const SizedBox(width: 6),
-                Container(
-                  width: 22,
-                  height: 22,
-                  decoration: const BoxDecoration(
-                    color: AppColors.palm,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.check,
-                    size: 14,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ],
+          const Icon(
+            Icons.chevron_right,
+            color: AppColors.muted,
+            size: 22,
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _BadgesPlaceholder extends StatelessWidget {
-  const _BadgesPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 60),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.workspace_premium_outlined, size: 48, color: AppColors.muted),
-            SizedBox(height: 12),
-            Text(
-              'Badges coming soon',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: AppColors.muted,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
