@@ -10,4 +10,5 @@ class Routes {
   static const exercise = '/exercise';
   static const settings = '/settings';
   static const premium = '/premium';
+  static const purchaseDates = '/purchase-dates';
 }

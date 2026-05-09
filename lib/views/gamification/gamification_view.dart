@@ -141,42 +141,46 @@ class _BuyDatesCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PressableScale(
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFFF3E8FF),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        child: Row(
-          children: [
-            const Text('💎', style: TextStyle(fontSize: 28)),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Want to buy more dates?',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.ink,
+      child: InkWell(
+        onTap: () => Get.toNamed(Routes.purchaseDates),
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFFF3E8FF),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          child: Row(
+            children: [
+              const Text('💎', style: TextStyle(fontSize: 28)),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Want to buy more dates?',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.ink,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Get dates to unlock lessons and boost your progress',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: AppColors.muted,
-                      height: 1.4,
+                    const SizedBox(height: 4),
+                    Text(
+                      'Get dates to unlock lessons and boost your progress',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: AppColors.muted,
+                        height: 1.4,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            const Icon(Icons.chevron_right, color: Color(0xFF7C3AED)),
-          ],
+              const Icon(Icons.chevron_right, color: Color(0xFF7C3AED)),
+            ],
+          ),
         ),
       ),
     );
