@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../common/responsive.dart';
 import '../../constants/app_colors.dart';
+import '../../routes/app_routes.dart';
 import 'settings_detail_view.dart';
 
 class SettingsView extends StatefulWidget {
@@ -94,14 +95,21 @@ class _SettingsViewState extends State<SettingsView> {
               iconBgColor: const Color(0xFFE0F7FA),
               iconColor: const Color(0xFF26C6DA),
               title: 'Help Center',
-              onTap: () => Get.to(() => const SettingsDetailView(title: 'Help Center')),
+              onTap: () => Get.toNamed(Routes.helpCenter),
             ),
             _buildSettingItem(
               icon: Icons.info_outline,
               iconBgColor: const Color(0xFFEDE7F6),
               iconColor: const Color(0xFF7E57C2),
               title: 'About Nakhlah',
-              onTap: () => Get.to(() => const SettingsDetailView(title: 'About Nakhlah')),
+              onTap: () => Get.toNamed(Routes.about),
+            ),
+            _buildSettingItem(
+              icon: Icons.gavel_outlined,
+              iconBgColor: const Color(0xFFE8F5E9),
+              iconColor: const Color(0xFF66BB6A),
+              title: 'Legal Documents',
+              onTap: () => Get.toNamed(Routes.legal),
             ),
             const SizedBox(height: 32),
           ],

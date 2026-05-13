@@ -12,4 +12,8 @@ class Routes {
   static const premium = '/premium';
   static const purchaseDates = '/purchase-dates';
   static const payment = '/payment';
+  static const helpCenter = '/help-center';
+  static const about = '/about';
+  static const legal = '/legal';
+  static const resetPassword = '/reset-password';
 }

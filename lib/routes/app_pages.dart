@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../common/app_motion.dart';
 import '../views/auth/forgot_password_view.dart';
 import '../views/auth/login_view.dart';
+import '../views/auth/reset_password_view.dart';
 import '../views/auth/signup_view.dart';
 import '../views/exercises/exercise_view.dart';
 import '../views/home/app_shell_view.dart';
@@ -12,6 +13,9 @@ import '../views/onboarding/onboarding_view.dart';
 import '../views/gamification/premium_view.dart';
 import '../views/gamification/payment_view.dart';
 import '../views/gamification/purchase_dates_view.dart';
+import '../views/settings/about_view.dart';
+import '../views/settings/help_center_view.dart';
+import '../views/settings/legal_view.dart';
 import '../views/settings/settings_view.dart';
 import '../views/splash/splash_view.dart';
 import 'app_routes.dart';
@@ -41,5 +45,9 @@ class AppPages {
     _page(Routes.premium, () => const PremiumView()),
     _page(Routes.purchaseDates, () => const PurchaseDatesView()),
     _page(Routes.payment, () => const PaymentView()),
+    _page(Routes.helpCenter, () => const HelpCenterView()),
+    _page(Routes.about, () => const AboutView()),
+    _page(Routes.legal, () => const LegalView()),
+    _page(Routes.resetPassword, () => const ResetPasswordView()),
   ];
 }

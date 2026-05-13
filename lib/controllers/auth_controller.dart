@@ -91,6 +91,18 @@ class AuthController extends GetxController {
     return true;
   });
 
+  Future<bool> resetPassword(String token, String newPass) => _run(() async {
+    if (token.isEmpty || newPass.isEmpty) {
+      AppSnackbar.error('Enter token and new password.');
+      return false;
+    }
+
+    await auth.resetPassword(token, newPass);
+    AppSnackbar.success('Password reset successful. Please log in.');
+    Get.offAllNamed(Routes.login);
+    return true;
+  });
+
   Future<void> loadMe() async {
     if (storage.isLoggedIn) {
       try {
