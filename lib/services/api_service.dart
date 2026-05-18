@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -9,6 +10,8 @@ import 'storage_service.dart';
 
 class ApiService {
   ApiService(this._storage);
+
+  static const Duration _timeout = Duration(seconds: 30);
 
   final StorageService _storage;
   final http.Client _client = http.Client();
@@ -26,9 +29,9 @@ class ApiService {
     ).replace(queryParameters: qp.isEmpty ? null : qp);
   }
 
-  Map<String, String> _headers({bool auth = true}) => {
+  Map<String, String> _headers({bool auth = true, bool json = true}) => {
     'Accept': 'application/json',
-    'Content-Type': 'application/json',
+    if (json) 'Content-Type': 'application/json',
     if (auth && _storage.token != null)
       'Authorization': 'Bearer ${_storage.token}',
   };
@@ -39,11 +42,7 @@ class ApiService {
     bool auth = true,
   }) => _send(() => _client.get(_uri(p, query), headers: _headers(auth: auth)));
 
-  Future<dynamic> post(
-    String p, {
-    Map<String, dynamic>? body,
-    bool auth = true,
-  }) => _send(
+  Future<dynamic> post(String p, {dynamic body, bool auth = true}) => _send(
     () => _client.post(
       _uri(p),
       headers: _headers(auth: auth),
@@ -51,11 +50,7 @@ class ApiService {
     ),
   );
 
-  Future<dynamic> patch(
-    String p, {
-    Map<String, dynamic>? body,
-    bool auth = true,
-  }) => _send(
+  Future<dynamic> patch(String p, {dynamic body, bool auth = true}) => _send(
     () => _client.patch(
       _uri(p),
       headers: _headers(auth: auth),
@@ -63,11 +58,7 @@ class ApiService {
     ),
   );
 
-  Future<dynamic> delete(
-    String p, {
-    Map<String, dynamic>? body,
-    bool auth = true,
-  }) => _send(
+  Future<dynamic> delete(String p, {dynamic body, bool auth = true}) => _send(
     () => _client.delete(
       _uri(p),
       headers: _headers(auth: auth),
@@ -75,29 +66,71 @@ class ApiService {
     ),
   );
 
+  Future<dynamic> multipartPost(
+    String p, {
+    Map<String, String> fields = const {},
+    File? file,
+    String fileField = 'file',
+    bool auth = true,
+  }) => multipart(
+    'POST',
+    p,
+    fields: fields,
+    file: file,
+    fileField: fileField,
+    auth: auth,
+  );
+
   Future<dynamic> multipartPatch(
     String p, {
     Map<String, String> fields = const {},
     File? file,
     String fileField = 'profilePicture',
+    bool auth = true,
+  }) => multipart(
+    'PATCH',
+    p,
+    fields: fields,
+    file: file,
+    fileField: fileField,
+    auth: auth,
+  );
+
+  Future<dynamic> multipart(
+    String method,
+    String p, {
+    Map<String, String> fields = const {},
+    File? file,
+    String fileField = 'file',
+    bool auth = true,
   }) async {
-    final req = http.MultipartRequest('PATCH', _uri(p));
-    req.headers.addAll({
-      'Accept': 'application/json',
-      if (_storage.token != null) 'Authorization': 'Bearer ${_storage.token}',
-    });
-    req.fields.addAll(fields);
-    if (file != null) {
-      req.files.add(await http.MultipartFile.fromPath(fileField, file.path));
+    try {
+      final req = http.MultipartRequest(method.toUpperCase(), _uri(p));
+      req.headers.addAll(_headers(auth: auth, json: false));
+      req.fields.addAll(fields);
+      if (file != null) {
+        req.files.add(await http.MultipartFile.fromPath(fileField, file.path));
+      }
+      final streamed = await req.send().timeout(_timeout);
+      return _decode(await http.Response.fromStream(streamed));
+    } on SocketException {
+      throw ApiException('No internet connection.');
+    } on TimeoutException {
+      throw ApiException('Request timed out. Please try again.');
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException('Unexpected network error: $e');
     }
-    return _decode(await http.Response.fromStream(await req.send()));
   }
 
   Future<dynamic> _send(Future<http.Response> Function() request) async {
     try {
-      return _decode(await request());
+      return _decode(await request().timeout(_timeout));
     } on SocketException {
       throw ApiException('No internet connection.');
+    } on TimeoutException {
+      throw ApiException('Request timed out. Please try again.');
     } on ApiException {
       rethrow;
     } catch (e) {
@@ -107,11 +140,12 @@ class ApiService {
 
   dynamic _decode(http.Response r) {
     dynamic body;
-    if (r.body.isNotEmpty) {
+    final raw = r.body.trim();
+    if (raw.isNotEmpty) {
       try {
-        body = jsonDecode(r.body);
+        body = jsonDecode(raw);
       } catch (_) {
-        body = r.body;
+        body = raw;
       }
     }
 
@@ -138,17 +172,18 @@ class ApiService {
       }
       if (value is! Map) return;
 
-      collectMessages(value['errors']);
-      collectMessages(value['data']);
-      collectMessages(value['collection']);
-
       final message = value['message'] ?? value['detail'] ?? value['msg'];
       if (message != null && message.toString().trim().isNotEmpty) {
         nestedMessages.add(message.toString().trim());
       }
+
+      collectMessages(value['errors']);
+      collectMessages(value['data']);
+      collectMessages(value['collection']);
     }
 
     collectMessages(body['errors']);
+    collectMessages(body['data']);
     if (nestedMessages.isNotEmpty) {
       return nestedMessages.toSet().join('\n');
     }

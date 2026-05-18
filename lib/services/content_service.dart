@@ -1,2 +1,88 @@
-import '../constants/api_endpoints.dart';import '../models/models.dart';import 'api_service.dart';
-class ContentService{ContentService(this._api);final ApiService _api;Future<List<JourneyLevel>> journey()async{final r=await _api.get(ApiEndpoints.journeyStructure);return ((r is Map?r['levels']:null) as List? ??[]).map((e)=>JourneyLevel.fromJson(e)).toList();}Future<List<LessonModel>> lessonsByTask(String id)async{final r=await _api.get(ApiEndpoints.lessonsByTask(id));return ((r is Map?r['docs']:r) as List? ??[]).map((e)=>LessonModel.fromJson(e)).toList();}Future<List<QuestionModel>> lessonByOrder(int l,int u,int t,int lesson)async{final r=await _api.get(ApiEndpoints.lessonByOrder,query:{'levelOrder':l,'unitOrder':u,'taskOrder':t,'lessonOrder':lesson});return ((r as List?)??[]).map((e)=>QuestionModel.fromJson(e)).toList();}Future<List<QuestionModel>> questionsByLesson(String id)async{final r=await _api.get(ApiEndpoints.questionsByLesson(id));return ((r as List?)??[]).map((e)=>QuestionModel.fromJson(e)).toList();}Future<List<QuestionModel>> examQuestions(String taskId)async{final r=await _api.get(ApiEndpoints.examQuestions(taskId));return ((r is Map?r['docs']:r) as List? ??[]).map((e)=>QuestionModel.fromJson(e)).toList();}Future<dynamic> giftBox(String id)=>_api.get(ApiEndpoints.giftBox(id));Future<dynamic> fullMarks(String id)=>_api.get(ApiEndpoints.fullMarks(id));Future<GamificationStock> wrongAnswer()async=>GamificationStock.fromJson(await _api.get(ApiEndpoints.wrongAnswer));Future<dynamic> makeLearnerProgress(String id)=>_api.get(ApiEndpoints.makeLearnerProgress(id));Future<List<QuestionModel>> nextLesson(ProgressModel p)=>_ordered(ApiEndpoints.nextLesson,p);Future<List<QuestionModel>> previousLesson(ProgressModel p)=>_ordered(ApiEndpoints.previousLesson,p);Future<List<QuestionModel>> _ordered(String path,ProgressModel p)async{final r=await _api.get(path,query:{'levelOrder':p.levelOrder,'unitOrder':p.unitOrder,'taskOrder':p.taskOrder,'lessonOrder':p.lessonOrder});return ((r as List?)??[]).map((e)=>QuestionModel.fromJson(e)).toList();}Future<dynamic> media({int limit=15})=>_api.get(ApiEndpoints.generalMedia,query:{'limit':limit});}
+import 'dart:io';
+
+import '../constants/api_endpoints.dart';
+import '../models/models.dart';
+import 'api_service.dart';
+
+class ContentService {
+  ContentService(this._api);
+
+  final ApiService _api;
+
+  Future<List<JourneyLevel>> journey() async {
+    return parseJourneyLevels(await _api.get(ApiEndpoints.journeyStructure));
+  }
+
+  Future<List<LessonModel>> lessonsByTask(String id) async {
+    return parseLessons(await _api.get(ApiEndpoints.lessonsByTask(id)));
+  }
+
+  Future<List<QuestionModel>> lessonByOrder(
+    int l,
+    int u,
+    int t,
+    int lesson,
+  ) async {
+    return parseQuestions(
+      await _api.get(
+        ApiEndpoints.lessonByOrder,
+        query: {
+          'levelOrder': l,
+          'unitOrder': u,
+          'taskOrder': t,
+          'lessonOrder': lesson,
+        },
+      ),
+    );
+  }
+
+  Future<List<QuestionModel>> questionsByLesson(String id) async {
+    return parseQuestions(await _api.get(ApiEndpoints.questionsByLesson(id)));
+  }
+
+  Future<List<QuestionModel>> examQuestions(String taskId) async {
+    return parseQuestions(await _api.get(ApiEndpoints.examQuestions(taskId)));
+  }
+
+  Future<dynamic> giftBox(String id) => _api.get(ApiEndpoints.giftBox(id));
+  Future<dynamic> fullMarks(String id) => _api.get(ApiEndpoints.fullMarks(id));
+
+  Future<GamificationStock> wrongAnswer() async {
+    return GamificationStock.fromJson(await _api.get(ApiEndpoints.wrongAnswer));
+  }
+
+  Future<dynamic> makeLearnerProgress(String id) {
+    return _api.get(ApiEndpoints.makeLearnerProgress(id));
+  }
+
+  Future<List<QuestionModel>> nextLesson(ProgressModel p) =>
+      _ordered(ApiEndpoints.nextLesson, p);
+  Future<List<QuestionModel>> previousLesson(ProgressModel p) =>
+      _ordered(ApiEndpoints.previousLesson, p);
+
+  Future<List<QuestionModel>> _ordered(String path, ProgressModel p) async {
+    return parseQuestions(
+      await _api.get(
+        path,
+        query: {
+          'levelOrder': p.levelOrder,
+          'unitOrder': p.unitOrder,
+          'taskOrder': p.taskOrder,
+          'lessonOrder': p.lessonOrder,
+        },
+      ),
+    );
+  }
+
+  Future<dynamic> media({int limit = 15}) =>
+      _api.get(ApiEndpoints.generalMedia, query: {'limit': limit});
+
+  Future<dynamic> bulkUploadTemplate() =>
+      _api.get(ApiEndpoints.bulkUploadTemplate);
+
+  Future<dynamic> bulkUpload(File file) => _api.multipartPost(
+    ApiEndpoints.bulkUpload,
+    file: file,
+    fileField: 'file',
+  );
+}

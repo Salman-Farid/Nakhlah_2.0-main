@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import '../constants/api_endpoints.dart';
@@ -28,18 +29,17 @@ class ProfileService {
     OnboardInfo? onboardInfo,
     File? picture,
   }) async {
-    final fields = <String, String>{};
-    if (fullName != null) fields['fullName'] = fullName;
-    if (contactNumber != null) fields['contactNumber'] = contactNumber;
-    if (onboardInfo != null) {
-      fields['onboardInfo'] = onboardInfo.toJson().toString();
-    }
+    final data = <String, dynamic>{};
+    if (fullName != null) data['fullName'] = fullName;
+    if (contactNumber != null) data['contactNumber'] = contactNumber;
+    if (onboardInfo != null) data['onboardInfo'] = onboardInfo.toJson();
 
     return UserProfileModel.fromJson(
       await _api.multipartPatch(
         ApiEndpoints.updateProfile,
-        fields: fields,
+        fields: {'data': jsonEncode(data)},
         file: picture,
+        fileField: 'profilePicture',
       ),
     );
   }
@@ -50,9 +50,28 @@ class ProfileService {
     return ProgressModel.fromJson(await _api.get(ApiEndpoints.learnerProgress));
   }
 
+  Future<List<QuestStatus>> dailyQuest({String? quest}) async {
+    return parseQuestStatuses(
+      await _api.get(
+        ApiEndpoints.profileDailyQuest,
+        query: quest == null ? null : {'quest': quest},
+      ),
+    );
+  }
+
+  Future<dynamic> palmRefill() => _api.get(ApiEndpoints.palmRefill);
+
+  Future<StreakModel> learnerStreak() async {
+    return StreakModel.fromJson(await _api.get(ApiEndpoints.learnerStreak));
+  }
+
   Future<GamificationStock> stocks() async {
     return GamificationStock.fromJson(
       await _api.get(ApiEndpoints.gamificationStocks),
     );
+  }
+
+  Future<List<LeaderboardEntryModel>> leaderboard() async {
+    return parseLeaderboard(await _api.get(ApiEndpoints.leaderboard));
   }
 }

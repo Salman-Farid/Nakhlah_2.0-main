@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../common/empty_state.dart';
 import '../../common/app_motion.dart';
+import '../../common/loading_state.dart';
 import '../../common/responsive.dart';
 import '../../constants/app_colors.dart';
+import '../../controllers/profile_controller.dart';
 
 class LeaderboardView extends StatefulWidget {
   const LeaderboardView({super.key});
@@ -13,25 +16,28 @@ class LeaderboardView extends StatefulWidget {
 }
 
 class _LeaderboardViewState extends State<LeaderboardView> {
+  final ProfileController controller = Get.find<ProfileController>();
   String timeFilter = 'weekly';
 
-  // Demo data matching the reference image
-  final List<LeaderboardEntry> entries = const [
-    LeaderboardEntry(rank: 1, name: 'Maryland Winkles', injaz: 948, avatar: 'MW'),
-    LeaderboardEntry(rank: 2, name: 'Andrew Ainsley', injaz: 872, avatar: 'AA'),
-    LeaderboardEntry(rank: 3, name: 'Charlotte Hanlin', injaz: 769, avatar: 'CH'),
-    LeaderboardEntry(rank: 4, name: 'Florencio Dollore', injaz: 723, avatar: 'FD'),
-    LeaderboardEntry(rank: 5, name: 'Roselle Ehram', injaz: 640, avatar: 'RE'),
-    LeaderboardEntry(rank: 6, name: 'Darron Kulinowzi', injaz: 596, avatar: 'DK'),
-    LeaderboardEntry(rank: 7, name: 'Clinton Mcclure', injaz: 537, avatar: 'CM'),
-    LeaderboardEntry(rank: 8, name: 'Darcell Ballentine', injaz: 481, avatar: 'DB'),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    controller.loadLeaderboard();
+  }
+
+  List<LeaderboardEntry> _entries() => controller.leaderboard
+      .map(
+        (entry) => LeaderboardEntry(
+          rank: entry.rank,
+          name: entry.fullName,
+          injaz: entry.injazCount,
+          avatar: entry.initials,
+        ),
+      )
+      .toList();
 
   @override
   Widget build(BuildContext context) {
-    final topThree = entries.take(3).toList();
-    final remaining = entries.skip(3).toList();
-
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F0),
       body: SafeArea(
@@ -46,37 +52,61 @@ class _LeaderboardViewState extends State<LeaderboardView> {
                   Text(
                     'Leaderboard',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.ink,
-                        ),
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.ink,
+                    ),
                   ),
                   const SizedBox(width: 8),
-                  const Icon(Icons.emoji_events_rounded, color: AppColors.date, size: 28),
+                  const Icon(
+                    Icons.emoji_events_rounded,
+                    color: AppColors.date,
+                    size: 28,
+                  ),
                   const Spacer(),
                   IconButton(
                     onPressed: () {},
-                    icon: const Icon(Icons.search_rounded, color: AppColors.muted),
+                    icon: const Icon(
+                      Icons.search_rounded,
+                      color: AppColors.muted,
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
-              _TimeFilters(value: timeFilter, onChanged: (v) => setState(() => timeFilter = v)),
+              _TimeFilters(
+                value: timeFilter,
+                onChanged: (v) => setState(() => timeFilter = v),
+              ),
               const SizedBox(height: 24),
-              if (entries.isEmpty)
-                const EmptyState(
-                  icon: Icons.leaderboard_rounded,
-                  title: 'No real leaderboard data yet',
-                  subtitle: 'The GitHub web app shows this page with hardcoded sample users. No leaderboard API endpoint exists in the provided Postman collection, so the Flutter app does not show demo rankings.',
-                )
-              else ...[
-                _Podium(entries: topThree),
-                const SizedBox(height: 24),
-                ...remaining.map((entry) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: _LeaderboardRow(entry: entry),
-                    )),
-                const SizedBox(height: 20),
-              ],
+              Obx(() {
+                final entries = _entries();
+                final topThree = entries.take(3).toList();
+                final remaining = entries.skip(3).toList();
+                if (controller.loading.value && entries.isEmpty) {
+                  return const LoadingState(message: 'Loading leaderboard...');
+                }
+                if (entries.isEmpty) {
+                  return const EmptyState(
+                    icon: Icons.leaderboard_rounded,
+                    title: 'No leaderboard data yet',
+                    subtitle:
+                        'Rankings will appear here after learners earn Injaz points.',
+                  );
+                }
+                return Column(
+                  children: [
+                    _Podium(entries: topThree),
+                    const SizedBox(height: 24),
+                    ...remaining.map(
+                      (entry) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _LeaderboardRow(entry: entry),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                );
+              }),
             ],
           ),
         ),
@@ -93,7 +123,11 @@ class _TimeFilters extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const filters = {'weekly': 'Weekly', 'monthly': 'Monthly', 'alltime': 'All Time'};
+    const filters = {
+      'weekly': 'Weekly',
+      'monthly': 'Monthly',
+      'alltime': 'All Time',
+    };
     return Row(
       children: filters.entries.map((filter) {
         final selected = value == filter.key;
@@ -108,7 +142,9 @@ class _TimeFilters extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: selected ? const Color(0xFFE8D5B7) : Colors.white,
                   borderRadius: BorderRadius.circular(24),
-                  border: selected ? null : Border.all(color: const Color(0xFFE5E5E5)),
+                  border: selected
+                      ? null
+                      : Border.all(color: const Color(0xFFE5E5E5)),
                 ),
                 child: Center(
                   child: Text(
@@ -175,7 +211,11 @@ class _Podium extends StatelessWidget {
                   const SizedBox(height: 2),
                   _PodiumNameCard(entry: second),
                   const SizedBox(height: 23),
-                  _PodiumBlock(place: 2, height: 110, color: const Color(0xFF9CA3AF)),
+                  _PodiumBlock(
+                    place: 2,
+                    height: 110,
+                    color: const Color(0xFF9CA3AF),
+                  ),
                 ],
               ),
             ),
@@ -206,7 +246,11 @@ class _Podium extends StatelessWidget {
                   const SizedBox(height: 21),
                   _PodiumNameCard(entry: third),
                   const SizedBox(height: 6),
-                  _PodiumBlock(place: 3, height: 90, color: const Color(0xFFD97706)),
+                  _PodiumBlock(
+                    place: 3,
+                    height: 90,
+                    color: const Color(0xFFD97706),
+                  ),
                 ],
               ),
             ),
@@ -218,7 +262,11 @@ class _Podium extends StatelessWidget {
 }
 
 class _PodiumAvatar extends StatelessWidget {
-  const _PodiumAvatar({required this.entry, required this.size, required this.gradient});
+  const _PodiumAvatar({
+    required this.entry,
+    required this.size,
+    required this.gradient,
+  });
 
   final LeaderboardEntry entry;
   final double size;
@@ -266,7 +314,10 @@ class _PodiumNameCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: large ? 16 : 12, vertical: large ? 12 : 10),
+      padding: EdgeInsets.symmetric(
+        horizontal: large ? 16 : 12,
+        vertical: large ? 12 : 10,
+      ),
       margin: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -310,7 +361,11 @@ class _PodiumNameCard extends StatelessWidget {
 }
 
 class _PodiumBlock extends StatelessWidget {
-  const _PodiumBlock({required this.place, required this.height, required this.color});
+  const _PodiumBlock({
+    required this.place,
+    required this.height,
+    required this.color,
+  });
 
   final int place;
   final double height;
@@ -428,10 +483,7 @@ class _LeaderboardRow extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   '${entry.injaz} Injaz',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppColors.muted,
-                  ),
+                  style: const TextStyle(fontSize: 13, color: AppColors.muted),
                 ),
               ],
             ),
