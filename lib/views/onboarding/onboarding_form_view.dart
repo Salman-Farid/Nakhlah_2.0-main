@@ -58,7 +58,7 @@ class _OnboardingFormViewState extends State<OnboardingFormView> {
   }
 
   Future<void> _submit(ProfileController c) async {
-    await c.createOnboarding(
+    final created = await c.createOnboarding(
       OnboardInfo(
         age: age.text,
         country: country.text,
@@ -68,7 +68,7 @@ class _OnboardingFormViewState extends State<OnboardingFormView> {
         languageStrength: strength.text,
       ),
     );
-    Get.offAllNamed(Routes.shell);
+    if (created) Get.offAllNamed(Routes.shell);
   }
 
   @override

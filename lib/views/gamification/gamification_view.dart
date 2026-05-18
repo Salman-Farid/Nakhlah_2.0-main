@@ -42,7 +42,9 @@ class _GamificationViewState extends State<GamificationView> {
               delay: const Duration(milliseconds: 200),
               child: StaggeredList(
                 gap: 12,
-                children: _features.map((f) => _FeatureCard(feature: f)).toList(),
+                children: _features
+                    .map((f) => _FeatureCard(feature: f))
+                    .toList(),
               ),
             ),
             const SizedBox(height: 12),
@@ -102,11 +104,8 @@ class _PremiumBanner extends StatelessWidget {
             'assets/nakhlah_web/water_drop_cartoon.png',
             height: 120,
             fit: BoxFit.contain,
-            errorBuilder: (_, __, ___) => const Icon(
-              Icons.celebration,
-              size: 80,
-              color: Colors.white54,
-            ),
+            errorBuilder: (context, error, stackTrace) =>
+                const Icon(Icons.celebration, size: 80, color: Colors.white54),
           ),
           const SizedBox(height: 16),
           const Text(
@@ -123,11 +122,7 @@ class _PremiumBanner extends StatelessWidget {
           const Text(
             'Unlock all premium channels and accelerate your learning journey with exclusive content',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.white70,
-              height: 1.4,
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.white70, height: 1.4),
           ),
         ],
       ),
@@ -206,10 +201,7 @@ class _GoPremiumButton extends StatelessWidget {
         ),
         child: const Text(
           'Go Premium Now',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-          ),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
         ),
       ),
     );
@@ -304,7 +296,7 @@ class _FeatureCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

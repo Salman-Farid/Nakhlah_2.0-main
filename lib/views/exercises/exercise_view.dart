@@ -42,7 +42,9 @@ class _ExerciseViewState extends State<ExerciseView> {
       body: PageShell(
         child: Obx(() {
           if (c.loading.value) return const LoadingState();
-          if (c.questions.isEmpty) return const Center(child: Text('No questions available.'));
+          if (c.questions.isEmpty) {
+            return const Center(child: Text('No questions available.'));
+          }
 
           final q = c.questions[index.clamp(0, c.questions.length - 1)];
           return Column(
@@ -52,10 +54,14 @@ class _ExerciseViewState extends State<ExerciseView> {
               const SizedBox(height: 20),
               Text(
                 q.title,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w800,
+                ),
               ),
               const SizedBox(height: 12),
-              ...q.media.where((m) => m.absoluteUrl != null).map((m) => _QuestionMedia(media: m)),
+              ...q.media
+                  .where((m) => m.absoluteUrl != null)
+                  .map((m) => _QuestionMedia(media: m)),
               const SizedBox(height: 12),
               Expanded(
                 child: GameListView(
@@ -66,7 +72,9 @@ class _ExerciseViewState extends State<ExerciseView> {
                           child: ListTile(
                             onTap: () => setState(() => selected = a.id),
                             leading: Icon(
-                              selected == a.id ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+                              selected == a.id
+                                  ? Icons.radio_button_checked
+                                  : Icons.radio_button_unchecked,
                               color: selected == a.id ? AppColors.palm : null,
                             ),
                             title: Text(a.title.isEmpty ? 'Answer' : a.title),
@@ -132,7 +140,10 @@ class _QuestionMedia extends StatelessWidget {
   bool get _isAudio {
     final mime = (media.mimeType ?? '').toLowerCase();
     final url = (media.absoluteUrl ?? '').toLowerCase();
-    return mime.startsWith('audio/') || url.endsWith('.mp3') || url.endsWith('.wav') || url.endsWith('.m4a');
+    return mime.startsWith('audio/') ||
+        url.endsWith('.mp3') ||
+        url.endsWith('.wav') ||
+        url.endsWith('.m4a');
   }
 
   @override
@@ -150,7 +161,10 @@ class _QuestionMedia extends StatelessWidget {
             height: 140,
             width: double.infinity,
             fit: BoxFit.cover,
-            errorWidget: (context, error, stackTrace) => _MediaTile(icon: Icons.broken_image_rounded, label: media.filename ?? 'Image unavailable'),
+            errorWidget: (context, error, stackTrace) => _MediaTile(
+              icon: Icons.broken_image_rounded,
+              label: media.filename ?? 'Image unavailable',
+            ),
           ),
         ),
       );
@@ -169,7 +183,10 @@ class _QuestionMedia extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: _MediaTile(icon: Icons.attach_file_rounded, label: media.filename ?? 'Media attachment'),
+      child: _MediaTile(
+        icon: Icons.attach_file_rounded,
+        label: media.filename ?? 'Media attachment',
+      ),
     );
   }
 }
@@ -191,14 +208,24 @@ class _MediaTile extends StatelessWidget {
       ),
       child: Row(
         children: [
-          CircleAvatar(backgroundColor: AppColors.palm, foregroundColor: Colors.white, child: Icon(icon)),
+          CircleAvatar(
+            backgroundColor: AppColors.palm,
+            foregroundColor: Colors.white,
+            child: Icon(icon),
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w700)),
-                if (subtitle != null) Text(subtitle!, style: Theme.of(context).textTheme.bodySmall),
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+                if (subtitle != null)
+                  Text(subtitle!, style: Theme.of(context).textTheme.bodySmall),
               ],
             ),
           ),

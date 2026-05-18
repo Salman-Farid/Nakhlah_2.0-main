@@ -255,9 +255,9 @@ class _Header extends StatelessWidget {
         Text(
           'Challenges',
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: AppColors.ink,
-              ),
+            fontWeight: FontWeight.bold,
+            color: AppColors.ink,
+          ),
         ),
         const SizedBox(width: 8),
         const Text('🔐', style: TextStyle(fontSize: 24)),
@@ -267,10 +267,7 @@ class _Header extends StatelessWidget {
 }
 
 class _TabSwitcher extends StatelessWidget {
-  const _TabSwitcher({
-    required this.selectedIndex,
-    required this.onChanged,
-  });
+  const _TabSwitcher({required this.selectedIndex, required this.onChanged});
 
   final int selectedIndex;
   final ValueChanged<int> onChanged;
@@ -386,10 +383,7 @@ class _SectionHeader extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 subtitle,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: AppColors.muted,
-                ),
+                style: const TextStyle(fontSize: 13, color: AppColors.muted),
               ),
             ],
           ),
@@ -442,7 +436,7 @@ class _QuestCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -471,8 +465,9 @@ class _QuestCard extends StatelessWidget {
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
                       color: _isCompleted ? AppColors.muted : AppColors.ink,
-                      decoration:
-                          _isCompleted ? TextDecoration.lineThrough : null,
+                      decoration: _isCompleted
+                          ? TextDecoration.lineThrough
+                          : null,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -552,7 +547,7 @@ class _BadgeCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -597,29 +592,19 @@ class _BadgeCard extends StatelessWidget {
                       const SizedBox(width: 6),
                       const Text(
                         '•',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: AppColors.muted,
-                        ),
+                        style: TextStyle(fontSize: 13, color: AppColors.muted),
                       ),
                       const SizedBox(width: 6),
                       const Text(
                         'Target',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: AppColors.muted,
-                        ),
+                        style: TextStyle(fontSize: 13, color: AppColors.muted),
                       ),
                     ],
                   ),
                 ],
               ),
             ),
-            const Icon(
-              Icons.chevron_right,
-              color: AppColors.muted,
-              size: 22,
-            ),
+            const Icon(Icons.chevron_right, color: AppColors.muted, size: 22),
           ],
         ),
       ),
@@ -682,12 +667,13 @@ class _SearchFilterRow extends StatelessWidget {
               children: [
                 Text(
                   'Injaz (Low → High)',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: AppColors.ink,
-                  ),
+                  style: TextStyle(fontSize: 13, color: AppColors.ink),
                 ),
-                Icon(Icons.keyboard_arrow_down, size: 18, color: AppColors.muted),
+                Icon(
+                  Icons.keyboard_arrow_down,
+                  size: 18,
+                  color: AppColors.muted,
+                ),
               ],
             ),
           ),

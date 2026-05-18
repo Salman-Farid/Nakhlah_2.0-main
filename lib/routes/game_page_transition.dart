@@ -17,18 +17,45 @@ class GamePageTransition extends CustomTransition {
   ) {
     if (AppMotion.reduceMotion(context)) return child;
 
-    final enter = CurvedAnimation(parent: animation, curve: const Interval(.02, 1, curve: AppMotion.out));
+    final enter = CurvedAnimation(
+      parent: animation,
+      curve: const Interval(.02, 1, curve: AppMotion.out),
+    );
     // TweenSequence asserts when its input falls outside 0..1. Spring-like
     // curves can intentionally overshoot, so keep the scale sequence on a
     // clamped/linear progress while allowing the slide to retain the spring feel.
-    final safeScaleProgress = CurvedAnimation(parent: animation, curve: const Interval(.02, 1, curve: Curves.linear));
-    final fade = CurvedAnimation(parent: animation, curve: const Interval(0, .36, curve: AppMotion.out));
-    final exit = CurvedAnimation(parent: secondaryAnimation, curve: AppMotion.inOut);
+    final safeScaleProgress = CurvedAnimation(
+      parent: animation,
+      curve: const Interval(.02, 1, curve: Curves.linear),
+    );
+    final fade = CurvedAnimation(
+      parent: animation,
+      curve: const Interval(0, .36, curve: AppMotion.out),
+    );
+    final exit = CurvedAnimation(
+      parent: secondaryAnimation,
+      curve: AppMotion.inOut,
+    );
 
-    final incomingSlide = Tween<Offset>(begin: const Offset(0.035, 0.012), end: Offset.zero).animate(enter);
+    final incomingSlide = Tween<Offset>(
+      begin: const Offset(0.035, 0.012),
+      end: Offset.zero,
+    ).animate(enter);
     final incomingScale = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween<double>(begin: .97, end: 1.006).chain(CurveTween(curve: AppMotion.out)), weight: 55),
-      TweenSequenceItem(tween: Tween<double>(begin: 1.006, end: 1).chain(CurveTween(curve: Curves.easeOut)), weight: 45),
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: .97,
+          end: 1.006,
+        ).chain(CurveTween(curve: AppMotion.out)),
+        weight: 55,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 1.006,
+          end: 1,
+        ).chain(CurveTween(curve: Curves.easeOut)),
+        weight: 45,
+      ),
     ]).animate(safeScaleProgress);
     final incomingOpacity = Tween<double>(begin: 0, end: 1).animate(fade);
 
@@ -43,10 +70,7 @@ class GamePageTransition extends CustomTransition {
           opacity: incomingOpacity,
           child: SlideTransition(
             position: incomingSlide,
-            child: ScaleTransition(
-              scale: incomingScale,
-              child: child,
-            ),
+            child: ScaleTransition(scale: incomingScale, child: child),
           ),
         ),
       ),

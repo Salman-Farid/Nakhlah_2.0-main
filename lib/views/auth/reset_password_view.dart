@@ -40,7 +40,11 @@ class _ResetPasswordViewState extends State<ResetPasswordView> {
         elevation: 0,
         leading: IconButton(
           onPressed: () => Get.back(),
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.ink, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: AppColors.ink,
+            size: 20,
+          ),
         ),
         title: const Text(
           'Reset Password',
@@ -59,7 +63,11 @@ class _ResetPasswordViewState extends State<ResetPasswordView> {
             const SizedBox(height: 16),
             const Text(
               'Enter the reset token from your email and your new password.',
-              style: TextStyle(fontSize: 14, color: AppColors.muted, height: 1.5),
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.muted,
+                height: 1.5,
+              ),
             ),
             const SizedBox(height: 24),
             TextField(
@@ -93,7 +101,8 @@ class _ResetPasswordViewState extends State<ResetPasswordView> {
                     _obscurePassword ? Icons.visibility_off : Icons.visibility,
                     color: AppColors.muted,
                   ),
-                  onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                  onPressed: () =>
+                      setState(() => _obscurePassword = !_obscurePassword),
                 ),
               ),
             ),
@@ -115,7 +124,8 @@ class _ResetPasswordViewState extends State<ResetPasswordView> {
                     _obscureConfirm ? Icons.visibility_off : Icons.visibility,
                     color: AppColors.muted,
                   ),
-                  onPressed: () => setState(() => _obscureConfirm = !_obscureConfirm),
+                  onPressed: () =>
+                      setState(() => _obscureConfirm = !_obscureConfirm),
                 ),
               ),
             ),
@@ -134,7 +144,9 @@ class _ResetPasswordViewState extends State<ResetPasswordView> {
                     return;
                   }
                   if (pass.isEmpty || pass.length < 6) {
-                    AppSnackbar.error('Password must be at least 6 characters.');
+                    AppSnackbar.error(
+                      'Password must be at least 6 characters.',
+                    );
                     return;
                   }
                   if (pass != confirm) {

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../common/app_motion.dart';
 import '../../constants/app_colors.dart';
+import '../../routes/app_routes.dart';
 
 class PurchaseDatesView extends StatelessWidget {
   const PurchaseDatesView({super.key});
@@ -99,11 +100,7 @@ class _PurchaseTitle extends StatelessWidget {
         Text(
           'Boost your learning with dates to unlock premium\ncontent and features',
           textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 14,
-            color: AppColors.muted,
-            height: 1.5,
-          ),
+          style: TextStyle(fontSize: 14, color: AppColors.muted, height: 1.5),
         ),
       ],
     );
@@ -170,7 +167,7 @@ class _DatePackCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.04),
+                color: Colors.black.withValues(alpha: 0.04),
                 blurRadius: 10,
                 offset: const Offset(0, 2),
               ),
@@ -192,10 +189,7 @@ class _DatePackCard extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 'Dates',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.muted,
-                ),
+                style: TextStyle(fontSize: 14, color: AppColors.muted),
               ),
               const SizedBox(height: 16),
               Text(
@@ -209,10 +203,7 @@ class _DatePackCard extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 pack.description,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: AppColors.muted,
-                ),
+                style: TextStyle(fontSize: 13, color: AppColors.muted),
               ),
               const SizedBox(height: 16),
               Divider(color: Colors.grey.shade200, thickness: 1),
@@ -230,7 +221,7 @@ class _DatePackCard extends StatelessWidget {
                 child: SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () => Get.toNamed(Routes.payment),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.palm,
                       foregroundColor: Colors.white,
@@ -260,7 +251,10 @@ class _DatePackCard extends StatelessWidget {
             right: 0,
             child: Center(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 5,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.palm,
                   borderRadius: BorderRadius.circular(20),

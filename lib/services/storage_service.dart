@@ -1,2 +1,22 @@
 import 'package:get_storage/get_storage.dart';
-class StorageService{final GetStorage _box=GetStorage();static const _token='auth.token',_exp='auth.exp',_onboarded='app.onboarded';String? get token=>_box.read<String>(_token);int? get exp=>_box.read<int>(_exp);bool get isLoggedIn=>token!=null&&token!.isNotEmpty;bool get isOnboarded=>_box.read<bool>(_onboarded)??false;Future<void> saveToken(String token,{int? exp})async{await _box.write(_token,token);if(exp!=null)await _box.write(_exp,exp);}Future<void> setOnboarded(bool v)=>_box.write(_onboarded,v);Future<void> clearAuth()async{await _box.remove(_token);await _box.remove(_exp);}}
+
+class StorageService {
+  final GetStorage _box = GetStorage();
+  static const _token = 'auth.token',
+      _exp = 'auth.exp',
+      _onboarded = 'app.onboarded';
+  String? get token => _box.read<String>(_token);
+  int? get exp => _box.read<int>(_exp);
+  bool get isLoggedIn => token != null && token!.isNotEmpty;
+  bool get isOnboarded => _box.read<bool>(_onboarded) ?? false;
+  Future<void> saveToken(String token, {int? exp}) async {
+    await _box.write(_token, token);
+    if (exp != null) await _box.write(_exp, exp);
+  }
+
+  Future<void> setOnboarded(bool v) => _box.write(_onboarded, v);
+  Future<void> clearAuth() async {
+    await _box.remove(_token);
+    await _box.remove(_exp);
+  }
+}

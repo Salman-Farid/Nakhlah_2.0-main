@@ -12,6 +12,7 @@ import '../../controllers/gamification_controller.dart';
 import '../../controllers/profile_controller.dart';
 import '../../models/models.dart';
 import '../../routes/app_routes.dart';
+import '../settings/settings_detail_view.dart';
 
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
@@ -112,7 +113,9 @@ class _ProfileViewState extends State<ProfileView> {
           children: [
             IconButton(
               onPressed: () {
-                Share.share('Check out my progress on Nakhlah!');
+                SharePlus.instance.share(
+                  ShareParams(text: 'Check out my progress on Nakhlah!'),
+                );
               },
               icon: const Icon(Icons.send_outlined, color: AppColors.ink),
             ),
@@ -128,9 +131,17 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
-  Widget _buildProfileHeader(BuildContext context, ProfileController p, AuthController a) {
+  Widget _buildProfileHeader(
+    BuildContext context,
+    ProfileController p,
+    AuthController a,
+  ) {
     final imageUrl = p.profile.value?.profilePicture?.absoluteUrl;
-    final name = p.profile.value?.fullName ?? a.user.value?.name ?? a.user.value?.email ?? 'Learner';
+    final name =
+        p.profile.value?.fullName ??
+        a.user.value?.name ??
+        a.user.value?.email ??
+        'Learner';
     final goalTime = p.profile.value?.onboardInfo.goalTime ?? 0;
 
     return Column(
@@ -143,7 +154,7 @@ class _ProfileViewState extends State<ProfileView> {
                 border: Border.all(color: Colors.white, width: 4),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
+                    color: Colors.black.withValues(alpha: 0.08),
                     blurRadius: 16,
                     offset: const Offset(0, 4),
                   ),
@@ -152,7 +163,9 @@ class _ProfileViewState extends State<ProfileView> {
               child: CircleAvatar(
                 radius: 52,
                 backgroundColor: const Color(0xFFF3E8FF),
-                backgroundImage: imageUrl != null ? CachedNetworkImageProvider(imageUrl) : null,
+                backgroundImage: imageUrl != null
+                    ? CachedNetworkImageProvider(imageUrl)
+                    : null,
                 child: imageUrl == null
                     ? const Icon(Icons.person, size: 52, color: AppColors.palm)
                     : null,
@@ -170,7 +183,7 @@ class _ProfileViewState extends State<ProfileView> {
                   border: Border.all(color: Colors.white, width: 2),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
@@ -193,19 +206,23 @@ class _ProfileViewState extends State<ProfileView> {
         const SizedBox(height: 6),
         Text(
           '$goalTime min daily goal',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey.shade600,
-          ),
+          style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
         ),
       ],
     );
   }
 
-  Widget _buildStatsRow(BuildContext context, ProfileController p, GamificationController g) {
+  Widget _buildStatsRow(
+    BuildContext context,
+    ProfileController p,
+    GamificationController g,
+  ) {
     final level = p.progress.value.levelOrder;
     final unit = p.progress.value.unitOrder;
-    final totalXp = p.stock.value.palmStock + p.stock.value.dateStock + p.stock.value.injazStock;
+    final totalXp =
+        p.stock.value.palmStock +
+        p.stock.value.dateStock +
+        p.stock.value.injazStock;
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -241,10 +258,7 @@ class _ProfileViewState extends State<ProfileView> {
         const SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(
-            fontSize: 13,
-            color: Colors.grey.shade600,
-          ),
+          style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
         ),
       ],
     );
@@ -256,17 +270,10 @@ class _ProfileViewState extends State<ProfileView> {
         Expanded(
           child: ElevatedButton.icon(
             onPressed: () {
-              Get.snackbar(
-                'Edit Profile',
-                'Edit profile coming soon!',
-                snackPosition: SnackPosition.BOTTOM,
-              );
+              Get.to(() => const SettingsDetailView(title: 'Personal Info'));
             },
             icon: const Icon(Icons.edit, size: 18),
-            label: const Text(
-              'Edit Profile',
-              overflow: TextOverflow.ellipsis,
-            ),
+            label: const Text('Edit Profile', overflow: TextOverflow.ellipsis),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.palm,
               foregroundColor: Colors.white,
@@ -286,13 +293,12 @@ class _ProfileViewState extends State<ProfileView> {
         Expanded(
           child: OutlinedButton.icon(
             onPressed: () {
-              Share.share('Check out my progress on Nakhlah!');
+              SharePlus.instance.share(
+                ShareParams(text: 'Check out my progress on Nakhlah!'),
+              );
             },
             icon: const Icon(Icons.share, size: 18),
-            label: const Text(
-              'Share',
-              overflow: TextOverflow.ellipsis,
-            ),
+            label: const Text('Share', overflow: TextOverflow.ellipsis),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.palm,
               side: const BorderSide(color: AppColors.palm, width: 1.5),
@@ -311,14 +317,42 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
-  Widget _buildStatisticsSection(BuildContext context, ProfileController p, GamificationController g) {
+  Widget _buildStatisticsSection(
+    BuildContext context,
+    ProfileController p,
+    GamificationController g,
+  ) {
     final stats = [
-      _StatData(icon: '🔥', value: '${g.streak.value.currentStreak}', label: 'Task Completed'),
-      _StatData(icon: '📅', value: '${p.progress.value.lessonOrder}', label: 'Lessons Completed'),
-      _StatData(icon: '💎', value: '${p.stock.value.palmStock}', label: 'Total Dates'),
-      _StatData(icon: '⚡', value: '${p.stock.value.injazStock}', label: 'Total Injaz Gained'),
-      _StatData(icon: '🎯', value: '${p.progress.value.taskOrder}', label: 'Achievements Unlocked'),
-      _StatData(icon: '🏅', value: '${g.achievements.where((a) => a.achieved).length}', label: 'Badges Earned'),
+      _StatData(
+        icon: '🔥',
+        value: '${g.streak.value.currentStreak}',
+        label: 'Task Completed',
+      ),
+      _StatData(
+        icon: '📅',
+        value: '${p.progress.value.lessonOrder}',
+        label: 'Lessons Completed',
+      ),
+      _StatData(
+        icon: '💎',
+        value: '${p.stock.value.palmStock}',
+        label: 'Total Dates',
+      ),
+      _StatData(
+        icon: '⚡',
+        value: '${p.stock.value.injazStock}',
+        label: 'Total Injaz Gained',
+      ),
+      _StatData(
+        icon: '🎯',
+        value: '${p.progress.value.taskOrder}',
+        label: 'Achievements Unlocked',
+      ),
+      _StatData(
+        icon: '🏅',
+        value: '${g.achievements.where((a) => a.achieved).length}',
+        label: 'Badges Earned',
+      ),
     ];
 
     return Column(
@@ -443,13 +477,55 @@ class _ProfileViewState extends State<ProfileView> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: const [
-              Expanded(child: Text('Mon', style: TextStyle(fontSize: 12.0, color: Colors.grey), textAlign: TextAlign.center)),
-              Expanded(child: Text('Tue', style: TextStyle(fontSize: 12.0, color: Colors.grey), textAlign: TextAlign.center)),
-              Expanded(child: Text('Wed', style: TextStyle(fontSize: 12.0, color: Colors.grey), textAlign: TextAlign.center)),
-              Expanded(child: Text('Thu', style: TextStyle(fontSize: 12.0, color: Colors.grey), textAlign: TextAlign.center)),
-              Expanded(child: Text('Fri', style: TextStyle(fontSize: 12.0, color: Colors.grey), textAlign: TextAlign.center)),
-              Expanded(child: Text('Sat', style: TextStyle(fontSize: 12.0, color: Colors.grey), textAlign: TextAlign.center)),
-              Expanded(child: Text('Sun', style: TextStyle(fontSize: 12.0, color: Colors.grey), textAlign: TextAlign.center)),
+              Expanded(
+                child: Text(
+                  'Mon',
+                  style: TextStyle(fontSize: 12.0, color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  'Tue',
+                  style: TextStyle(fontSize: 12.0, color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  'Wed',
+                  style: TextStyle(fontSize: 12.0, color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  'Thu',
+                  style: TextStyle(fontSize: 12.0, color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  'Fri',
+                  style: TextStyle(fontSize: 12.0, color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  'Sat',
+                  style: TextStyle(fontSize: 12.0, color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  'Sun',
+                  style: TextStyle(fontSize: 12.0, color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ],
           ),
         ],
@@ -457,7 +533,10 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
-  Widget _buildAchievementsSection(BuildContext context, GamificationController g) {
+  Widget _buildAchievementsSection(
+    BuildContext context,
+    GamificationController g,
+  ) {
     final achievements = g.achievements.take(3).toList();
     final achievedCount = g.achievements.where((a) => a.achieved).length;
 
@@ -564,7 +643,9 @@ class _ProfileViewState extends State<ProfileView> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 3),
                   decoration: BoxDecoration(
-                    color: _getAchievementColor(achievement.id).withOpacity(0.9),
+                    color: _getAchievementColor(
+                      achievement.id,
+                    ).withValues(alpha: 0.9),
                     borderRadius: const BorderRadius.only(
                       bottomLeft: Radius.circular(16),
                       bottomRight: Radius.circular(16),
@@ -599,10 +680,7 @@ class _ProfileViewState extends State<ProfileView> {
                 const SizedBox(height: 4),
                 Text(
                   achievement.achievementTitle,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey.shade600,
-                  ),
+                  style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -615,7 +693,9 @@ class _ProfileViewState extends State<ProfileView> {
                         child: LinearProgressIndicator(
                           value: progressClamped,
                           backgroundColor: Colors.grey.shade200,
-                          valueColor: const AlwaysStoppedAnimation(AppColors.palm),
+                          valueColor: const AlwaysStoppedAnimation(
+                            AppColors.palm,
+                          ),
                           minHeight: 8,
                         ),
                       ),
@@ -640,11 +720,7 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   Widget _buildLogoutButton(BuildContext context, AuthController a) {
-    return AppButton(
-      label: 'Log out',
-      icon: Icons.logout,
-      onPressed: a.logout,
-    );
+    return AppButton(label: 'Log out', icon: Icons.logout, onPressed: a.logout);
   }
 
   Color _getAchievementColor(String id) {
@@ -674,7 +750,11 @@ class _StatData {
   final String icon;
   final String value;
   final String label;
-  const _StatData({required this.icon, required this.value, required this.label});
+  const _StatData({
+    required this.icon,
+    required this.value,
+    required this.label,
+  });
 }
 
 class _AreaChartPainter extends CustomPainter {
@@ -685,25 +765,30 @@ class _AreaChartPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final maxValue = 1000.0;
     final labelWidth = 32.0;
-    final padding = EdgeInsets.only(left: labelWidth, right: 8, top: 10, bottom: 10);
+    final padding = EdgeInsets.only(
+      left: labelWidth,
+      right: 8,
+      top: 10,
+      bottom: 10,
+    );
     final chartWidth = size.width - padding.horizontal;
     final chartHeight = size.height - padding.vertical;
 
-    final labelStyle = TextStyle(
-      color: Colors.grey.shade400,
-      fontSize: 11,
-    );
+    final labelStyle = TextStyle(color: Colors.grey.shade400, fontSize: 11);
 
     for (int i = 0; i <= 5; i++) {
       final value = (maxValue / 5 * i).toInt();
       final y = padding.top + chartHeight - (chartHeight / 5 * i);
-      
+
       final painter = TextPainter(
         text: TextSpan(text: '$value', style: labelStyle),
         textDirection: TextDirection.ltr,
         textAlign: TextAlign.right,
       )..layout(maxWidth: labelWidth - 4);
-      painter.paint(canvas, Offset(labelWidth - painter.width - 4, y - painter.height / 2));
+      painter.paint(
+        canvas,
+        Offset(labelWidth - painter.width - 4, y - painter.height / 2),
+      );
 
       if (i > 0) {
         final gridPaint = Paint()
@@ -737,8 +822,8 @@ class _AreaChartPainter extends CustomPainter {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          AppColors.palm.withOpacity(0.12),
-          AppColors.palm.withOpacity(0.01),
+          AppColors.palm.withValues(alpha: 0.12),
+          AppColors.palm.withValues(alpha: 0.01),
         ],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
     canvas.drawPath(fillPath, fillPaint);

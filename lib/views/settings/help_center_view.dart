@@ -28,7 +28,10 @@ class _HelpCenterViewState extends State<HelpCenterView> {
   Future<void> _load() async {
     try {
       final service = Get.find<CmsService>();
-      final results = await Future.wait([service.helpGuide(), service.helpFaq()]);
+      final results = await Future.wait([
+        service.helpGuide(),
+        service.helpFaq(),
+      ]);
       if (mounted) {
         setState(() {
           _guide = results[0] as String;
@@ -50,7 +53,11 @@ class _HelpCenterViewState extends State<HelpCenterView> {
         elevation: 0,
         leading: IconButton(
           onPressed: () => Get.back(),
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.ink, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: AppColors.ink,
+            size: 20,
+          ),
         ),
         title: const Text(
           'Help Center',
@@ -119,8 +126,16 @@ class _HelpCenterViewState extends State<HelpCenterView> {
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: ExpansionTile(
-                            tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                            childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                            tilePadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 4,
+                            ),
+                            childrenPadding: const EdgeInsets.fromLTRB(
+                              16,
+                              0,
+                              16,
+                              16,
+                            ),
                             title: Text(
                               f.question,
                               style: const TextStyle(
