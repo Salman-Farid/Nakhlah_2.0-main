@@ -400,18 +400,6 @@ class _SectionPath extends StatelessWidget {
                       ),
                   ],
                 ),
-                if (nodes.length >= 3)
-                  _MascotPlacement(
-                    asset: 'assets/nakhlah_web/assalamu_alaykum.webp',
-                    left: constraints.maxWidth * .08,
-                    top: 2 * 112.0 - 14,
-                  ),
-                if (nodes.length >= 6)
-                  _MascotPlacement(
-                    asset: 'assets/nakhlah_web/my_name.webp',
-                    left: constraints.maxWidth * .66,
-                    top: 5 * 112.0 - 18,
-                  ),
                 if (sectionIndex == 0 && nodes.length >= 2)
                   _FloatingWaterDrop(
                     left: constraints.maxWidth * .66,
@@ -478,8 +466,8 @@ class _FloatingWaterDropState extends State<_FloatingWaterDrop>
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      left: widget.left-220,
-      top: widget.top+190,
+      left: widget.left - 220,
+      top: widget.top + 190,
       child: IgnorePointer(
         child: AnimatedBuilder(
           animation: _offset,
@@ -493,32 +481,6 @@ class _FloatingWaterDropState extends State<_FloatingWaterDrop>
             height: 145,
             fit: BoxFit.contain,
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _MascotPlacement extends StatelessWidget {
-  const _MascotPlacement({
-    required this.asset,
-    required this.left,
-    required this.top,
-  });
-
-  final String asset;
-  final double left;
-  final double top;
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      left: left,
-      top: top,
-      child: IgnorePointer(
-        child: PageEnter(
-          delay: const Duration(milliseconds: 360),
-          child: Image.asset(asset, width: 96, height: 96, fit: BoxFit.contain),
         ),
       ),
     );
