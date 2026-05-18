@@ -1,16 +1,53 @@
-# nakhlah
+# 🌴 Nakhlah 2.0
 
-A new Flutter project.
+**Learn Arabic the Smart & Engaging Way**
 
-## Getting Started
+A beautiful, gamified Flutter mobile application designed to help users master Arabic through structured lessons, interactive exercises, and rewarding progress tracking.
 
-This project is a starting point for a Flutter application.
+---
 
-A few resources to get you started if this is your first Flutter project:
+## ✨ Features
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### 🔐 Authentication
+- Email & Password Login / Sign-up
+- Google Sign-In
+- Forgot Password
+- Secure JWT Authentication
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### 📚 Learning Journey
+- Hierarchical Curriculum: **Levels → Units → Tasks → Lessons**
+- Rich interactive lessons with multiple-choice and media questions
+- Progress tracking with detailed analytics
+
+### 🏆 Gamification
+- In-app currencies: **Palm**, **Date**, and **Injaz**
+- Daily quests & streak system
+- Badges and achievements
+- Leaderboard competition
+
+### 👤 User Experience
+- Beautiful Material 3 design with palm-green theme
+- Cross-platform support
+
+---
+
+## 🛠 Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| Framework | Flutter 3.x |
+| State Management | GetX |
+| Architecture | Clean Structure |
+
+---
+
+## 🚀 Getting Started
+
+```bash
+git clone https://github.com/Salman-Farid/Nakhlah_2.0-main.git
+cd Nakhlah_2.0-main
+flutter pub get
+flutter run
+```
+
+**Made with ❤️ for Arabic learners worldwide**
