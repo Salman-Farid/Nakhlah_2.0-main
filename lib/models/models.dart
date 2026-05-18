@@ -43,12 +43,27 @@ dynamic _unwrap(dynamic value) {
 }
 
 List<dynamic> _unwrapList(dynamic value, {List<String> keys = const []}) {
-  final unwrapped = _unwrap(value);
-  if (unwrapped is List) return unwrapped;
-  final map = _map(unwrapped);
-  if (map == null) return const [];
-  for (final key in [...keys, 'data', 'docs', 'items', 'results']) {
-    if (map[key] is List) return map[key] as List;
+  var current = value;
+  for (var depth = 0; depth < 8; depth++) {
+    if (current is List) return current;
+
+    final map = _map(current);
+    if (map == null) return const [];
+
+    for (final key in [...keys, 'data', 'docs', 'items', 'results']) {
+      if (map[key] is List) return map[key] as List;
+    }
+
+    dynamic next;
+    for (final key in ['data', 'payload', 'result']) {
+      if (map[key] is Map || map[key] is List) {
+        next = map[key];
+        break;
+      }
+    }
+
+    if (next == null || identical(next, current)) break;
+    current = next;
   }
   return const [];
 }
@@ -80,7 +95,8 @@ class MediaModel {
     final u = url ?? thumbnailUrl;
     if (u == null || u.isEmpty) return null;
     if (u.startsWith('http')) return u;
-    return '${ApiEndpoints.baseUrl}$u';
+    final normalized = u.startsWith('/api/') ? u.replaceFirst('/api', '') : u;
+    return '${ApiEndpoints.baseUrl}$normalized';
   }
 
   factory MediaModel.fromJson(dynamic value) {

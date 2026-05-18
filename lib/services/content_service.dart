@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import '../constants/api_endpoints.dart';
 import '../models/models.dart';
 import 'api_service.dart';
@@ -76,13 +74,4 @@ class ContentService {
 
   Future<dynamic> media({int limit = 15}) =>
       _api.get(ApiEndpoints.generalMedia, query: {'limit': limit});
-
-  Future<dynamic> bulkUploadTemplate() =>
-      _api.get(ApiEndpoints.bulkUploadTemplate);
-
-  Future<dynamic> bulkUpload(File file) => _api.multipartPost(
-    ApiEndpoints.bulkUpload,
-    file: file,
-    fileField: 'file',
-  );
 }

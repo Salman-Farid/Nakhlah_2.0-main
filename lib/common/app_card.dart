@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'app_motion.dart';
 
 class AppCard extends StatelessWidget {
-  const AppCard({super.key, required this.child, this.onTap, this.padding = const EdgeInsets.all(18)});
+  const AppCard({
+    super.key,
+    required this.child,
+    this.onTap,
+    this.padding = const EdgeInsets.all(18),
+  });
   final Widget child;
   final VoidCallback? onTap;
   final EdgeInsets padding;

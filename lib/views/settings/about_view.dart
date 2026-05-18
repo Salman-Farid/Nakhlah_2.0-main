@@ -47,7 +47,11 @@ class _AboutViewState extends State<AboutView> {
         elevation: 0,
         leading: IconButton(
           onPressed: () => Get.back(),
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.ink, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: AppColors.ink,
+            size: 20,
+          ),
         ),
         title: const Text(
           'About Nakhlah',
@@ -72,7 +76,9 @@ class _AboutViewState extends State<AboutView> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
-                      _content.isNotEmpty ? _content : 'About content is not available.',
+                      _content.isNotEmpty
+                          ? _content
+                          : 'About content is not available.',
                       style: const TextStyle(
                         fontSize: 14,
                         height: 1.6,

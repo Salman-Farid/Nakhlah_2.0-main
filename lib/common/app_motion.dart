@@ -16,7 +16,8 @@ class AppMotion {
 
   static bool reduceMotion(BuildContext context) {
     final media = MediaQuery.maybeOf(context);
-    return media?.disableAnimations == true || media?.accessibleNavigation == true;
+    return media?.disableAnimations == true ||
+        media?.accessibleNavigation == true;
   }
 }
 
@@ -42,7 +43,8 @@ class PageEnter extends StatefulWidget {
   State<PageEnter> createState() => _PageEnterState();
 }
 
-class _PageEnterState extends State<PageEnter> with SingleTickerProviderStateMixin {
+class _PageEnterState extends State<PageEnter>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _opacity;
   late final Animation<Offset> _slide;
@@ -61,13 +63,37 @@ class _PageEnterState extends State<PageEnter> with SingleTickerProviderStateMix
       curve: const Interval(.04, 1, curve: Curves.linear),
     );
     _opacity = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0, .34, curve: AppMotion.out)),
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0, .34, curve: AppMotion.out),
+      ),
     );
-    _slide = Tween<Offset>(begin: widget.slide, end: Offset.zero).animate(liquidSlide);
+    _slide = Tween<Offset>(
+      begin: widget.slide,
+      end: Offset.zero,
+    ).animate(liquidSlide);
     _scale = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween<double>(begin: widget.beginScale, end: 1.045).chain(CurveTween(curve: AppMotion.out)), weight: 42),
-      TweenSequenceItem(tween: Tween<double>(begin: 1.045, end: .985).chain(CurveTween(curve: Curves.easeInOut)), weight: 20),
-      TweenSequenceItem(tween: Tween<double>(begin: .985, end: 1).chain(CurveTween(curve: AppMotion.out)), weight: 38),
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: widget.beginScale,
+          end: 1.045,
+        ).chain(CurveTween(curve: AppMotion.out)),
+        weight: 42,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 1.045,
+          end: .985,
+        ).chain(CurveTween(curve: Curves.easeInOut)),
+        weight: 20,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: .985,
+          end: 1,
+        ).chain(CurveTween(curve: AppMotion.out)),
+        weight: 38,
+      ),
     ]).animate(safeScaleProgress);
     Future.delayed(widget.delay, () {
       if (mounted) _controller.forward();
@@ -104,24 +130,31 @@ class _PageEnterState extends State<PageEnter> with SingleTickerProviderStateMix
 }
 
 class StaggeredList extends StatelessWidget {
-  const StaggeredList({super.key, required this.children, this.baseDelay = Duration.zero, this.gap = 0});
+  const StaggeredList({
+    super.key,
+    required this.children,
+    this.baseDelay = Duration.zero,
+    this.gap = 0,
+  });
   final List<Widget> children;
   final Duration baseDelay;
   final double gap;
 
   @override
   Widget build(BuildContext context) => Column(
-        children: [
-          for (var i = 0; i < children.length; i++) ...[
-            PageEnter(
-              delay: baseDelay + Duration(milliseconds: AppMotion.stagger.inMilliseconds * i),
-              duration: AppMotion.page + Duration(milliseconds: i * 18),
-              child: children[i],
-            ),
-            if (gap > 0 && i != children.length - 1) SizedBox(height: gap),
-          ],
-        ],
-      );
+    children: [
+      for (var i = 0; i < children.length; i++) ...[
+        PageEnter(
+          delay:
+              baseDelay +
+              Duration(milliseconds: AppMotion.stagger.inMilliseconds * i),
+          duration: AppMotion.page + Duration(milliseconds: i * 18),
+          child: children[i],
+        ),
+        if (gap > 0 && i != children.length - 1) SizedBox(height: gap),
+      ],
+    ],
+  );
 }
 
 class GameListView extends StatelessWidget {
@@ -152,7 +185,9 @@ class GameListView extends StatelessWidget {
       children: [
         for (var i = 0; i < children.length; i++)
           PageEnter(
-            delay: baseDelay + Duration(milliseconds: AppMotion.stagger.inMilliseconds * i),
+            delay:
+                baseDelay +
+                Duration(milliseconds: AppMotion.stagger.inMilliseconds * i),
             duration: AppMotion.page + Duration(milliseconds: i * 18),
             child: children[i],
           ),
@@ -162,24 +197,29 @@ class GameListView extends StatelessWidget {
 }
 
 class GameColumn extends StatelessWidget {
-  const GameColumn({super.key, required this.children, this.crossAxisAlignment = CrossAxisAlignment.center, this.mainAxisSize = MainAxisSize.max});
+  const GameColumn({
+    super.key,
+    required this.children,
+    this.crossAxisAlignment = CrossAxisAlignment.center,
+    this.mainAxisSize = MainAxisSize.max,
+  });
   final List<Widget> children;
   final CrossAxisAlignment crossAxisAlignment;
   final MainAxisSize mainAxisSize;
 
   @override
   Widget build(BuildContext context) => Column(
-        crossAxisAlignment: crossAxisAlignment,
-        mainAxisSize: mainAxisSize,
-        children: [
-          for (var i = 0; i < children.length; i++)
-            PageEnter(
-              delay: Duration(milliseconds: AppMotion.stagger.inMilliseconds * i),
-              duration: AppMotion.page + Duration(milliseconds: i * 18),
-              child: children[i],
-            ),
-        ],
-      );
+    crossAxisAlignment: crossAxisAlignment,
+    mainAxisSize: mainAxisSize,
+    children: [
+      for (var i = 0; i < children.length; i++)
+        PageEnter(
+          delay: Duration(milliseconds: AppMotion.stagger.inMilliseconds * i),
+          duration: AppMotion.page + Duration(milliseconds: i * 18),
+          child: children[i],
+        ),
+    ],
+  );
 }
 
 class PressableScale extends StatefulWidget {

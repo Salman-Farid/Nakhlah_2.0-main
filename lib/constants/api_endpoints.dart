@@ -1,8 +1,8 @@
 class ApiEndpoints {
   ApiEndpoints._();
 
-  static const String baseUrl = 'https://nakhlah-api.nakhlah.net';
-  static const String apiPrefix = '/api';
+  static const String baseUrl = 'https://nakhlah-admin.codemonks.dev/api';
+  static const String apiPrefix = '';
 
   static const String signUp = '/users/sign-in';
   static const String login = '/users/login';
@@ -32,26 +32,21 @@ class ApiEndpoints {
   static const String journeyStructure = '/lessons/journey-structure';
   static const String lessonByOrder = '/lessons/lesson-by-order';
   static const String wrongAnswer = '/lessons/wrong-answer';
-  static const String bulkUpload = '/lessons/bulk-upload';
-  static const String bulkUploadTemplate = '/lessons/bulk-upload-template';
 
   static const String dailyQuestsConfig =
       '/globals/gamification/get-daily-quests';
   static const String badgesConfig = '/globals/gamification/get-badges';
-  static const String achievements = '/globals/questionnaires/get-achievements';
-  static const String nextLesson = '/globals/questionnaires/next-lesson';
-  static const String previousLesson =
-      '/globals/questionnaires/previous-lesson';
+  static const String achievements = '/lessons/get-achievements';
+  static const String nextLesson = '/lessons/next-lesson';
+  static const String previousLesson = '/lessons/previous-lesson';
   static const String generalMedia = '/general-media';
 
   static String lessonsByTask(String id) => '/lessons/tasks/$id/lessons';
   static String giftBox(String id) => '/lessons/gift-box/$id';
   static String examQuestions(String id) => '/lessons/tasks/$id/exam-questions';
   static String questionsByLesson(String id) => '/lessons/$id';
-  static String fullMarks(String id) =>
-      '/globals/questionnaires/full-marks/$id';
+  static String fullMarks(String id) => '/lessons/full-marks/$id';
   static String makeLearnerProgress(String id) =>
       '/lessons/make-learner-progress/$id';
-  static String restoreStreak(int days) =>
-      '/globals/questionnaires/restore-streak/$days';
+  static String restoreStreak(int days) => '/lessons/restore-streak/$days';
 }

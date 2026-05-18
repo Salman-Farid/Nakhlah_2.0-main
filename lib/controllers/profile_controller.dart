@@ -38,13 +38,38 @@ class ProfileController extends GetxController {
     }
   }
 
-  Future<void> createOnboarding(OnboardInfo info) async {
+  Future<bool> createOnboarding(OnboardInfo info) async {
     try {
       loading.value = true;
       profile.value = await service.createProfile(info);
       AppSnackbar.success('Profile created.');
+      return true;
     } catch (e) {
       AppSnackbar.error(e.toString());
+      return false;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  Future<bool> updateProfile({
+    String? fullName,
+    String? contactNumber,
+    OnboardInfo? onboardInfo,
+  }) async {
+    try {
+      loading.value = true;
+      profile.value = await service.updateProfile(
+        fullName: fullName,
+        contactNumber: contactNumber,
+        onboardInfo: onboardInfo,
+      );
+      await load();
+      AppSnackbar.success('Profile updated.');
+      return true;
+    } catch (e) {
+      AppSnackbar.error(e.toString());
+      return false;
     } finally {
       loading.value = false;
     }

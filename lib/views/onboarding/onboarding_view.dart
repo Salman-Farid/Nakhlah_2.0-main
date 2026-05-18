@@ -202,10 +202,7 @@ class _SpeechBubble extends StatelessWidget {
           ),
         ),
         // Tail
-        CustomPaint(
-          size: const Size(18, 10),
-          painter: _BubbleTailPainter(),
-        ),
+        CustomPaint(size: const Size(18, 10), painter: _BubbleTailPainter()),
       ],
     );
   }
@@ -457,43 +454,43 @@ class _BigButton extends StatelessWidget {
       height: 54,
       child: filled
           ? ElevatedButton(
-        onPressed: onTap,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: _purple,
-          foregroundColor: Colors.white,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
-          ),
-        ),
-        child: Text(
-          label,
-          style: const TextStyle(
-            fontWeight: FontWeight.w900,
-            fontSize: 15,
-            letterSpacing: .6,
-          ),
-        ),
-      )
+              onPressed: onTap,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _purple,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 15,
+                  letterSpacing: .6,
+                ),
+              ),
+            )
           : OutlinedButton(
-        onPressed: onTap,
-        style: OutlinedButton.styleFrom(
-          foregroundColor: _purple,
-          side: const BorderSide(color: Color(0xFFDDD6F8), width: 1.5),
-          backgroundColor: _purpleLight,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
-          ),
-        ),
-        child: Text(
-          label,
-          style: const TextStyle(
-            fontWeight: FontWeight.w900,
-            fontSize: 13.5,
-            letterSpacing: .4,
-          ),
-        ),
-      ),
+              onPressed: onTap,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: _purple,
+                side: const BorderSide(color: Color(0xFFDDD6F8), width: 1.5),
+                backgroundColor: _purpleLight,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 13.5,
+                  letterSpacing: .4,
+                ),
+              ),
+            ),
     );
   }
 }
@@ -585,13 +582,10 @@ class _LanguageSelectionPage extends StatelessWidget {
           // ── Language list ────────────────────────────────────────────
           Expanded(
             child: ListView.separated(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 14,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               itemCount: langs.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 10),
-              itemBuilder: (_, i) {
+              separatorBuilder: (context, index) => const SizedBox(height: 10),
+              itemBuilder: (context, i) {
                 final lang = langs[i];
                 final isSelected = lang.name == selected;
                 return _LangTile(

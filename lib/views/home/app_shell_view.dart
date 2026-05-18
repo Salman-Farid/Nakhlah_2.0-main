@@ -52,14 +52,14 @@ class AppShellView extends StatelessWidget {
           data: Theme.of(context).copyWith(
             navigationBarTheme: NavigationBarThemeData(
               indicatorColor: const Color(0xFFF4ECFF),
-              iconTheme: MaterialStateProperty.resolveWith((states) {
-                if (states.contains(MaterialState.selected)) {
+              iconTheme: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
                   return const IconThemeData(color: Color(0xFF7C3AED));
                 }
                 return const IconThemeData(color: Color(0xFF8B7E74));
               }),
-              labelTextStyle: MaterialStateProperty.resolveWith((states) {
-                if (states.contains(MaterialState.selected)) {
+              labelTextStyle: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
                   return const TextStyle(
                     color: Color(0xFF7C3AED),
                     fontSize: 12,

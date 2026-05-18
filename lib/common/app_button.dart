@@ -2,7 +2,13 @@ import 'package:flutter/material.dart';
 import 'app_motion.dart';
 
 class AppButton extends StatelessWidget {
-  const AppButton({super.key, required this.label, required this.onPressed, this.loading = false, this.icon});
+  const AppButton({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.loading = false,
+    this.icon,
+  });
   final String label;
   final VoidCallback? onPressed;
   final bool loading;
@@ -17,8 +23,16 @@ class AppButton extends StatelessWidget {
         icon: AnimatedSwitcher(
           duration: AppMotion.fast,
           child: loading
-              ? const SizedBox(key: ValueKey('loader'), width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-              : Icon(icon ?? Icons.arrow_forward_rounded, key: const ValueKey('icon')),
+              ? const SizedBox(
+                  key: ValueKey('loader'),
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Icon(
+                  icon ?? Icons.arrow_forward_rounded,
+                  key: const ValueKey('icon'),
+                ),
         ),
         label: Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
       ),

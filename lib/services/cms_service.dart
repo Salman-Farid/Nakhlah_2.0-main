@@ -1,2 +1,33 @@
-import '../constants/api_endpoints.dart';import '../models/models.dart';import 'api_service.dart';
-class CmsService{CmsService(this._api);final ApiService _api;Future<List<FaqModel>> helpFaq()async{final r=await _api.get(ApiEndpoints.helpCenter);return ((r is Map?r['faq']:null) as List? ??[]).map((e)=>FaqModel.fromJson(e)).toList();}Future<String> helpGuide()async{final r=await _api.get(ApiEndpoints.helpCenter);return TextBlock.extract(r is Map?r['learningGuide']:r);}Future<String> about()async{final r=await _api.get(ApiEndpoints.about);return TextBlock.extract(r is Map?r['about']:r);}Future<String> legal()async{final r=await _api.get(ApiEndpoints.legalDocuments);return TextBlock.extract(r);}Future<OnboardingOptions> onboarding()async=>OnboardingOptions.fromJson(await _api.get(ApiEndpoints.userOnboarding,query:{'depth':2}));}
+import '../constants/api_endpoints.dart';
+import '../models/models.dart';
+import 'api_service.dart';
+
+class CmsService {
+  CmsService(this._api);
+  final ApiService _api;
+  Future<List<FaqModel>> helpFaq() async {
+    final r = await _api.get(ApiEndpoints.helpCenter);
+    return ((r is Map ? r['faq'] : null) as List? ?? [])
+        .map((e) => FaqModel.fromJson(e))
+        .toList();
+  }
+
+  Future<String> helpGuide() async {
+    final r = await _api.get(ApiEndpoints.helpCenter);
+    return TextBlock.extract(r is Map ? r['learningGuide'] : r);
+  }
+
+  Future<String> about() async {
+    final r = await _api.get(ApiEndpoints.about);
+    return TextBlock.extract(r is Map ? r['about'] : r);
+  }
+
+  Future<String> legal() async {
+    final r = await _api.get(ApiEndpoints.legalDocuments);
+    return TextBlock.extract(r);
+  }
+
+  Future<OnboardingOptions> onboarding() async => OnboardingOptions.fromJson(
+    await _api.get(ApiEndpoints.userOnboarding, query: {'depth': 2}),
+  );
+}

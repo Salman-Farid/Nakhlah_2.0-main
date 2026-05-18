@@ -17,9 +17,10 @@ class ApiService {
   final http.Client _client = http.Client();
 
   Uri _uri(String path, [Map<String, dynamic>? query]) {
-    final clean = path.startsWith('/api')
-        ? path
-        : '${ApiEndpoints.apiPrefix}$path';
+    final normalizedPath = path.startsWith('/api/')
+        ? path.replaceFirst('/api', '')
+        : path;
+    final clean = '${ApiEndpoints.apiPrefix}$normalizedPath';
     final qp = <String, String>{};
     query?.forEach((k, v) {
       if (v != null && '$v'.isNotEmpty) qp[k] = '$v';

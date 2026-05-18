@@ -49,7 +49,11 @@ class _LegalViewState extends State<LegalView> {
         elevation: 0,
         leading: IconButton(
           onPressed: () => Get.back(),
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.ink, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: AppColors.ink,
+            size: 20,
+          ),
         ),
         title: const Text(
           'Legal Documents',
@@ -86,7 +90,9 @@ class _LegalViewState extends State<LegalView> {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          _terms.isNotEmpty ? _terms : 'Terms content is not available.',
+                          _terms.isNotEmpty
+                              ? _terms
+                              : 'Terms content is not available.',
                           style: const TextStyle(
                             fontSize: 14,
                             height: 1.6,
@@ -104,7 +110,9 @@ class _LegalViewState extends State<LegalView> {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          _privacy.isNotEmpty ? _privacy : 'Privacy policy content is not available.',
+                          _privacy.isNotEmpty
+                              ? _privacy
+                              : 'Privacy policy content is not available.',
                           style: const TextStyle(
                             fontSize: 14,
                             height: 1.6,

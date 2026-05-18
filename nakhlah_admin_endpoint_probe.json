@@ -1,0 +1,303 @@
+{
+  "base": "https://nakhlah-admin.codemonks.dev/api",
+  "login": {
+    "method": "POST",
+    "path": "/users/login",
+    "query": null,
+    "status": 403,
+    "ms": 52,
+    "summary": "Error 1010: Access denied"
+  },
+  "token_found": false,
+  "login_raw_keys": [
+    "type",
+    "title",
+    "status",
+    "detail",
+    "instance",
+    "error_code",
+    "error_name",
+    "error_category",
+    "ray_id",
+    "timestamp",
+    "zone",
+    "cloudflare_error",
+    "retryable",
+    "owner_action_required",
+    "what_you_should_do",
+    "footer"
+  ],
+  "results": [
+    {
+      "method": "GET",
+      "path": "/users/me",
+      "query": null,
+      "status": 403,
+      "ms": 47,
+      "summary": "Error 1010: Access denied"
+    },
+    {
+      "method": "POST",
+      "path": "/users/refresh-token",
+      "query": null,
+      "status": 403,
+      "ms": 46,
+      "summary": "Error 1010: Access denied"
+    },
+    {
+      "method": "GET",
+      "path": "/user-profile",
+      "query": null,
+      "status": 403,
+      "ms": 48,
+      "summary": "Error 1010: Access denied"
+    },
+    {
+      "method": "GET",
+      "path": "/user-profile/learner-progress",
+      "query": null,
+      "status": 403,
+      "ms": 48,
+      "summary": "Error 1010: Access denied"
+    },
+    {
+      "method": "GET",
+      "path": "/user-profile/daily-quest",
+      "query": null,
+      "status": 403,
+      "ms": 51,
+      "summary": "Error 1010: Access denied"
+    },
+    {
+      "method": "GET",
+      "path": "/user-profile/daily-quest",
+      "query": {
+        "quest": "daily"
+      },
+      "status": 403,
+      "ms": 70,
+      "summary": "Error 1010: Access denied"
+    },
+    {
+      "method": "GET",
+      "path": "/user-profile/palm-refill",
+      "query": null,
+      "status": 403,
+      "ms": 70,
+      "summary": "Error 1010: Access denied"
+    },
+    {
+      "method": "GET",
+      "path": "/user-profile/learner-streak",
+      "query": null,
+      "status": 403,
+      "ms": 73,
+      "summary": "Error 1010: Access denied"
+    },
+    {
+      "method": "GET",
+      "path": "/user-profile/gamification-stocks",
+      "query": null,
+      "status": 403,
+      "ms": 74,
+      "summary": "Error 1010: Access denied"
+    },
+    {
+      "method": "GET",
+      "path": "/user-profile/get-leaderboard",
+      "query": null,
+      "status": 403,
+      "ms": 63,
+      "summary": "Error 1010: Access denied"
+    },
+    {
+      "method": "GET",
+      "path": "/globals/help-center",
+      "query": null,
+      "status": 403,
+      "ms": 55,
+      "summary": "Error 1010: Access denied"
+    },
+    {
+      "method": "GET",
+      "path": "/globals/about",
+      "query": null,
+      "status": 403,
+      "ms": 47,
+      "summary": "Error 1010: Access denied"
+    },
+    {
+      "method": "GET",
+      "path": "/globals/legal-documents",
+      "query": null,
+      "status": 403,
+      "ms": 51,
+      "summary": "Error 1010: Access denied"
+    },
+    {
+      "method": "GET",
+      "path": "/globals/user-onboarding",
+      "query": {
+        "depth": 2
+      },
+      "status": 403,
+      "ms": 48,
+      "summary": "Error 1010: Access denied"
+    },
+    {
+      "method": "GET",
+      "path": "/globals/questionnaires/journey-structure",
+      "query": null,
+      "status": 403,
+      "ms": 48,
+      "summary": "Error 1010: Access denied"
+    },
+    {
+      "method": "GET",
+      "path": "/globals/questionnaires/lesson-by-order",
+      "query": {
+        "levelOrder": 1,
+        "unitOrder": 1,
+        "taskOrder": 1,
+        "lessonOrder": 1
+      },
+      "status": 403,
+      "ms": 47,
+      "summary": "Error 1010: Access denied"
+    },
+    {
+      "method": "GET",
+      "path": "/globals/questionnaires/wrong-answer",
+      "query": null,
+      "status": 403,
+      "ms": 47,
+      "summary": "Error 1010: Access denied"
+    },
+    {
+      "method": "GET",
+      "path": "/globals/questionnaires/bulk-upload-template",
+      "query": null,
+      "status": 403,
+      "ms": 47,
+      "summary": "Error 1010: Access denied"
+    },
+    {
+      "method": "GET",
+      "path": "/globals/gamification/get-daily-quests",
+      "query": null,
+      "status": 403,
+      "ms": 47,
+      "summary": "Error 1010: Access denied"
+    },
+    {
+      "method": "GET",
+      "path": "/globals/gamification/get-badges",
+      "query": null,
+      "status": 403,
+      "ms": 82,
+      "summary": "Error 1010: Access denied"
+    },
+    {
+      "method": "GET",
+      "path": "/globals/questionnaires/get-achievements",
+      "query": {
+        "depth": 2
+      },
+      "status": 403,
+      "ms": 47,
+      "summary": "Error 1010: Access denied"
+    },
+    {
+      "method": "GET",
+      "path": "/globals/questionnaires/next-lesson",
+      "query": {
+        "levelOrder": 1,
+        "unitOrder": 1,
+        "taskOrder": 1,
+        "lessonOrder": 1
+      },
+      "status": 403,
+      "ms": 45,
+      "summary": "Error 1010: Access denied"
+    },
+    {
+      "method": "GET",
+      "path": "/globals/questionnaires/previous-lesson",
+      "query": {
+        "levelOrder": 1,
+        "unitOrder": 1,
+        "taskOrder": 1,
+        "lessonOrder": 1
+      },
+      "status": 403,
+      "ms": 48,
+      "summary": "Error 1010: Access denied"
+    },
+    {
+      "method": "GET",
+      "path": "/general-media",
+      "query": {
+        "limit": 15
+      },
+      "status": 403,
+      "ms": 48,
+      "summary": "Error 1010: Access denied"
+    },
+    {
+      "method": "GET",
+      "path": "/globals/questionnaires/tasks/test-task-id/lessons",
+      "query": null,
+      "status": 403,
+      "ms": 51,
+      "summary": "Error 1010: Access denied"
+    },
+    {
+      "method": "GET",
+      "path": "/globals/questionnaires/gift-box/test-gift-id",
+      "query": null,
+      "status": 403,
+      "ms": 47,
+      "summary": "Error 1010: Access denied"
+    },
+    {
+      "method": "GET",
+      "path": "/globals/questionnaires/tasks/test-task-id/exam-questions",
+      "query": null,
+      "status": 403,
+      "ms": 47,
+      "summary": "Error 1010: Access denied"
+    },
+    {
+      "method": "GET",
+      "path": "/globals/questionnaires/lessons/test-lesson-id",
+      "query": null,
+      "status": 403,
+      "ms": 49,
+      "summary": "Error 1010: Access denied"
+    },
+    {
+      "method": "GET",
+      "path": "/globals/questionnaires/full-marks/test-lesson-id",
+      "query": null,
+      "status": 403,
+      "ms": 47,
+      "summary": "Error 1010: Access denied"
+    },
+    {
+      "method": "GET",
+      "path": "/globals/questionnaires/make-learner-progress/test-lesson-id",
+      "query": null,
+      "status": 403,
+      "ms": 48,
+      "summary": "Error 1010: Access denied"
+    },
+    {
+      "method": "GET",
+      "path": "/globals/questionnaires/restore-streak/1",
+      "query": null,
+      "status": 403,
+      "ms": 47,
+      "summary": "Error 1010: Access denied"
+    }
+  ]
+}

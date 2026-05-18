@@ -145,11 +145,7 @@ class _PremiumTitle extends StatelessWidget {
         Text(
           'Select the perfect plan for your learning journey and save more with longer subscriptions',
           textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 14,
-            color: AppColors.muted,
-            height: 1.5,
-          ),
+          style: TextStyle(fontSize: 14, color: AppColors.muted, height: 1.5),
         ),
       ],
     );
@@ -173,10 +169,7 @@ class _SubscriptionPlan {
 }
 
 const _plans = [
-  _SubscriptionPlan(
-    duration: '1 Month',
-    price: '\$10.00',
-  ),
+  _SubscriptionPlan(duration: '1 Month', price: '\$10.00'),
   _SubscriptionPlan(
     duration: '3 Months',
     savingsText: 'Save over 40%',
@@ -227,7 +220,7 @@ class _PlanCard extends StatelessWidget {
                     : null,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withValues(alpha: 0.04),
                     blurRadius: 10,
                     offset: const Offset(0, 2),
                   ),
@@ -293,10 +286,7 @@ class _PlanCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     'per billing cycle',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: AppColors.muted,
-                    ),
+                    style: TextStyle(fontSize: 13, color: AppColors.muted),
                   ),
                 ],
               ),
@@ -310,7 +300,10 @@ class _PlanCard extends StatelessWidget {
             right: 0,
             child: Center(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 5,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.palm,
                   borderRadius: BorderRadius.circular(20),
