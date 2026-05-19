@@ -64,7 +64,8 @@ class _LeaderboardViewState extends State<LeaderboardView> {
                   ),
                   const Spacer(),
                   IconButton(
-                    onPressed: controller.loadLeaderboard,
+                    onPressed: () =>
+                        controller.loadLeaderboard(period: timeFilter),
                     icon: const Icon(
                       Icons.refresh_rounded,
                       color: AppColors.muted,
@@ -75,7 +76,10 @@ class _LeaderboardViewState extends State<LeaderboardView> {
               const SizedBox(height: 16),
               _TimeFilters(
                 value: timeFilter,
-                onChanged: (v) => setState(() => timeFilter = v),
+                onChanged: (v) {
+                  setState(() => timeFilter = v);
+                  controller.loadLeaderboard(period: v);
+                },
               ),
               const SizedBox(height: 24),
               Obx(() {

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../common/nakhlah_intro_widgets.dart';
 import '../../constants/app_colors.dart';
 import '../../common/app_motion.dart';
+import '../../controllers/app_controller.dart';
 import '../../controllers/profile_controller.dart';
 import '../../models/models.dart';
 import '../../routes/app_routes.dart';
@@ -68,7 +69,10 @@ class _OnboardingFormViewState extends State<OnboardingFormView> {
         languageStrength: strength.text,
       ),
     );
-    if (created) Get.offAllNamed(Routes.shell);
+    if (created) {
+      Get.offAllNamed(Routes.shell);
+      Get.find<AppController>().setTab(0);
+    }
   }
 
   @override

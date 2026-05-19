@@ -41,7 +41,11 @@ class ApiService {
     String p, {
     Map<String, dynamic>? query,
     bool auth = true,
-  }) => _send(() => _client.get(_uri(p, query), headers: _headers(auth: auth)));
+  }) => _send(
+    () => _client.get(_uri(p, query), headers: _headers(auth: auth)),
+    auth: auth,
+    path: p,
+  );
 
   Future<dynamic> post(String p, {dynamic body, bool auth = true}) => _send(
     () => _client.post(
@@ -49,6 +53,8 @@ class ApiService {
       headers: _headers(auth: auth),
       body: jsonEncode(body ?? {}),
     ),
+    auth: auth,
+    path: p,
   );
 
   Future<dynamic> patch(String p, {dynamic body, bool auth = true}) => _send(
@@ -57,6 +63,8 @@ class ApiService {
       headers: _headers(auth: auth),
       body: jsonEncode(body ?? {}),
     ),
+    auth: auth,
+    path: p,
   );
 
   Future<dynamic> delete(String p, {dynamic body, bool auth = true}) => _send(
@@ -65,6 +73,8 @@ class ApiService {
       headers: _headers(auth: auth),
       body: body == null ? null : jsonEncode(body),
     ),
+    auth: auth,
+    path: p,
   );
 
   Future<dynamic> multipartPost(
@@ -105,7 +115,7 @@ class ApiService {
     String fileField = 'file',
     bool auth = true,
   }) async {
-    try {
+    Future<http.Response> request() async {
       final req = http.MultipartRequest(method.toUpperCase(), _uri(p));
       req.headers.addAll(_headers(auth: auth, json: false));
       req.fields.addAll(fields);
@@ -113,7 +123,33 @@ class ApiService {
         req.files.add(await http.MultipartFile.fromPath(fileField, file.path));
       }
       final streamed = await req.send().timeout(_timeout);
-      return _decode(await http.Response.fromStream(streamed));
+      return http.Response.fromStream(streamed);
+    }
+
+    return _send(request, auth: auth, path: p);
+  }
+
+  Future<dynamic> _send(
+    Future<http.Response> Function() request, {
+    bool auth = true,
+    String? path,
+  }) async {
+    try {
+      if (auth &&
+          path != ApiEndpoints.refreshToken &&
+          _storage.isTokenExpired) {
+        await _refreshAccessToken();
+      }
+
+      final response = await request().timeout(_timeout);
+      if (_shouldRefresh(response, auth: auth, path: path)) {
+        final refreshed = await _refreshAccessToken();
+        if (refreshed) {
+          return _decode(await request().timeout(_timeout));
+        }
+      }
+
+      return _decode(response);
     } on SocketException {
       throw ApiException('No internet connection.');
     } on TimeoutException {
@@ -125,17 +161,60 @@ class ApiService {
     }
   }
 
-  Future<dynamic> _send(Future<http.Response> Function() request) async {
+  bool _shouldRefresh(
+    http.Response response, {
+    required bool auth,
+    String? path,
+  }) {
+    return auth &&
+        response.statusCode == 401 &&
+        path != ApiEndpoints.refreshToken &&
+        _storage.token != null &&
+        _storage.token!.isNotEmpty;
+  }
+
+  Future<bool>? _refreshRequest;
+
+  Future<bool> _refreshAccessToken() {
+    final pending = _refreshRequest;
+    if (pending != null) return pending;
+
+    final future = _refreshAccessTokenNow();
+    _refreshRequest = future;
+    future.whenComplete(() => _refreshRequest = null);
+    return future;
+  }
+
+  Future<bool> _refreshAccessTokenNow() async {
+    final currentToken = _storage.token;
+    if (currentToken == null || currentToken.isEmpty) return false;
+
+    final refreshToken = _storage.refreshToken;
     try {
-      return _decode(await request().timeout(_timeout));
-    } on SocketException {
-      throw ApiException('No internet connection.');
-    } on TimeoutException {
-      throw ApiException('Request timed out. Please try again.');
-    } on ApiException {
-      rethrow;
-    } catch (e) {
-      throw ApiException('Unexpected network error: $e');
+      final response = await _client
+          .post(
+            _uri(ApiEndpoints.refreshToken),
+            headers: _headers(),
+            body: jsonEncode({
+              if (refreshToken != null && refreshToken.isNotEmpty)
+                'refreshToken': refreshToken,
+            }),
+          )
+          .timeout(_timeout);
+
+      final decoded = _decode(response);
+      final session = AuthSession.fromJson(decoded);
+      if (session.token == null || session.token!.isEmpty) return false;
+
+      await _storage.saveToken(
+        session.token!,
+        exp: session.exp,
+        refreshToken: session.refreshToken,
+      );
+      return true;
+    } catch (_) {
+      await _storage.clearAuth();
+      return false;
     }
   }
 

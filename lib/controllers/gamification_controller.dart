@@ -9,15 +9,43 @@ class GamificationController extends GetxController {
   final loading = false.obs;
   final quests = <QuestStatus>[].obs;
   final achievements = <AchievementModel>[].obs;
+  final questConfig = <String, dynamic>{}.obs;
+  final badgeConfig = <String, dynamic>{}.obs;
   final streak = const StreakModel().obs;
   final stock = const GamificationStock().obs;
+
+  Map<String, dynamic> _configMap(dynamic value) {
+    dynamic current = value;
+    for (var i = 0; i < 4; i++) {
+      if (current is Map && current['data'] is Map) {
+        current = current['data'];
+      } else {
+        break;
+      }
+    }
+    if (current is Map) {
+      return current.map((key, val) => MapEntry(key.toString(), val));
+    }
+    return const {};
+  }
+
   Future<void> load() async {
     try {
       loading.value = true;
-      quests.assignAll(await service.profileDailyQuest());
-      achievements.assignAll(await service.achievements());
-      streak.value = await service.learnerStreak();
-      stock.value = await service.stocks();
+      final results = await Future.wait<dynamic>([
+        service.profileDailyQuest(),
+        service.achievements(),
+        service.learnerStreak(),
+        service.stocks(),
+        service.dailyQuestConfig(),
+        service.badgesConfig(),
+      ]);
+      quests.assignAll(results[0] as List<QuestStatus>);
+      achievements.assignAll(results[1] as List<AchievementModel>);
+      streak.value = results[2] as StreakModel;
+      stock.value = results[3] as GamificationStock;
+      questConfig.assignAll(_configMap(results[4]));
+      badgeConfig.assignAll(_configMap(results[5]));
     } catch (e) {
       AppSnackbar.error(e.toString());
     } finally {

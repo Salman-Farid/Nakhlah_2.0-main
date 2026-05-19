@@ -71,7 +71,12 @@ class ProfileService {
     );
   }
 
-  Future<List<LeaderboardEntryModel>> leaderboard() async {
-    return parseLeaderboard(await _api.get(ApiEndpoints.leaderboard));
+  Future<List<LeaderboardEntryModel>> leaderboard({String? period}) async {
+    return parseLeaderboard(
+      await _api.get(
+        ApiEndpoints.leaderboard,
+        query: period == null ? null : {'period': period, 'filter': period},
+      ),
+    );
   }
 }

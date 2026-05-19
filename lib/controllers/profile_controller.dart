@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:get/get.dart';
 
 import '../common/app_snackbar.dart';
@@ -27,10 +29,10 @@ class ProfileController extends GetxController {
     }
   }
 
-  Future<void> loadLeaderboard() async {
+  Future<void> loadLeaderboard({String? period}) async {
     try {
       loading.value = true;
-      leaderboard.assignAll(await service.leaderboard());
+      leaderboard.assignAll(await service.leaderboard(period: period));
     } catch (e) {
       AppSnackbar.error(e.toString());
     } finally {
@@ -56,6 +58,7 @@ class ProfileController extends GetxController {
     String? fullName,
     String? contactNumber,
     OnboardInfo? onboardInfo,
+    File? picture,
   }) async {
     try {
       loading.value = true;
@@ -63,6 +66,7 @@ class ProfileController extends GetxController {
         fullName: fullName,
         contactNumber: contactNumber,
         onboardInfo: onboardInfo,
+        picture: picture,
       );
       await load();
       AppSnackbar.success('Profile updated.');

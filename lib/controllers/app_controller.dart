@@ -12,6 +12,7 @@ class AppController extends GetxController {
         Get.offAllNamed(Routes.onboarding);
       } else if (storage.isLoggedIn) {
         Get.offAllNamed(Routes.shell);
+        setTab(0);
       } else {
         Get.offAllNamed(Routes.login);
       }

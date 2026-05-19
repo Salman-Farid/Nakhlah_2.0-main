@@ -13,6 +13,88 @@ class GamificationView extends StatefulWidget {
   State<GamificationView> createState() => _GamificationViewState();
 }
 
+void _showStoreFeatureSheet(BuildContext context, _StoreFeature feature) {
+  showModalBottomSheet<void>(
+    context: context,
+    backgroundColor: Colors.transparent,
+    builder: (context) {
+      return SafeArea(
+        child: Container(
+          margin: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: feature.iconBgColor,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Icon(
+                      feature.icon,
+                      color: feature.iconColor,
+                      size: 26,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Text(
+                      feature.title,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.ink,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                feature.subtitle,
+                style: TextStyle(
+                  fontSize: 14,
+                  height: 1.5,
+                  color: AppColors.muted,
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.palm,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size.fromHeight(52),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    'Got it',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
 class _GamificationViewState extends State<GamificationView> {
   @override
   void initState() {
@@ -92,39 +174,69 @@ class _PremiumBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.palm,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => Get.toNamed(Routes.premium),
         borderRadius: BorderRadius.circular(24),
-      ),
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        children: [
-          Image.asset(
-            'assets/nakhlah_web/water_drop_cartoon.png',
-            height: 120,
-            fit: BoxFit.contain,
-            errorBuilder: (context, error, stackTrace) =>
-                const Icon(Icons.celebration, size: 80, color: Colors.white54),
+        child: Ink(
+          decoration: BoxDecoration(
+            color: AppColors.palm,
+            borderRadius: BorderRadius.circular(24),
           ),
-          const SizedBox(height: 16),
-          const Text(
-            'Get a better & super fast learning up to 5x',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              height: 1.3,
-            ),
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            children: [
+              Image.asset(
+                'assets/nakhlah_web/water_drop_cartoon.png',
+                height: 120,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) => const Icon(
+                  Icons.celebration,
+                  size: 80,
+                  color: Colors.white54,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Get a better & super fast learning up to 5x',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  height: 1.3,
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Unlock all premium channels and accelerate your learning journey with exclusive content',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.white70,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 14),
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Tap to view Premium',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(width: 4),
+                  Icon(Icons.arrow_forward, color: Colors.white, size: 16),
+                ],
+              ),
+            ],
           ),
-          const SizedBox(height: 12),
-          const Text(
-            'Unlock all premium channels and accelerate your learning journey with exclusive content',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14, color: Colors.white70, height: 1.4),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -136,45 +248,48 @@ class _BuyDatesCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PressableScale(
-      child: InkWell(
-        onTap: () => Get.toNamed(Routes.purchaseDates),
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          decoration: BoxDecoration(
-            color: const Color(0xFFF3E8FF),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-          child: Row(
-            children: [
-              const Text('💎', style: TextStyle(fontSize: 28)),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Want to buy more dates?',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.ink,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => Get.toNamed(Routes.purchaseDates),
+          borderRadius: BorderRadius.circular(20),
+          child: Ink(
+            decoration: BoxDecoration(
+              color: const Color(0xFFF3E8FF),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            child: Row(
+              children: [
+                const Text('💎', style: TextStyle(fontSize: 28)),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Want to buy more dates?',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.ink,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Get dates to unlock lessons and boost your progress',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppColors.muted,
-                        height: 1.4,
+                      const SizedBox(height: 4),
+                      Text(
+                        'Get dates to unlock lessons and boost your progress',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.muted,
+                          height: 1.4,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              const Icon(Icons.chevron_right, color: Color(0xFF7C3AED)),
-            ],
+                const Icon(Icons.chevron_right, color: Color(0xFF7C3AED)),
+              ],
+            ),
           ),
         ),
       ),
@@ -188,20 +303,23 @@ class _GoPremiumButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PressableScale(
-      child: ElevatedButton(
-        onPressed: () => Get.toNamed(Routes.premium),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.palm,
-          foregroundColor: Colors.white,
-          minimumSize: const Size.fromHeight(56),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+      child: SizedBox(
+        width: double.infinity,
+        height: 56,
+        child: ElevatedButton(
+          onPressed: () => Get.toNamed(Routes.premium),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.palm,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            elevation: 0,
           ),
-          elevation: 0,
-        ),
-        child: const Text(
-          'Go Premium Now',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+          child: const Text(
+            'Go Premium Now',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+          ),
         ),
       ),
     );
@@ -290,56 +408,71 @@ class _FeatureCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          if (feature.title == 'Unlimited Dates') {
+            Get.toNamed(Routes.purchaseDates);
+            return;
+          }
+          _showStoreFeatureSheet(context, feature);
+        },
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+        child: Ink(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-        ],
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: feature.iconBgColor,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Icon(feature.icon, color: feature.iconColor, size: 24),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  feature.title,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.ink,
-                  ),
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: feature.iconBgColor,
+                  borderRadius: BorderRadius.circular(14),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  feature.subtitle,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: AppColors.muted,
-                    height: 1.4,
-                  ),
+                child: Icon(feature.icon, color: feature.iconColor, size: 24),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      feature.title,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.ink,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      feature.subtitle,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: AppColors.muted,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 8),
+              const Icon(Icons.chevron_right, color: AppColors.muted, size: 20),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
