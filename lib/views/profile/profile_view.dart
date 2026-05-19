@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../common/app_button.dart';
 import '../../common/app_motion.dart';
+import '../../common/app_snackbar.dart';
 import '../../common/loading_state.dart';
 import '../../common/responsive.dart';
 import '../../constants/app_colors.dart';
@@ -22,6 +26,19 @@ class ProfileView extends StatefulWidget {
 }
 
 class _ProfileViewState extends State<ProfileView> {
+  Future<void> _pickProfilePhoto(ProfileController controller) async {
+    try {
+      final picked = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+      );
+      if (picked == null) return;
+      await controller.updateProfile(picture: File(picked.path));
+    } catch (e) {
+      AppSnackbar.error('Could not update profile photo.');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -146,53 +163,61 @@ class _ProfileViewState extends State<ProfileView> {
 
     return Column(
       children: [
-        Stack(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 4),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
-                    blurRadius: 16,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: CircleAvatar(
-                radius: 52,
-                backgroundColor: const Color(0xFFF3E8FF),
-                backgroundImage: imageUrl != null
-                    ? CachedNetworkImageProvider(imageUrl)
-                    : null,
-                child: imageUrl == null
-                    ? const Icon(Icons.person, size: 52, color: AppColors.palm)
-                    : null,
-              ),
-            ),
-            Positioned(
-              bottom: 4,
-              right: 4,
-              child: Container(
-                width: 32,
-                height: 32,
+        InkWell(
+          onTap: () => _pickProfilePhoto(p),
+          customBorder: const CircleBorder(),
+          child: Stack(
+            children: [
+              Container(
                 decoration: BoxDecoration(
-                  color: AppColors.palm,
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 2),
+                  border: Border.all(color: Colors.white, width: 4),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 16,
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
-                child: const Icon(Icons.edit, color: Colors.white, size: 16),
+                child: CircleAvatar(
+                  radius: 52,
+                  backgroundColor: const Color(0xFFF3E8FF),
+                  backgroundImage: imageUrl != null
+                      ? CachedNetworkImageProvider(imageUrl)
+                      : null,
+                  child: imageUrl == null
+                      ? const Icon(
+                          Icons.person,
+                          size: 52,
+                          color: AppColors.palm,
+                        )
+                      : null,
+                ),
               ),
-            ),
-          ],
+              Positioned(
+                bottom: 4,
+                right: 4,
+                child: Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: AppColors.palm,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(Icons.edit, color: Colors.white, size: 16),
+                ),
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: 16),
         Text(
