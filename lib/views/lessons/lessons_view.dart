@@ -276,9 +276,14 @@ class _LessonChooser extends StatelessWidget {
                   locked: locked,
                   onTap: locked || lesson == null
                       ? null
-                      : () {
-                          Get.find<ContentController>().resetLessonState();
-                          Get.toNamed(Routes.arabicLessonFlow);
+                      : () async {
+                          final controller = Get.find<ContentController>();
+                          controller.resetLessonState(lesson: lesson);
+                          await controller.loadQuestions(lesson);
+                          Get.toNamed(
+                            Routes.arabicLessonFlow,
+                            arguments: lesson,
+                          );
                         },
                 );
               }),

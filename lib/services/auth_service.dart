@@ -17,7 +17,13 @@ class AuthService {
     final s = AuthSession.fromJson(
       await _api.post(path, body: body, auth: false),
     );
-    if (s.token != null) await _storage.saveToken(s.token!, exp: s.exp);
+    if (s.token != null) {
+      await _storage.saveToken(
+        s.token!,
+        exp: s.exp,
+        refreshToken: s.refreshToken,
+      );
+    }
     return s;
   }
 
@@ -45,10 +51,23 @@ class AuthService {
         body: {'currentPassword': currentPassword, 'newPassword': newPassword},
       );
   Future<AuthSession> refreshToken() async {
+    final refreshToken = _storage.refreshToken;
     final s = AuthSession.fromJson(
-      await _api.post(ApiEndpoints.refreshToken, body: {}),
+      await _api.post(
+        ApiEndpoints.refreshToken,
+        body: {
+          if (refreshToken != null && refreshToken.isNotEmpty)
+            'refreshToken': refreshToken,
+        },
+      ),
     );
-    if (s.token != null) await _storage.saveToken(s.token!, exp: s.exp);
+    if (s.token != null) {
+      await _storage.saveToken(
+        s.token!,
+        exp: s.exp,
+        refreshToken: s.refreshToken,
+      );
+    }
     return s;
   }
 

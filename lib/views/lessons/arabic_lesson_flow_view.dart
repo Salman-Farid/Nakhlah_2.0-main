@@ -2,10 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
 
+import '../../common/app_snackbar.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_theme.dart';
 import '../../controllers/content_controller.dart';
+import '../../services/storage_service.dart';
 
 class ArabicLessonFlowView extends StatefulWidget {
   const ArabicLessonFlowView({super.key});
@@ -228,6 +231,23 @@ class _Assets {
   static const mascot = 'assets/nakhlah_web/water_drop_cartoon.png';
 }
 
+String? _audioUrlForLessonStep(int stepIndex) {
+  if (!Get.isRegistered<ContentController>()) return null;
+
+  final controller = Get.find<ContentController>();
+  if (stepIndex >= 0 && stepIndex < controller.questions.length) {
+    final questionAudioUrl = controller.questions[stepIndex].audioUrl;
+    if (questionAudioUrl != null && questionAudioUrl.trim().isNotEmpty) {
+      return questionAudioUrl;
+    }
+  }
+
+  final lessonAudioUrl = controller.currentLesson?.audioUrl;
+  return lessonAudioUrl != null && lessonAudioUrl.trim().isNotEmpty
+      ? lessonAudioUrl
+      : null;
+}
+
 class LessonLearnStepWidget extends StatelessWidget {
   const LessonLearnStepWidget({
     super.key,
@@ -270,7 +290,10 @@ class LessonLearnStepWidget extends StatelessWidget {
           const SizedBox(height: 12),
           _Badge(text: badgeText, useSpeakerIcon: useSpeakerBadge),
           const SizedBox(height: 12),
-          const _StepLabel(label: 'Learn'),
+          _StepLabel(
+            label: 'Learn',
+            audioUrl: _audioUrlForLessonStep(currentStepIndex),
+          ),
           const SizedBox(height: 20),
           _CharacterImage(imagePath: imagePath),
           const SizedBox(height: 28),
@@ -367,7 +390,10 @@ class _LessonMCQStepWidgetState extends State<LessonMCQStepWidget> {
           const SizedBox(height: 12),
           const _Badge(text: '01'),
           const SizedBox(height: 12),
-          const _StepLabel(label: 'Question'),
+          _StepLabel(
+            label: 'Question',
+            audioUrl: _audioUrlForLessonStep(widget.currentStepIndex),
+          ),
           const SizedBox(height: 18),
           Text(
             widget.question,
@@ -1061,26 +1087,103 @@ class _Badge extends StatelessWidget {
   }
 }
 
-class _StepLabel extends StatelessWidget {
-  const _StepLabel({required this.label});
+class _StepLabel extends StatefulWidget {
+  const _StepLabel({required this.label, this.audioUrl});
 
   final String label;
+  final String? audioUrl;
+
+  @override
+  State<_StepLabel> createState() => _StepLabelState();
+}
+
+class _StepLabelState extends State<_StepLabel> {
+  late final AudioPlayer _player;
+  bool _loading = false;
+
+  bool get _hasAudio => widget.audioUrl?.trim().isNotEmpty == true;
+
+  @override
+  void initState() {
+    super.initState();
+    _player = AudioPlayer(useProxyForRequestHeaders: false);
+  }
+
+  @override
+  void didUpdateWidget(covariant _StepLabel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.audioUrl != widget.audioUrl) {
+      _player.stop();
+      _loading = false;
+    }
+  }
+
+  @override
+  void dispose() {
+    _player.dispose();
+    super.dispose();
+  }
+
+  Future<void> _playAudio() async {
+    final url = widget.audioUrl?.trim();
+    if (url == null || url.isEmpty || _loading) return;
+
+    setState(() => _loading = true);
+    try {
+      await _player.stop();
+      final token = Get.isRegistered<StorageService>()
+          ? Get.find<StorageService>().token
+          : null;
+      await _player.setUrl(
+        url,
+        headers: {
+          'Accept': 'audio/*,*/*',
+          if (token != null && token.isNotEmpty)
+            'Authorization': 'Bearer $token',
+        },
+      );
+      await _player.play();
+    } catch (e) {
+      AppSnackbar.error('Could not play lesson audio.');
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          'Learn',
-          style: TextStyle(
+          widget.label,
+          style: const TextStyle(
             color: AppColors.textSecondary,
             fontSize: 16,
             fontWeight: FontWeight.w900,
           ),
         ),
-        SizedBox(width: 6),
-        Icon(Icons.volume_up_rounded, color: AppColors.primary, size: 20),
+        if (_hasAudio) ...[
+          const SizedBox(width: 6),
+          InkWell(
+            onTap: _playAudio,
+            borderRadius: BorderRadius.circular(18),
+            child: Padding(
+              padding: const EdgeInsets.all(4),
+              child: _loading
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(
+                      Icons.volume_up_rounded,
+                      color: AppColors.primary,
+                      size: 20,
+                    ),
+            ),
+          ),
+        ],
       ],
     );
   }

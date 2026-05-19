@@ -20,7 +20,7 @@ class NakhlahApp extends StatelessWidget {
     debugShowCheckedModeBanner: false,
     title: 'Nakhlah 2.0',
     initialBinding: InitialBinding(),
-    initialRoute: Routes.arabicLessonFlow,
+    initialRoute: Routes.splash,
     getPages: AppPages.pages,
     theme: AppTheme.light,
     darkTheme: AppTheme.dark,

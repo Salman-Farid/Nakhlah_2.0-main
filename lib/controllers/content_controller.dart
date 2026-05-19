@@ -10,12 +10,14 @@ class ContentController extends GetxController {
   final levels = <JourneyLevel>[].obs;
   final lessons = <LessonModel>[].obs;
   final questions = <QuestionModel>[].obs;
+  LessonModel? currentLesson;
   int currentStepIndex = 0;
   String? selectedAnswer;
   bool isAnswerChecked = false;
   List<String> matchedPairs = <String>[];
   List<String> writtenLetters = <String>[];
-  void resetLessonState() {
+  void resetLessonState({LessonModel? lesson}) {
+    currentLesson = lesson ?? currentLesson;
     currentStepIndex = 0;
     selectedAnswer = null;
     isAnswerChecked = false;

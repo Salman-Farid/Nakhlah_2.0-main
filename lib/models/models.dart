@@ -91,6 +91,18 @@ class MediaModel {
 
   final String? id, url, thumbnailUrl, filename, mimeType, alt;
 
+  bool get isAudio {
+    final mime = mimeType?.toLowerCase() ?? '';
+    final path = (url ?? filename ?? '').toLowerCase();
+    return mime.startsWith('audio/') ||
+        path.endsWith('.mp3') ||
+        path.endsWith('.m4a') ||
+        path.endsWith('.aac') ||
+        path.endsWith('.wav') ||
+        path.endsWith('.ogg') ||
+        path.endsWith('.opus');
+  }
+
   String? get absoluteUrl {
     final u = url ?? thumbnailUrl;
     if (u == null || u.isEmpty) return null;
@@ -104,14 +116,69 @@ class MediaModel {
     if (j == null) return const MediaModel();
     return MediaModel(
       id: j['id']?.toString(),
-      url: j['url']?.toString() ?? j['profilePictureUrl']?.toString(),
+      url:
+          (j['url'] ??
+                  j['audioUrl'] ??
+                  j['audioURL'] ??
+                  j['fileUrl'] ??
+                  j['fileURL'] ??
+                  j['path'] ??
+                  j['profilePictureUrl'])
+              ?.toString(),
       thumbnailUrl:
           j['thumbnailURL']?.toString() ?? j['thumbnailUrl']?.toString(),
-      filename: j['filename']?.toString(),
-      mimeType: j['mimeType']?.toString(),
+      filename: (j['filename'] ?? j['fileName'] ?? j['name'])?.toString(),
+      mimeType: (j['mimeType'] ?? j['mimetype'] ?? j['type'])?.toString(),
       alt: j['alt']?.toString(),
     );
   }
+}
+
+MediaModel? _firstAudioMedia(dynamic value) {
+  final direct = MediaModel.fromJson(value);
+  if (direct.isAudio && direct.absoluteUrl != null) return direct;
+
+  final map = _map(_unwrap(value));
+  if (map == null) return null;
+
+  final directUrl = _string(
+    map['audioUrl'] ??
+        map['audioURL'] ??
+        map['audio'] ??
+        map['audioFile'] ??
+        map['soundUrl'] ??
+        map['soundURL'] ??
+        map['voiceUrl'] ??
+        map['voiceURL'],
+  );
+  if (directUrl.isNotEmpty) {
+    final media = MediaModel(url: directUrl, mimeType: 'audio');
+    if (media.absoluteUrl != null) return media;
+  }
+
+  for (final key in [
+    'media',
+    'questionMedia',
+    'lessonMedia',
+    'audios',
+    'audioFiles',
+    'files',
+    'attachments',
+  ]) {
+    final raw = map[key];
+    if (raw is List) {
+      for (final item in raw) {
+        final nested = _map(item);
+        final media = _firstAudioMedia(nested?['media'] ?? item);
+        if (media != null) return media;
+      }
+    } else if (raw != null) {
+      final media = _firstAudioMedia(raw);
+      if (media != null) return media;
+    }
+  }
+
+  return null;
 }
 
 class UserModel {
@@ -134,9 +201,15 @@ class UserModel {
 }
 
 class AuthSession {
-  const AuthSession({this.message, this.exp, this.token, this.user});
+  const AuthSession({
+    this.message,
+    this.exp,
+    this.token,
+    this.refreshToken,
+    this.user,
+  });
 
-  final String? message, token;
+  final String? message, token, refreshToken;
   final int? exp;
   final UserModel? user;
 
@@ -151,6 +224,11 @@ class AuthSession {
           ? source['exp'] as int
           : int.tryParse('${source['exp']}'),
       token: (source['token'] ?? source['accessToken'])?.toString(),
+      refreshToken:
+          (source['refreshToken'] ??
+                  source['refresh_token'] ??
+                  source['refresh'])
+              ?.toString(),
       user: UserModel.fromJson(source['user']),
     );
   }
@@ -415,6 +493,7 @@ class LessonModel {
     this.correctAnswer = '',
     this.matchPairs = const [],
     this.letterTiles = const [],
+    this.audioMedia,
   });
 
   final String id, title;
@@ -429,6 +508,8 @@ class LessonModel {
   final int correctIndex;
   final List<String> options, letterTiles;
   final List<MatchPairModel> matchPairs;
+  final MediaModel? audioMedia;
+  String? get audioUrl => audioMedia?.absoluteUrl;
 
   factory LessonModel.fromJson(dynamic value) {
     final j = _map(value) ?? const {};
@@ -453,6 +534,7 @@ class LessonModel {
         j['matchPairs'],
       ).map((e) => MatchPairModel.fromJson(e)).toList(),
       letterTiles: _list(j['letterTiles']).map((e) => _string(e)).toList(),
+      audioMedia: _firstAudioMedia(j),
     );
   }
 }
@@ -523,6 +605,7 @@ class QuestionModel {
     this.correctAnswer = '',
     this.matchPairs = const [],
     this.letterTiles = const [],
+    this.audioMedia,
   });
 
   final String id, type, title;
@@ -537,6 +620,8 @@ class QuestionModel {
   final int correctIndex;
   final List<String> options, letterTiles;
   final List<MatchPairModel> matchPairs;
+  final MediaModel? audioMedia;
+  String? get audioUrl => audioMedia?.absoluteUrl;
 
   factory QuestionModel.fromJson(dynamic value) {
     final j = _map(value) ?? const {};
@@ -576,6 +661,7 @@ class QuestionModel {
         j['matchPairs'],
       ).map((e) => MatchPairModel.fromJson(e)).toList(),
       letterTiles: _list(j['letterTiles']).map((e) => _string(e)).toList(),
+      audioMedia: _firstAudioMedia(j),
     );
   }
 }

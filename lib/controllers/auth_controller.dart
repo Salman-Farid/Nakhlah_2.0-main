@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 
 import '../common/app_snackbar.dart';
+import '../controllers/app_controller.dart';
 import '../models/models.dart';
 import '../routes/app_routes.dart';
 import '../services/auth_service.dart';
@@ -22,6 +23,7 @@ class AuthController extends GetxController {
     user.value = s.user;
     AppSnackbar.success(s.message ?? 'Welcome back');
     Get.offAllNamed(Routes.shell);
+    Get.find<AppController>().setTab(0);
     return true;
   });
 
@@ -63,6 +65,7 @@ class AuthController extends GetxController {
     user.value = s.user;
     AppSnackbar.success(s.message ?? 'Signed in with Google');
     Get.offAllNamed(Routes.shell);
+    Get.find<AppController>().setTab(0);
     return true;
   });
 
