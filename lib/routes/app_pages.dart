@@ -7,6 +7,7 @@ import '../views/auth/reset_password_view.dart';
 import '../views/auth/signup_view.dart';
 import '../views/exercises/exercise_view.dart';
 import '../views/home/app_shell_view.dart';
+import '../views/lessons/arabic_lesson_flow_view.dart';
 import '../views/lessons/lessons_view.dart';
 import '../views/onboarding/onboarding_form_view.dart';
 import '../views/onboarding/onboarding_view.dart';
@@ -33,6 +34,7 @@ class AppPages {
 
   static final pages = <GetPage>[
     _page(Routes.splash, () => const SplashView()),
+    _page(Routes.arabicLessonFlow, () => const ArabicLessonFlowView()),
     _page(Routes.onboarding, () => const OnboardingView()),
     _page(Routes.onboardingForm, () => const OnboardingFormView()),
     _page(Routes.login, () => const LoginView()),
@@ -41,6 +43,18 @@ class AppPages {
     _page(Routes.shell, () => const AppShellView()),
     _page(Routes.lessons, () => const LessonsView()),
     _page(Routes.exercise, () => const ExerciseView()),
+    _page(Routes.screen2AssalamuAlaykum, () => const ArabicLessonFlowView()),
+    _page(Routes.question1, () => const ArabicLessonFlowView()),
+    _page(Routes.correctFeedback, () => const ArabicLessonFlowView()),
+    _page(Routes.screen4Ismii, () => const ArabicLessonFlowView()),
+    _page(Routes.question3, () => const ArabicLessonFlowView()),
+    _page(Routes.question4, () => const ArabicLessonFlowView()),
+    _page(Routes.screen7KayfHaaluka, () => const ArabicLessonFlowView()),
+    _page(Routes.writeQuestion, () => const ArabicLessonFlowView()),
+    _page(Routes.match1, () => const ArabicLessonFlowView()),
+    _page(Routes.match2, () => const ArabicLessonFlowView()),
+    _page(Routes.lessonComplete, () => const ArabicLessonFlowView()),
+    _page(Routes.dailyMission, () => const ArabicLessonFlowView()),
     _page(Routes.settings, () => const SettingsView()),
     _page(Routes.premium, () => const PremiumView()),
     _page(Routes.purchaseDates, () => const PurchaseDatesView()),

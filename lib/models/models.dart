@@ -393,6 +393,8 @@ class JourneyTask {
   }
 }
 
+enum LessonStepType { learn, mcq, write, match, complete, mission }
+
 class LessonModel {
   const LessonModel({
     required this.id,
@@ -403,11 +405,30 @@ class LessonModel {
     this.lessonOrder = 1,
     this.isExam = false,
     this.active = false,
+    this.arabicText = '',
+    this.transliteration = '',
+    this.english = '',
+    this.image = '',
+    this.options = const [],
+    this.correctIndex = 0,
+    this.imagePath = '',
+    this.correctAnswer = '',
+    this.matchPairs = const [],
+    this.letterTiles = const [],
   });
 
   final String id, title;
   final int levelOrder, unitOrder, taskOrder, lessonOrder;
   final bool isExam, active;
+  final String arabicText,
+      transliteration,
+      english,
+      image,
+      imagePath,
+      correctAnswer;
+  final int correctIndex;
+  final List<String> options, letterTiles;
+  final List<MatchPairModel> matchPairs;
 
   factory LessonModel.fromJson(dynamic value) {
     final j = _map(value) ?? const {};
@@ -420,6 +441,18 @@ class LessonModel {
       lessonOrder: _int(j['lessonOrder'], 1),
       isExam: _bool(j['isExam']),
       active: _bool(j['inProgressOrCompleted'] ?? j['active']),
+      arabicText: _string(j['arabicText'] ?? j['arabic']),
+      transliteration: _string(j['transliteration']),
+      english: _string(j['english'] ?? j['translation']),
+      image: _string(j['image'] ?? j['imageUrl']),
+      options: _list(j['options']).map((e) => _string(e)).toList(),
+      correctIndex: _int(j['correctIndex']),
+      imagePath: _string(j['imagePath'] ?? j['image'] ?? j['imageUrl']),
+      correctAnswer: _string(j['correctAnswer']),
+      matchPairs: _list(
+        j['matchPairs'],
+      ).map((e) => MatchPairModel.fromJson(e)).toList(),
+      letterTiles: _list(j['letterTiles']).map((e) => _string(e)).toList(),
     );
   }
 }
@@ -452,6 +485,27 @@ class AnswerModel {
   }
 }
 
+class MatchPairModel {
+  const MatchPairModel({
+    required this.arabic,
+    required this.english,
+    this.arabicId = '',
+    this.englishId = '',
+  });
+
+  final String arabic, english, arabicId, englishId;
+
+  factory MatchPairModel.fromJson(dynamic value) {
+    final j = _map(value) ?? const {};
+    return MatchPairModel(
+      arabic: _string(j['arabic'] ?? j['left']),
+      english: _string(j['english'] ?? j['right']),
+      arabicId: _string(j['arabicId'] ?? j['leftId']),
+      englishId: _string(j['englishId'] ?? j['rightId']),
+    );
+  }
+}
+
 class QuestionModel {
   const QuestionModel({
     required this.id,
@@ -459,14 +513,36 @@ class QuestionModel {
     required this.title,
     required this.answers,
     this.media = const [],
+    this.arabicText = '',
+    this.transliteration = '',
+    this.english = '',
+    this.image = '',
+    this.options = const [],
+    this.correctIndex = 0,
+    this.imagePath = '',
+    this.correctAnswer = '',
+    this.matchPairs = const [],
+    this.letterTiles = const [],
   });
 
   final String id, type, title;
   final List<AnswerModel> answers;
   final List<MediaModel> media;
+  final String arabicText,
+      transliteration,
+      english,
+      image,
+      imagePath,
+      correctAnswer;
+  final int correctIndex;
+  final List<String> options, letterTiles;
+  final List<MatchPairModel> matchPairs;
 
   factory QuestionModel.fromJson(dynamic value) {
     final j = _map(value) ?? const {};
+    final answers = _list(
+      j['answers'],
+    ).map((e) => AnswerModel.fromJson(e)).toList();
     return QuestionModel(
       id: _string(j['id']),
       type: _string(
@@ -477,10 +553,29 @@ class QuestionModel {
         j['question_title'] ?? j['questionTitle'] ?? j['title'],
         'Question',
       ),
-      answers: _list(j['answers']).map((e) => AnswerModel.fromJson(e)).toList(),
+      answers: answers,
       media: _list(
         j['questionMedia'],
       ).map((e) => MediaModel.fromJson(_map(e)?['media'] ?? e)).toList(),
+      arabicText: _string(j['arabicText'] ?? j['arabic']),
+      transliteration: _string(j['transliteration']),
+      english: _string(j['english'] ?? j['translation']),
+      image: _string(j['image'] ?? j['imageUrl']),
+      options: _list(
+        j['options'],
+      ).map((e) => _string(e)).where((e) => e.isNotEmpty).toList(),
+      correctIndex: _int(j['correctIndex']),
+      imagePath: _string(j['imagePath'] ?? j['image'] ?? j['imageUrl']),
+      correctAnswer: _string(
+        j['correctAnswer'] ??
+            (answers.where((a) => a.isCorrect == true).isEmpty
+                ? ''
+                : answers.where((a) => a.isCorrect == true).first.id),
+      ),
+      matchPairs: _list(
+        j['matchPairs'],
+      ).map((e) => MatchPairModel.fromJson(e)).toList(),
+      letterTiles: _list(j['letterTiles']).map((e) => _string(e)).toList(),
     );
   }
 }
