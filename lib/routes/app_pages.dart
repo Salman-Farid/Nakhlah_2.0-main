@@ -2,10 +2,13 @@ import 'package:get/get.dart';
 
 import '../common/app_motion.dart';
 import '../views/auth/forgot_password_view.dart';
+import '../views/auth/get_started_view.dart';
 import '../views/auth/login_view.dart';
 import '../views/auth/otp_verification_view.dart';
 import '../views/auth/reset_password_view.dart';
 import '../views/auth/signup_view.dart';
+import '../views/auth/social_redirect_view.dart';
+import '../views/auth/welcome_back_view.dart';
 import '../views/challenges/challenges_view.dart';
 import '../views/exercises/exercise_view.dart';
 import '../views/exercises/lesson_result_view.dart';
@@ -41,6 +44,7 @@ class AppPages {
 
   static final pages = <GetPage>[
     _page(Routes.splash, () => const SplashView()),
+    _page(Routes.getStarted, () => const GetStartedView()),
     _page(Routes.arabicLessonFlow, () => const ArabicLessonFlowView()),
     _page(Routes.onboarding, () => const OnboardingView()),
     _page(Routes.onboardingForm, () => const OnboardingFormView()),
@@ -72,6 +76,8 @@ class AppPages {
     _page(Routes.about, () => const AboutView()),
     _page(Routes.legal, () => const LegalView()),
     _page(Routes.resetPassword, () => const ResetPasswordView()),
+    _page(Routes.welcomeBack, () => const WelcomeBackView()),
+    _page(Routes.socialRedirect, () => const SocialRedirectView()),
     _page(Routes.challenges, () => const ChallengesView()),
     _page(Routes.faq, () => const FaqView()),
     _page(Routes.terms, () => const TermsView()),

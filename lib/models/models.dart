@@ -355,19 +355,21 @@ class UserProfileModel {
 }
 
 class LeaderboardEntryModel {
-  const LeaderboardEntryModel({
+  LeaderboardEntryModel({
     required this.rank,
     required this.id,
     required this.fullName,
     required this.injazCount,
     this.email,
     this.profilePictureUrl,
+    this.isCurrentUser = false,
   });
 
   final int rank;
   final String id, fullName;
   final String? email, profilePictureUrl;
   final int injazCount;
+  bool isCurrentUser;
 
   String get initials {
     final words = fullName

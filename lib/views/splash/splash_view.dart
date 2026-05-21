@@ -91,7 +91,11 @@ class _SplashViewState extends State<SplashView>
                               : _scale.value,
                           child: child,
                         ),
-                        child: const NakhlahWordmark(),
+                        child: Image.asset(
+                          'assets/nakhlah_web/Nakhlah_Logo.webp',
+                          width: 160,
+                          fit: BoxFit.contain,
+                        ),
                       ),
                       const SizedBox(height: 48),
                       // hero image

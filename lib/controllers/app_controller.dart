@@ -8,13 +8,11 @@ class AppController extends GetxController {
   final tabIndex = 0.obs;
   void decideStart() {
     Future.delayed(const Duration(milliseconds: 650), () {
-      if (!storage.isOnboarded) {
-        Get.offAllNamed(Routes.onboarding);
-      } else if (storage.isLoggedIn) {
+      if (storage.isLoggedIn) {
         Get.offAllNamed(Routes.shell);
         setTab(0);
       } else {
-        Get.offAllNamed(Routes.login);
+        Get.offAllNamed(Routes.getStarted);
       }
     });
   }
