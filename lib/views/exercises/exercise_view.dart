@@ -954,8 +954,30 @@ class _ExerciseViewState extends State<ExerciseView>
 
   // ─── PAIR MATCHING ─────────────────────────────────────────────────────
   Widget _buildPairMatchingQuestion(LessonQuestion q) {
-    final leftItems = q.answers;
-    final rightItems = q.answers.toList()..shuffle();
+    // Build left (Arabic) and right (English) item lists using matchKey
+    // This matches the web implementation's approach
+    final pairs = q.answers;
+    final leftItems = pairs.asMap().entries.map((entry) {
+      final index = entry.key;
+      final pair = entry.value;
+      return _MatchItem(
+        id: 'left-$index-${pair.id}',
+        text: pair.leftTitle.isNotEmpty ? pair.leftTitle : pair.title,
+        matchKey: pair.id,
+      );
+    }).toList();
+
+    // Shuffle right items for variety
+    final rightItems = pairs.asMap().entries.map((entry) {
+      final index = entry.key;
+      final pair = entry.value;
+      return _MatchItem(
+        id: 'right-$index-${pair.id}',
+        text: pair.rightTitle.isNotEmpty ? pair.rightTitle : pair.title,
+        matchKey: pair.id,
+      );
+    }).toList()
+      ..shuffle();
 
     return Padding(
       padding: const EdgeInsets.only(top: 12),
@@ -991,23 +1013,17 @@ class _ExerciseViewState extends State<ExerciseView>
             children: [
               Expanded(
                 child: Column(
-                  children: leftItems.map((answer) {
-                    final isMatched = _matchedPairs.containsKey(answer.id);
-                    final isSelected = _selectedLeftId == answer.id;
+                  children: leftItems.map((item) {
+                    final isMatched = _matchedPairs.containsKey(item.matchKey);
+                    final isSelected = _selectedLeftId == item.id;
                     return _MatchTile(
-                      label: answer.leftTitle.isNotEmpty
-                          ? answer.leftTitle
-                          : answer.title,
-                      rtl: _isArabicText(
-                        answer.leftTitle.isNotEmpty
-                            ? answer.leftTitle
-                            : answer.title,
-                      ),
+                      label: item.text,
+                      rtl: _isArabicText(item.text),
                       selected: isSelected,
                       matched: isMatched,
                       onTap: isMatched || _questionAnswered
                           ? null
-                          : () => setState(() => _selectedLeftId = answer.id),
+                          : () => setState(() => _selectedLeftId = item.id),
                     );
                   }).toList(),
                 ),
@@ -1015,16 +1031,14 @@ class _ExerciseViewState extends State<ExerciseView>
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
-                  children: rightItems.map((answer) {
-                    final isMatched = _matchedPairs.containsValue(answer.id);
+                  children: rightItems.map((item) {
+                    final isMatched = _matchedPairs.containsValue(item.matchKey);
                     return _MatchTile(
-                      label: answer.rightTitle.isNotEmpty
-                          ? answer.rightTitle
-                          : answer.title,
+                      label: item.text,
                       matched: isMatched,
                       onTap: isMatched || _questionAnswered
                           ? null
-                          : () => _tryMatchPair(answer.id),
+                          : () => _tryMatchPair(item),
                     );
                   }).toList(),
                 ),
@@ -1036,20 +1050,30 @@ class _ExerciseViewState extends State<ExerciseView>
     );
   }
 
-  void _tryMatchPair(String rightId) {
-    final leftId = _selectedLeftId;
-    if (leftId == null) return;
+  void _tryMatchPair(_MatchItem rightItem) {
+    final selectedId = _selectedLeftId;
+    if (selectedId == null) return;
 
+    // Find the left item that was selected
     final question = _currentQuestion;
-    final leftAnswer = question.answers.where((a) => a.id == leftId).firstOrNull;
-    if (leftAnswer == null) return;
+    final leftIndex = question.answers.asMap().entries
+        .where((entry) => 'left-${entry.key}-${entry.value.id}' == selectedId)
+        .map((entry) => entry.key)
+        .firstOrNull;
 
-    if (leftId == rightId || leftAnswer.rightTitle == question.answers.where((a) => a.id == rightId).firstOrNull?.rightTitle) {
+    if (leftIndex == null) return;
+
+    final leftAnswer = question.answers[leftIndex];
+    final leftMatchKey = leftAnswer.id;
+
+    // Check if matchKeys are the same (correct pair)
+    if (leftMatchKey == rightItem.matchKey) {
       setState(() {
-        _matchedPairs[leftId] = rightId;
+        _matchedPairs[leftMatchKey] = rightItem.matchKey;
         _selectedLeftId = null;
       });
 
+      // Check if all pairs are matched
       if (_matchedPairs.length == question.answers.length) {
         setState(() {
           _questionAnswered = true;
@@ -1059,6 +1083,7 @@ class _ExerciseViewState extends State<ExerciseView>
         _feedbackController.forward(from: 0);
       }
     } else {
+      // Wrong match - apply penalty once
       if (!_pairPenaltyApplied) {
         _pairPenaltyApplied = true;
         _hasWrongAnswer = true;
@@ -1494,6 +1519,18 @@ class _LetterTile extends StatelessWidget {
       ),
     );
   }
+}
+
+class _MatchItem {
+  const _MatchItem({
+    required this.id,
+    required this.text,
+    required this.matchKey,
+  });
+
+  final String id;
+  final String text;
+  final String matchKey;
 }
 
 class _MatchTile extends StatelessWidget {

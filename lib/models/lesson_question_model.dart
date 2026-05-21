@@ -39,15 +39,27 @@ class LessonAnswer {
 
   factory LessonAnswer.fromJson(dynamic value) {
     final j = _map(value) ?? const {};
+
+    // Helper to pick first non-empty string (like JS `||` operator)
+    String _firstNonEmpty(List<dynamic> keys) {
+      for (final key in keys) {
+        final val = j[key];
+        if (val != null && val.toString().isNotEmpty && val.toString() != 'null') {
+          return val.toString();
+        }
+      }
+      return '';
+    }
+
     return LessonAnswer(
       id: _string(j['id']),
-      title: _string(j['title'] ?? j['answer_title'] ?? j['text'] ?? j['answer']),
+      title: _firstNonEmpty(['title', 'answer_title', 'text', 'answer']),
       isCorrect: j['is_correct'] is bool
           ? j['is_correct'] as bool
           : (j['isCorrect'] is bool ? j['isCorrect'] as bool : null),
       orderNumber: _int(j['order_number'] ?? j['orderNumber'] ?? j['order']),
-      leftTitle: _string(j['left_title'] ?? j['leftTitle'] ?? j['left']),
-      rightTitle: _string(j['right_title'] ?? j['rightTitle'] ?? j['right']),
+      leftTitle: _firstNonEmpty(['left_title', 'leftTitle', 'left']),
+      rightTitle: _firstNonEmpty(['right_title', 'RightTitle', 'rightTitle', 'right']),
       mediaType: _string(j['media_type'] ?? j['mediaType']),
       media: MediaModel.fromJson(j['media']),
     );

@@ -106,6 +106,21 @@ class _OnboardingFormViewState extends State<OnboardingFormView> {
   }
 
   Future<void> _submit() async {
+    // If the user entered email/password in the form (not already signed up),
+    // register them first so we have an auth token for the profile POST.
+    final authUser = Get.isRegistered<AuthController>()
+        ? Get.find<AuthController>().user.value
+        : null;
+    final existingEmail = authUser?.email ?? '';
+
+    if (existingEmail.isEmpty && _email.isNotEmpty && _password.isNotEmpty) {
+      final signedUp = await Get.find<AuthController>().signUp(
+        _email.trim(),
+        _password,
+      );
+      if (!signedUp) return;
+    }
+
     final opts = _profileCtrl.onboardingOptions.value;
     final strength = _findItem(opts?.languageStrength ?? [], _strengthId);
     final purpose = _findItem(opts?.purpose ?? [], _purposeId);
