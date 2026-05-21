@@ -1,4 +1,5 @@
 import '../constants/api_endpoints.dart';
+import '../models/lesson_question_model.dart';
 import '../models/models.dart';
 import 'api_service.dart';
 
@@ -40,6 +41,26 @@ class ContentService {
 
   Future<List<QuestionModel>> examQuestions(String taskId) async {
     return parseQuestions(await _api.get(ApiEndpoints.examQuestions(taskId)));
+  }
+
+  Future<List<LessonQuestion>> fetchLessonQuestions(String lessonId) async {
+    return parseLessonQuestions(
+      await _api.get(ApiEndpoints.questionsByLesson(lessonId)),
+    );
+  }
+
+  Future<List<LessonQuestion>> fetchExamQuestions(String taskId) async {
+    return parseLessonQuestions(
+      await _api.get(ApiEndpoints.examQuestions(taskId)),
+    );
+  }
+
+  Future<GamificationStock> reportWrongAnswer() async {
+    return GamificationStock.fromJson(await _api.get(ApiEndpoints.wrongAnswer));
+  }
+
+  Future<dynamic> reportFullMarks(String lessonId) {
+    return _api.get(ApiEndpoints.fullMarks(lessonId));
   }
 
   Future<dynamic> giftBox(String id) => _api.get(ApiEndpoints.giftBox(id));

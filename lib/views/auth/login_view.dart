@@ -8,6 +8,7 @@ import '../../constants/app_colors.dart';
 import '../../common/app_motion.dart';
 import '../../controllers/auth_controller.dart';
 import '../../routes/app_routes.dart';
+import 'dart:math' as math;
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -67,11 +68,10 @@ class _LoginViewState extends State<LoginView> {
 
             // ── titles ─────────────────────────────────
             const IntroTitleBlock(
-              title: 'Welcome\nBack!',
+              title: 'Hello there \u{1F44B}',
               body:
-                  'Enter your details below to continue your Arabic learning journey.',
+                  'Welcome back! Please sign in to continue.',
               titleSize: 36,
-              highlight: 'Arabic',
             ),
             const SizedBox(height: 26),
 
@@ -139,11 +139,11 @@ class _LoginViewState extends State<LoginView> {
                           color: AppColors.muted.withValues(alpha: .20),
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Text(
-                          'or',
-                          style: TextStyle(
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Text(
+                            'Or continue with',
+                            style: TextStyle(
                             color: AppColors.muted.withValues(alpha: .60),
                             fontWeight: FontWeight.w700,
                             fontSize: 12,
@@ -161,7 +161,6 @@ class _LoginViewState extends State<LoginView> {
                   Obx(
                     () => _SocialButton(
                       label: 'Continue with Google',
-                      icon: Icons.g_mobiledata_rounded,
                       loading: c.loading.value,
                       onTap: c.loading.value
                           ? null
@@ -209,13 +208,11 @@ class _LoginViewState extends State<LoginView> {
 class _SocialButton extends StatelessWidget {
   const _SocialButton({
     required this.label,
-    required this.icon,
     required this.onTap,
     this.loading = false,
   });
 
   final String label;
-  final IconData icon;
   final VoidCallback? onTap;
   final bool loading;
 
@@ -250,7 +247,7 @@ class _SocialButton extends StatelessWidget {
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
               else
-                Icon(icon, size: 26, color: const Color(0xFF4285F4)),
+                _GoogleIcon(size: 24),
               const SizedBox(width: 10),
               Text(
                 label,
@@ -266,4 +263,98 @@ class _SocialButton extends StatelessWidget {
       ),
     );
   }
+}
+
+// ─────────────────────────────────────────────
+//  Google "G" icon (custom painted)
+// ─────────────────────────────────────────────
+
+class _GoogleIcon extends StatelessWidget {
+  const _GoogleIcon({this.size = 24});
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: size,
+      height: size,
+      child: CustomPaint(painter: _GooglePainter()),
+    );
+  }
+}
+
+class _GooglePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final cx = size.width / 2;
+    final cy = size.height / 2;
+    final r = size.width * 0.42;
+
+    final bluePaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = size.width * 0.13
+      ..strokeCap = StrokeCap.round
+      ..color = const Color(0xFF4285F4);
+    canvas.drawArc(
+      Rect.fromCircle(center: Offset(cx, cy), radius: r),
+      -math.pi / 2,
+      math.pi / 2,
+      false,
+      bluePaint,
+    );
+
+    final greenPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = size.width * 0.13
+      ..strokeCap = StrokeCap.round
+      ..color = const Color(0xFF34A853);
+    canvas.drawArc(
+      Rect.fromCircle(center: Offset(cx, cy), radius: r),
+      0,
+      math.pi / 2,
+      false,
+      greenPaint,
+    );
+
+    final yellowPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = size.width * 0.13
+      ..strokeCap = StrokeCap.round
+      ..color = const Color(0xFFFBBC05);
+    canvas.drawArc(
+      Rect.fromCircle(center: Offset(cx, cy), radius: r),
+      math.pi / 2,
+      math.pi / 2,
+      false,
+      yellowPaint,
+    );
+
+    final redPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = size.width * 0.13
+      ..strokeCap = StrokeCap.round
+      ..color = const Color(0xFFEA4335);
+    canvas.drawArc(
+      Rect.fromCircle(center: Offset(cx, cy), radius: r),
+      math.pi,
+      math.pi / 2,
+      false,
+      redPaint,
+    );
+
+    final barPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = size.width * 0.13
+      ..strokeCap = StrokeCap.round
+      ..color = Colors.white;
+    final barY = cy + r * 0.15;
+    canvas.drawLine(
+      Offset(cx - r * 0.7, barY),
+      Offset(cx + r * 0.7, barY),
+      barPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

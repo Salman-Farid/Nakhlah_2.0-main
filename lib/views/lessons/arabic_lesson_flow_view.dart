@@ -376,7 +376,7 @@ class _LessonMCQStepWidgetState extends State<LessonMCQStepWidget> {
         primaryLabel: checked ? 'Continue' : 'Check Answer',
         primaryColor: checked && isCorrect
             ? AppColors.success
-            : AppColors.primary,
+            : AppColors.accent,
         onPrimary: checked
             ? widget.onContinue
             : selectedIndex == null
@@ -742,7 +742,7 @@ class LessonCompleteStepWidget extends StatelessWidget {
                 errorBuilder: (_, error, stackTrace) => const Icon(
                   Icons.water_drop_rounded,
                   size: 120,
-                  color: AppColors.primary,
+                  color: AppColors.accent,
                 ),
               ),
               const SizedBox(height: 18),
@@ -750,7 +750,7 @@ class LessonCompleteStepWidget extends StatelessWidget {
                 'Lesson completed!',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: AppColors.primary,
+                  color: AppColors.accent,
                   fontSize: 32,
                   fontWeight: FontWeight.w900,
                 ),
@@ -943,7 +943,7 @@ class _TopBar extends StatelessWidget {
                             margin: const EdgeInsets.symmetric(horizontal: 2),
                             decoration: BoxDecoration(
                               color: i < filled
-                                  ? AppColors.primary
+                                  ? AppColors.accent
                                   : AppColors.optionBorderDefault,
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -970,7 +970,7 @@ class _TopBar extends StatelessWidget {
               size: 21,
             ),
             const SizedBox(width: 6),
-            const Icon(Icons.flag_rounded, color: AppColors.primary, size: 21),
+            const Icon(Icons.flag_rounded, color: AppColors.accent, size: 21),
           ],
         ),
       ),
@@ -983,7 +983,7 @@ class _BottomActions extends StatelessWidget {
     required this.primaryLabel,
     required this.onPrimary,
     this.onSkip,
-    this.primaryColor = AppColors.primary,
+    this.primaryColor = AppColors.accent,
     this.showSkip = true,
   });
 
@@ -1029,7 +1029,7 @@ class _PrimaryButton extends StatelessWidget {
   const _PrimaryButton({
     required this.label,
     required this.onPressed,
-    this.color = AppColors.primary,
+    this.color = AppColors.accent,
   });
 
   final String label;
@@ -1072,7 +1072,7 @@ class _Badge extends StatelessWidget {
   Widget build(BuildContext context) {
     return CircleAvatar(
       radius: 26,
-      backgroundColor: AppColors.primary,
+      backgroundColor: AppColors.accent,
       child: useSpeakerIcon
           ? const Icon(Icons.volume_up_rounded, color: Colors.white)
           : Text(
@@ -1178,7 +1178,7 @@ class _StepLabelState extends State<_StepLabel> {
                     )
                   : const Icon(
                       Icons.volume_up_rounded,
-                      color: AppColors.primary,
+                      color: AppColors.accent,
                       size: 20,
                     ),
             ),
@@ -1207,7 +1207,7 @@ class _CharacterImage extends StatelessWidget {
         fit: BoxFit.contain,
         errorBuilder: (_, error, stackTrace) => Icon(
           Icons.person_rounded,
-          color: AppColors.primary.withValues(alpha: .35),
+          color: AppColors.accent.withValues(alpha: .35),
           size: height * .7,
         ),
       ),

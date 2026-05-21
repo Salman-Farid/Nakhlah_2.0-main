@@ -66,7 +66,7 @@ class _ProfileViewState extends State<ProfileView> {
           return ListView(
             padding: EdgeInsets.zero,
             children: [
-              for (var i = 0; i < 16; i++)
+              for (var i = 0; i < 20; i++)
                 PageEnter(
                   delay: Duration(milliseconds: 30 * i),
                   duration: const Duration(milliseconds: 280),
@@ -84,6 +84,10 @@ class _ProfileViewState extends State<ProfileView> {
                     _buildXpChartSection(context),
                     const SizedBox(height: 28),
                     _buildAchievementsSection(context, g),
+                    const SizedBox(height: 24),
+                    _buildSubscriptionCard(context),
+                    const SizedBox(height: 24),
+                    _buildSettingsLinks(context),
                     const SizedBox(height: 24),
                     _buildLogoutButton(context, a),
                     const SizedBox(height: 32),
@@ -242,50 +246,69 @@ class _ProfileViewState extends State<ProfileView> {
     ProfileController p,
     GamificationController g,
   ) {
-    final level = p.progress.value.levelOrder;
-    final unit = p.progress.value.unitOrder;
-    final totalXp =
-        p.stock.value.palmStock +
-        p.stock.value.dateStock +
-        p.stock.value.injazStock;
+    final stats = [
+      _GamificationStat(
+        icon: Icons.park,
+        value: '${p.stock.value.palmStock}',
+        label: 'Palm Trees',
+        color: const Color(0xFF10B981),
+      ),
+      _GamificationStat(
+        icon: Icons.circle,
+        value: '${p.stock.value.dateStock}',
+        label: 'Dates',
+        color: const Color(0xFFF59E0B),
+      ),
+      _GamificationStat(
+        icon: Icons.diamond,
+        value: '${g.stock.value.injazStock}',
+        label: 'Gems',
+        color: const Color(0xFF7C3AED),
+      ),
+      _GamificationStat(
+        icon: Icons.star,
+        value: '${p.stock.value.injazStock}',
+        label: 'Injaz',
+        color: const Color(0xFF3B82F6),
+      ),
+    ];
 
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      decoration: BoxDecoration(
-        border: Border(
-          top: BorderSide(color: Colors.grey.shade200),
-          bottom: BorderSide(color: Colors.grey.shade200),
-        ),
-      ),
-      child: Row(
-        children: [
-          Expanded(child: _buildStatItem('$level', 'Level')),
-          Container(width: 1, height: 40, color: Colors.grey.shade200),
-          Expanded(child: _buildStatItem('$unit', 'Unit')),
-          Container(width: 1, height: 40, color: Colors.grey.shade200),
-          Expanded(child: _buildStatItem('$totalXp', 'Total XP')),
-        ],
-      ),
+    return Row(
+      children: stats
+          .map((s) => Expanded(child: _buildGamificationStatCard(s)))
+          .toList(),
     );
   }
 
-  Widget _buildStatItem(String value, String label) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: AppColors.ink,
+  Widget _buildGamificationStatCard(_GamificationStat stat) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        children: [
+          Icon(stat.icon, color: stat.color, size: 22),
+          const SizedBox(height: 6),
+          Text(
+            stat.value,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: AppColors.ink,
+            ),
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
-        ),
-      ],
+          const SizedBox(height: 2),
+          Text(
+            stat.label,
+            style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 
@@ -351,7 +374,7 @@ class _ProfileViewState extends State<ProfileView> {
       _StatData(
         icon: '🔥',
         value: '${g.streak.value.currentStreak}',
-        label: 'Task Completed',
+        label: 'Current Streak',
       ),
       _StatData(
         icon: '📅',
@@ -359,19 +382,9 @@ class _ProfileViewState extends State<ProfileView> {
         label: 'Lessons Completed',
       ),
       _StatData(
-        icon: '💎',
-        value: '${p.stock.value.palmStock}',
-        label: 'Total Dates',
-      ),
-      _StatData(
         icon: '⚡',
         value: '${p.stock.value.injazStock}',
-        label: 'Total Injaz Gained',
-      ),
-      _StatData(
-        icon: '🎯',
-        value: '${p.progress.value.taskOrder}',
-        label: 'Achievements Unlocked',
+        label: 'Total XP',
       ),
       _StatData(
         icon: '🏅',
@@ -452,6 +465,161 @@ class _ProfileViewState extends State<ProfileView> {
           },
         ),
       ],
+    );
+  }
+
+  Widget _buildSubscriptionCard(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF7C3AED), Color(0xFF5B21B6)],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF7C3AED).withValues(alpha: 0.3),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Go Premium',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Unlock all lessons, remove ads & more',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.white.withValues(alpha: 0.85),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                ElevatedButton(
+                  onPressed: () => Get.toNamed(Routes.premium),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: const Color(0xFF7C3AED),
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    textStyle: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  child: const Text('Upgrade Now'),
+                ),
+              ],
+            ),
+          ),
+          const Icon(Icons.workspace_premium, color: Colors.white, size: 56),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSettingsLinks(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        children: [
+          _buildSettingsLinkItem(
+            icon: Icons.bar_chart,
+            iconBg: const Color(0xFFE3F2FD),
+            iconColor: const Color(0xFF42A5F5),
+            title: 'Stats',
+            onTap: () => Get.toNamed(Routes.stats),
+          ),
+          const Divider(height: 1, indent: 56),
+          _buildSettingsLinkItem(
+            icon: Icons.help_outline,
+            iconBg: const Color(0xFFE0F7FA),
+            iconColor: const Color(0xFF26C6DA),
+            title: 'FAQ',
+            onTap: () => Get.toNamed(Routes.faq),
+          ),
+          const Divider(height: 1, indent: 56),
+          _buildSettingsLinkItem(
+            icon: Icons.description_outlined,
+            iconBg: const Color(0xFFE8F5E9),
+            iconColor: const Color(0xFF66BB6A),
+            title: 'Terms & Conditions',
+            onTap: () => Get.toNamed(Routes.terms),
+          ),
+          const Divider(height: 1, indent: 56),
+          _buildSettingsLinkItem(
+            icon: Icons.mail_outline,
+            iconBg: const Color(0xFFFFF3E0),
+            iconColor: const Color(0xFFFF9800),
+            title: 'Contact Us',
+            onTap: () => Get.toNamed(Routes.contact),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSettingsLinkItem({
+    required IconData icon,
+    required Color iconBg,
+    required Color iconColor,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: iconBg,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: iconColor, size: 18),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.ink,
+                ),
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: Colors.grey, size: 20),
+          ],
+        ),
+      ),
     );
   }
 
@@ -779,6 +947,19 @@ class _StatData {
     required this.icon,
     required this.value,
     required this.label,
+  });
+}
+
+class _GamificationStat {
+  final IconData icon;
+  final String value;
+  final String label;
+  final Color color;
+  const _GamificationStat({
+    required this.icon,
+    required this.value,
+    required this.label,
+    required this.color,
   });
 }
 

@@ -3,11 +3,11 @@ import 'package:get/get.dart';
 
 import '../../common/app_motion.dart';
 import '../../controllers/app_controller.dart';
+import '../challenges/challenges_view.dart';
 import '../gamification/gamification_view.dart';
 import '../home/home_view.dart';
 import '../leaderboard/leaderboard_view.dart';
 import '../profile/profile_view.dart';
-import '../progress/progress_view.dart';
 
 class AppShellView extends StatelessWidget {
   const AppShellView({super.key});
@@ -17,7 +17,7 @@ class AppShellView extends StatelessWidget {
     final c = Get.find<AppController>();
     final pages = [
       const HomeView(),
-      const ProgressView(),
+      const ChallengesView(),
       const LeaderboardView(),
       const GamificationView(),
       const ProfileView(),
@@ -89,8 +89,8 @@ class AppShellView extends StatelessWidget {
                 label: 'Home',
               ),
               NavigationDestination(
-                icon: Icon(Icons.menu_book_outlined),
-                selectedIcon: Icon(Icons.menu_book),
+                icon: Icon(Icons.lock_open_outlined),
+                selectedIcon: Icon(Icons.lock_open),
                 label: 'Challenges',
               ),
               NavigationDestination(
