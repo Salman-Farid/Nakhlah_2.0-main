@@ -21,6 +21,7 @@ class _LoginViewState extends State<LoginView> {
   final email = TextEditingController();
   final pass = TextEditingController();
   bool _obscure = true;
+  bool _rememberMe = false;
 
   @override
   void dispose() {
@@ -98,35 +99,63 @@ class _LoginViewState extends State<LoginView> {
                           setState(() => _obscure = !_obscure),
                     ),
                   ),
-                  // forgot password link
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () => Get.toNamed(Routes.forgotPassword),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 4,
-                          vertical: 2,
+                  // Remember me + forgot password
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: Checkbox(
+                          value: _rememberMe,
+                          onChanged: (v) =>
+                              setState(() => _rememberMe = v ?? false),
+                          activeColor: AppColors.accent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          side: BorderSide(
+                            color: AppColors.muted.withValues(alpha: .35),
+                          ),
+                          materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap,
                         ),
-                        minimumSize: Size.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
-                      child: const Text(
-                        'Forgot Password?',
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Remember me',
                         style: TextStyle(
-                          color: AppColors.palmDark,
-                          fontWeight: FontWeight.w800,
+                          color: AppColors.ink,
+                          fontWeight: FontWeight.w600,
                           fontSize: 13,
                         ),
                       ),
-                    ),
+                      const Spacer(),
+                      TextButton(
+                        onPressed: () => Get.toNamed(Routes.forgotPassword),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                            vertical: 2,
+                          ),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: const Text(
+                          'Forgot Password?',
+                          style: TextStyle(
+                            color: AppColors.accent,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 8),
                   Obx(
                     () => IntroPrimaryButton(
-                      label: 'Sign In',
+                      label: 'SIGN IN',
                       loading: c.loading.value,
-                      icon: Icons.arrow_forward_rounded,
                       onPressed: () => c.login(email.text.trim(), pass.text),
                     ),
                   ),
@@ -174,7 +203,7 @@ class _LoginViewState extends State<LoginView> {
 
             // ── sign up link ───────────────────────────
             TextButton(
-              onPressed: () => Get.offNamed(Routes.signup),
+              onPressed: () => Get.offNamed(Routes.getStarted),
               child: const Text.rich(
                 TextSpan(
                   text: 'Don\'t have an account? ',

@@ -2,11 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
 
+import '../../common/app_snackbar.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_theme.dart';
 import '../../models/lesson_question_model.dart';
 import '../../services/content_service.dart';
+import '../../services/storage_service.dart';
 import 'lesson_result_view.dart';
 
 const _lessonMaxWidth = 430.0;
@@ -67,6 +70,10 @@ class _ExerciseViewState extends State<ExerciseView>
   late AnimationController _feedbackController;
   late Animation<double> _feedbackAnimation;
 
+  // Audio
+  late AudioPlayer _audioPlayer;
+  bool _audioLoading = false;
+
   LessonEngineArgs? _args;
 
   @override
@@ -80,6 +87,8 @@ class _ExerciseViewState extends State<ExerciseView>
       parent: _feedbackController,
       curve: Curves.easeOutBack,
     );
+
+    _audioPlayer = AudioPlayer(useProxyForRequestHeaders: false);
 
     _contentService = Get.find<ContentService>();
     _args = Get.arguments is LessonEngineArgs
@@ -97,6 +106,7 @@ class _ExerciseViewState extends State<ExerciseView>
   @override
   void dispose() {
     _timer?.cancel();
+    _audioPlayer.dispose();
     _feedbackController.dispose();
     super.dispose();
   }
@@ -135,6 +145,7 @@ class _ExerciseViewState extends State<ExerciseView>
       });
 
       _startTimer();
+      _autoPlayAudio();
     } catch (e) {
       setState(() {
         _error = e.toString();
@@ -292,6 +303,40 @@ class _ExerciseViewState extends State<ExerciseView>
       _currentIndex++;
       _resetQuestionState();
     });
+
+    _autoPlayAudio();
+  }
+
+  void _autoPlayAudio() {
+    final url = _currentQuestion.audioUrl;
+    if (url != null && url.trim().isNotEmpty) {
+      _playAudio(url);
+    }
+  }
+
+  Future<void> _playAudio(String url, {double speed = 1.0}) async {
+    if (_audioLoading) return;
+    setState(() => _audioLoading = true);
+    try {
+      await _audioPlayer.stop();
+      final token = Get.isRegistered<StorageService>()
+          ? Get.find<StorageService>().token
+          : null;
+      await _audioPlayer.setUrl(
+        url,
+        headers: {
+          'Accept': 'audio/*,*/*',
+          if (token != null && token.isNotEmpty)
+            'Authorization': 'Bearer $token',
+        },
+      );
+      _audioPlayer.setSpeed(speed);
+      await _audioPlayer.play();
+    } catch (e) {
+      AppSnackbar.error('Could not play audio.');
+    } finally {
+      if (mounted) setState(() => _audioLoading = false);
+    }
   }
 
   void _handleBack() {
@@ -1032,14 +1077,59 @@ class _ExerciseViewState extends State<ExerciseView>
   // ─── SHARED WIDGETS ────────────────────────────────────────────────────
 
   Widget _buildQuestionLabel(String label) {
+    final audioUrl = _currentQuestion.audioUrl;
+    final hasAudio = audioUrl != null && audioUrl.trim().isNotEmpty;
+
     return Center(
-      child: Text(
-        label,
-        style: const TextStyle(
-          color: AppColors.textSecondary,
-          fontSize: 16,
-          fontWeight: FontWeight.w900,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 16,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          if (hasAudio) ...[
+            const SizedBox(width: 6),
+            InkWell(
+              onTap: _audioLoading ? null : () => _playAudio(audioUrl),
+              borderRadius: BorderRadius.circular(18),
+              child: Padding(
+                padding: const EdgeInsets.all(4),
+                child: _audioLoading
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(
+                        Icons.volume_up_rounded,
+                        color: AppColors.accent,
+                        size: 20,
+                      ),
+              ),
+            ),
+            const SizedBox(width: 4),
+            InkWell(
+              onTap: _audioLoading ? null : () => _playAudio(audioUrl, speed: 0.6),
+              borderRadius: BorderRadius.circular(18),
+              child: Padding(
+                padding: const EdgeInsets.all(4),
+                child: Text(
+                  '0.6x',
+                  style: TextStyle(
+                    color: AppColors.accent,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }

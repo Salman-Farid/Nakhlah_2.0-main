@@ -101,8 +101,8 @@ class AuthController extends GetxController {
     }
 
     await auth.resetPassword(token, newPass);
-    AppSnackbar.success('Password reset successful. Please log in.');
-    Get.offAllNamed(Routes.login);
+    AppSnackbar.success('Password reset successful.');
+    Get.offAllNamed(Routes.welcomeBack);
     return true;
   });
 

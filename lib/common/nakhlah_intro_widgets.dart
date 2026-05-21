@@ -123,51 +123,10 @@ class NakhlahWordmark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Logo badge
-        Container(
-          width: compact ? 32 : 44,
-          height: compact ? 32 : 44,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0xFF9F67FF), AppColors.palmDark],
-            ),
-            borderRadius: BorderRadius.circular(compact ? 10 : 14),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.palm.withValues(alpha: .35),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Center(
-            child: Text(
-              'ن',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w900,
-                fontSize: compact ? 21 : 28,
-                height: 1,
-              ),
-            ),
-          ),
-        ),
-        SizedBox(width: compact ? 8 : 10),
-        Text(
-          'Nakhlah',
-          style: TextStyle(
-            color: AppColors.ink,
-            fontSize: compact ? 20 : 26,
-            fontWeight: FontWeight.w900,
-            letterSpacing: -.8,
-          ),
-        ),
-      ],
+    return Image.asset(
+      'assets/nakhlah_web/Nakhlah_Logo.webp',
+      width: compact ? 120 : 160,
+      fit: BoxFit.contain,
     );
   }
 }
