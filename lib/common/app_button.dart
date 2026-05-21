@@ -155,7 +155,7 @@ class AppButton extends StatelessWidget {
       case AppButtonKind.checkAnswer:
         return ElevatedButton.styleFrom(
           elevation: 0,
-          backgroundColor: AppColors.primary,
+          backgroundColor: AppColors.accent,
           foregroundColor: Colors.white,
           disabledBackgroundColor: AppColors.disabled,
           disabledForegroundColor: Colors.white,
@@ -166,14 +166,14 @@ class AppButton extends StatelessWidget {
       case AppButtonKind.option:
         return ElevatedButton.styleFrom(
           elevation: 0,
-          backgroundColor: selected ? AppColors.primary : AppColors.card,
+          backgroundColor: selected ? AppColors.accent : AppColors.card,
           foregroundColor: selected ? Colors.white : AppColors.textPrimary,
           disabledBackgroundColor: AppColors.card,
           disabledForegroundColor: AppColors.textSecondary,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18),
             side: BorderSide(
-              color: selected ? AppColors.primary : AppColors.border,
+              color: selected ? AppColors.accent : AppColors.border,
               width: selected ? 2 : 1,
             ),
           ),
@@ -192,7 +192,7 @@ class AppButton extends StatelessWidget {
       case AppButtonKind.continueButton:
         return ElevatedButton.styleFrom(
           elevation: 0,
-          backgroundColor: AppColors.primary,
+          backgroundColor: AppColors.accent,
           foregroundColor: Colors.white,
           disabledBackgroundColor: AppColors.disabled,
           disabledForegroundColor: Colors.white,

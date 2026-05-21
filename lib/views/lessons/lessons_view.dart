@@ -11,6 +11,7 @@ import '../../controllers/content_controller.dart';
 import '../../controllers/profile_controller.dart';
 import '../../models/models.dart';
 import '../../routes/app_routes.dart';
+import '../exercises/exercise_view.dart';
 
 class LessonsView extends StatefulWidget {
   const LessonsView({super.key});
@@ -107,6 +108,7 @@ class _LessonsViewState extends State<LessonsView> {
               level: _level,
               unit: _unit,
               task: _task,
+              taskId: _taskId!,
             );
           }
 
@@ -225,12 +227,14 @@ class _LessonChooser extends StatelessWidget {
     required this.level,
     required this.unit,
     required this.task,
+    required this.taskId,
   });
 
   final List<LessonModel> lessons;
   final JourneyLevel? level;
   final JourneyUnit? unit;
   final JourneyTask? task;
+  final String taskId;
 
   @override
   Widget build(BuildContext context) {
@@ -276,13 +280,14 @@ class _LessonChooser extends StatelessWidget {
                   locked: locked,
                   onTap: locked || lesson == null
                       ? null
-                      : () async {
-                          final controller = Get.find<ContentController>();
-                          controller.resetLessonState(lesson: lesson);
-                          await controller.loadQuestions(lesson);
+                      : () {
                           Get.toNamed(
-                            Routes.arabicLessonFlow,
-                            arguments: lesson,
+                            Routes.exercise,
+                            arguments: LessonEngineArgs(
+                              lessonId: lesson.id,
+                              taskId: taskId,
+                              isExamLesson: lesson.isExam,
+                            ),
                           );
                         },
                 );

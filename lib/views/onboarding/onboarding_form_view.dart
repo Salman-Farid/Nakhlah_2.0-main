@@ -1,13 +1,21 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
+import '../../common/app_motion.dart';
 import '../../common/nakhlah_intro_widgets.dart';
 import '../../constants/app_colors.dart';
-import '../../common/app_motion.dart';
 import '../../controllers/app_controller.dart';
+import '../../controllers/auth_controller.dart';
 import '../../controllers/profile_controller.dart';
 import '../../models/models.dart';
 import '../../routes/app_routes.dart';
+
+const _totalSteps = 10;
+const _pageTransitionDuration = Duration(milliseconds: 380);
+const _pageTransitionCurve = Curves.easeOutCubic;
 
 class OnboardingFormView extends StatefulWidget {
   const OnboardingFormView({super.key});
@@ -20,31 +28,63 @@ class _OnboardingFormViewState extends State<OnboardingFormView> {
   final _pageController = PageController();
   int _step = 0;
 
-  // ── field controllers ────────────────────────
-  final age = TextEditingController(text: '30 - 35');
-  final country = TextEditingController(text: 'Bangladesh');
-  final purpose = TextEditingController(text: 'Learning');
-  final goal = TextEditingController(text: '10');
-  final source = TextEditingController(text: 'facebook');
-  final strength = TextEditingController(text: 'Basic');
+  String _strengthId = '';
+  String _goalTime = '';
+  String _purposeId = '';
+  String _countryId = '';
+  String _sourceId = '';
+  final List<String> _interestIds = [];
+  String _fullName = '';
+  String _contactNumber = '';
+  File? _profilePicture;
+  String _ageId = '';
+  String _email = '';
+  String _password = '';
+
+  ProfileController get _profileCtrl => Get.find<ProfileController>();
+
+  @override
+  void initState() {
+    super.initState();
+    _profileCtrl.loadOnboardingOptions();
+  }
 
   @override
   void dispose() {
-    age.dispose();
-    country.dispose();
-    purpose.dispose();
-    goal.dispose();
-    source.dispose();
-    strength.dispose();
     _pageController.dispose();
     super.dispose();
   }
 
+  bool get _canProceed {
+    switch (_step) {
+      case 0:
+        return _strengthId.isNotEmpty;
+      case 1:
+        return _goalTime.isNotEmpty;
+      case 2:
+        return _purposeId.isNotEmpty;
+      case 3:
+        return _countryId.isNotEmpty;
+      case 4:
+        return _sourceId.isNotEmpty;
+      case 5:
+        return _interestIds.isNotEmpty;
+      case 6:
+        return _fullName.trim().length > 1 && _contactNumber.trim().length > 1;
+      case 7:
+        return _ageId.isNotEmpty;
+      case 8:
+        return true;
+      default:
+        return true;
+    }
+  }
+
   void _next() {
-    if (_step < 1) {
+    if (_step < _totalSteps - 1) {
       _pageController.nextPage(
-        duration: const Duration(milliseconds: 380),
-        curve: Curves.easeOutCubic,
+        duration: _pageTransitionDuration,
+        curve: _pageTransitionCurve,
       );
     }
   }
@@ -52,23 +92,42 @@ class _OnboardingFormViewState extends State<OnboardingFormView> {
   void _back() {
     if (_step > 0) {
       _pageController.previousPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOutCubic,
+        duration: _pageTransitionDuration,
+        curve: _pageTransitionCurve,
       );
     }
   }
 
-  Future<void> _submit(ProfileController c) async {
-    final created = await c.createOnboarding(
-      OnboardInfo(
-        age: age.text,
-        country: country.text,
-        purpose: purpose.text,
-        goalTime: int.tryParse(goal.text) ?? 10,
-        userSource: source.text,
-        languageStrength: strength.text,
-      ),
+  OnboardingItem? _findItem(List<OnboardingItem> items, String id) {
+    for (final item in items) {
+      if (item.id == id) return item;
+    }
+    return null;
+  }
+
+  Future<void> _submit() async {
+    final opts = _profileCtrl.onboardingOptions.value;
+    final strength = _findItem(opts?.languageStrength ?? [], _strengthId);
+    final purpose = _findItem(opts?.purpose ?? [], _purposeId);
+    final country = _findItem(opts?.country ?? [], _countryId);
+    final source = _findItem(opts?.userSource ?? [], _sourceId);
+    final age = _findItem(opts?.age ?? [], _ageId);
+
+    final info = OnboardInfo(
+      age: age?.title ?? _ageId,
+      country: country?.title ?? _countryId,
+      purpose: purpose?.title ?? '',
+      goalTime: int.tryParse(_goalTime) ?? 10,
+      userSource: (source?.title ?? _sourceId).toLowerCase(),
+      languageStrength: strength?.title ?? _strengthId,
     );
+
+    final created = await _profileCtrl.createOnboarding(
+      info,
+      fullName: _fullName.trim(),
+      contactNumber: _contactNumber.trim(),
+    );
+
     if (created) {
       Get.offAllNamed(Routes.shell);
       Get.find<AppController>().setTab(0);
@@ -77,13 +136,10 @@ class _OnboardingFormViewState extends State<OnboardingFormView> {
 
   @override
   Widget build(BuildContext context) {
-    final c = Get.find<ProfileController>();
-
     return IntroScaffold(
       showBack: _step > 0,
       child: Column(
         children: [
-          // ── top back row ─────────────────────────────
           AnimatedOpacity(
             opacity: _step > 0 ? 1.0 : 0.0,
             duration: AppMotion.fast,
@@ -103,41 +159,261 @@ class _OnboardingFormViewState extends State<OnboardingFormView> {
             ),
           ),
           const SizedBox(height: 4),
-          // ── step progress bar ─────────────────────────
-          _StepProgressBar(currentStep: _step, totalSteps: 2),
+          _StepProgressBar(currentStep: _step, totalSteps: _totalSteps),
           const SizedBox(height: 4),
-          // ── page view ────────────────────────────────
           Expanded(
-            child: PageView(
-              controller: _pageController,
-              physics: const NeverScrollableScrollPhysics(),
-              onPageChanged: (v) => setState(() => _step = v),
-              children: [
-                _Step1AboutYou(
-                  age: age,
-                  country: country,
-                  strength: strength,
-                  onNext: _next,
-                ),
-                _Step2Goals(
-                  purpose: purpose,
-                  goal: goal,
-                  source: source,
-                  c: c,
-                  onSubmit: _submit,
+            child: Obx(() {
+              final opts = _profileCtrl.onboardingOptions.value;
+              if (opts == null) {
+                return const Center(
+                  child: CircularProgressIndicator(color: AppColors.palm),
+                );
+              }
+              return PageView(
+                controller: _pageController,
+                physics: const NeverScrollableScrollPhysics(),
+                onPageChanged: (v) => setState(() => _step = v),
+                children: [
+                  _buildProficiencyStep(opts),
+                  _buildGoalStep(opts),
+                  _buildPurposeStep(opts),
+                  _buildCountryStep(opts),
+                  _buildSourceStep(opts),
+                  _buildInterestsStep(opts),
+                  _buildProfileInfoStep(),
+                  _buildAgeStep(opts),
+                  _buildAccountStep(),
+                  _buildCompletionStep(),
+                ],
+              );
+            }),
+          ),
+          _buildBottomBar(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBottomBar() {
+    final isLast = _step == _totalSteps - 1;
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Obx(() {
+        final loading = _profileCtrl.loading.value;
+        return IntroPrimaryButton(
+          label: isLast ? 'Start Learning' : 'Continue',
+          icon: isLast ? Icons.rocket_launch_rounded : Icons.arrow_forward_rounded,
+          loading: loading,
+          onPressed: _canProceed
+              ? () {
+                  if (isLast) {
+                    _submit();
+                  } else {
+                    _next();
+                  }
+                }
+              : null,
+        );
+      }),
+    );
+  }
+
+  // ── Step 0: Proficiency ──────────────────────────────────────
+
+  Widget _buildProficiencyStep(OnboardingOptions opts) {
+    return _SelectionStep(
+      title: opts.strengthsTitleTop.isNotEmpty
+          ? opts.strengthsTitleTop
+          : 'What is your Arabic\nproficiency level?',
+      subtitle: 'We\'ll personalise lessons to match your level.',
+      items: opts.languageStrength,
+      selectedId: _strengthId,
+      onSelect: (id) => setState(() => _strengthId = id),
+    );
+  }
+
+  // ── Step 1: Goal ────────────────────────────────────────────
+
+  Widget _buildGoalStep(OnboardingOptions opts) {
+    return _GoalPickerStep(
+      title: opts.goalTimeTopTitle.isNotEmpty
+          ? opts.goalTimeTopTitle
+          : 'Set your daily goal',
+      subtitle: 'A small habit you can keep every single day.',
+      items: opts.goal,
+      selectedGoalTime: _goalTime,
+      onSelect: (v) => setState(() => _goalTime = v),
+    );
+  }
+
+  // ── Step 2: Purpose ─────────────────────────────────────────
+
+  Widget _buildPurposeStep(OnboardingOptions opts) {
+    return _SelectionStep(
+      title: opts.purposeTitleTop.isNotEmpty
+          ? opts.purposeTitleTop
+          : 'What is your purpose\nfor learning Arabic?',
+      subtitle: 'We\'ll tailor content to your motivation.',
+      items: opts.purpose,
+      selectedId: _purposeId,
+      onSelect: (id) => setState(() => _purposeId = id),
+    );
+  }
+
+  // ── Step 3: Country ─────────────────────────────────────────
+
+  Widget _buildCountryStep(OnboardingOptions opts) {
+    return _SelectionStep(
+      title: opts.countryNameTop.isNotEmpty
+          ? opts.countryNameTop
+          : 'Where are you from?',
+      subtitle: 'This helps us localise your experience.',
+      items: opts.country,
+      selectedId: _countryId,
+      onSelect: (id) => setState(() => _countryId = id),
+    );
+  }
+
+  // ── Step 4: Source ──────────────────────────────────────────
+
+  Widget _buildSourceStep(OnboardingOptions opts) {
+    return _SelectionStep(
+      title: opts.sourceNameTop.isNotEmpty
+          ? opts.sourceNameTop
+          : 'How did you hear\nabout us?',
+      subtitle: 'Your answer helps us reach more learners.',
+      items: opts.userSource,
+      selectedId: _sourceId,
+      onSelect: (id) => setState(() => _sourceId = id),
+    );
+  }
+
+  // ── Step 5: Interests ──────────────────────────────────────
+
+  Widget _buildInterestsStep(OnboardingOptions opts) {
+    return _MultiSelectStep(
+      title: opts.interestTitleTop.isNotEmpty
+          ? opts.interestTitleTop
+          : 'What interests you?',
+      subtitle: 'Pick topics you\'d like to explore. Select at least one.',
+      items: opts.interests,
+      selectedIds: _interestIds,
+      onToggle: (id) {
+        setState(() {
+          if (_interestIds.contains(id)) {
+            _interestIds.remove(id);
+          } else {
+            _interestIds.add(id);
+          }
+        });
+      },
+    );
+  }
+
+  // ── Step 6: Profile Info ───────────────────────────────────
+
+  Widget _buildProfileInfoStep() {
+    return _ProfileInfoStepContent(
+      fullName: _fullName,
+      contactNumber: _contactNumber,
+      profilePicture: _profilePicture,
+      onFullNameChanged: (v) => setState(() => _fullName = v),
+      onContactChanged: (v) => setState(() => _contactNumber = v),
+      onPictureChanged: (v) => setState(() => _profilePicture = v),
+    );
+  }
+
+  // ── Step 7: Age ────────────────────────────────────────────
+
+  Widget _buildAgeStep(OnboardingOptions opts) {
+    return _SelectionStep(
+      title: opts.ageTitleTop.isNotEmpty ? opts.ageTitleTop : 'How old are you?',
+      subtitle: 'This helps us personalise your learning path.',
+      items: opts.age,
+      selectedId: _ageId,
+      onSelect: (id) => setState(() => _ageId = id),
+    );
+  }
+
+  // ── Step 8: Account ────────────────────────────────────────
+
+  Widget _buildAccountStep() {
+    final authUser = Get.isRegistered<AuthController>()
+        ? Get.find<AuthController>().user.value
+        : null;
+    final existingEmail = authUser?.email ?? '';
+
+    if (existingEmail.isNotEmpty) {
+      return _AccountStepContent(
+        email: existingEmail,
+        password: '',
+        isReadOnly: true,
+        onEmailChanged: (_) {},
+        onPasswordChanged: (_) {},
+      );
+    }
+
+    return _AccountStepContent(
+      email: _email,
+      password: _password,
+      isReadOnly: false,
+      onEmailChanged: (v) => setState(() => _email = v),
+      onPasswordChanged: (v) => setState(() => _password = v),
+    );
+  }
+
+  // ── Step 9: Completion ─────────────────────────────────────
+
+  Widget _buildCompletionStep() {
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.only(top: 8, bottom: 20),
+      child: Column(
+        children: [
+          const SizedBox(height: 20),
+          Container(
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF9F67FF), AppColors.palmDark],
+              ),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.palm.withValues(alpha: .30),
+                  blurRadius: 24,
+                  offset: const Offset(0, 8),
                 ),
               ],
             ),
+            child: const Icon(
+              Icons.check_rounded,
+              color: Colors.white,
+              size: 56,
+            ),
           ),
+          const SizedBox(height: 28),
+          const IntroTitleBlock(
+            title: 'You\'re All Set!',
+            body:
+                'Your profile is ready. Tap below to start your Arabic learning journey with Nakhlah.',
+            titleSize: 32,
+            align: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          const IntroStatBadges(),
         ],
       ),
     );
   }
 }
 
-// ─────────────────────────────────────────────
-//  Step progress indicator
-// ─────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+//  Progress bar
+// ─────────────────────────────────────────────────────────────
 
 class _StepProgressBar extends StatelessWidget {
   const _StepProgressBar({required this.currentStep, required this.totalSteps});
@@ -155,7 +431,7 @@ class _StepProgressBar extends StatelessWidget {
           final active = i == currentStep;
           return Expanded(
             child: Padding(
-              padding: EdgeInsets.only(right: i < totalSteps - 1 ? 6 : 0),
+              padding: EdgeInsets.only(right: i < totalSteps - 1 ? 4 : 0),
               child: AnimatedContainer(
                 duration: AppMotion.normal,
                 height: 5,
@@ -174,22 +450,23 @@ class _StepProgressBar extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-//  Step 1 – About you
-// ─────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+//  Reusable single-select grid step
+// ─────────────────────────────────────────────────────────────
 
-class _Step1AboutYou extends StatelessWidget {
-  const _Step1AboutYou({
-    required this.age,
-    required this.country,
-    required this.strength,
-    required this.onNext,
+class _SelectionStep extends StatelessWidget {
+  const _SelectionStep({
+    required this.title,
+    required this.subtitle,
+    required this.items,
+    required this.selectedId,
+    required this.onSelect,
   });
 
-  final TextEditingController age;
-  final TextEditingController country;
-  final TextEditingController strength;
-  final VoidCallback onNext;
+  final String title, subtitle;
+  final List<OnboardingItem> items;
+  final String selectedId;
+  final ValueChanged<String> onSelect;
 
   @override
   Widget build(BuildContext context) {
@@ -197,50 +474,34 @@ class _Step1AboutYou extends StatelessWidget {
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.only(top: 8, bottom: 20),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const IntroHeroImage(asset: IntroAssets.journeyMarker, height: 160),
-          const SizedBox(height: 10),
-          const IntroTitleBlock(
-            title: 'Tell Us\nAbout You',
-            body:
-                'A few quick answers help us personalise your Arabic journey.',
-            titleSize: 30,
+          IntroTitleBlock(
+            title: title,
+            body: subtitle,
+            titleSize: 26,
             align: TextAlign.left,
           ),
-          const SizedBox(height: 18),
-          const ProcessStepCard(
-            number: '01',
-            title: 'About you',
-            body: 'Age range, country, and your current Arabic level.',
-            icon: Icons.person_rounded,
-          ),
-          const SizedBox(height: 18),
-          AuthPanel(
-            children: [
-              IntroTextField(
-                controller: age,
-                label: 'Age range',
-                icon: Icons.cake_rounded,
-              ),
-              const SizedBox(height: 14),
-              IntroTextField(
-                controller: country,
-                label: 'Country',
-                icon: Icons.public_rounded,
-              ),
-              const SizedBox(height: 14),
-              IntroTextField(
-                controller: strength,
-                label: 'Arabic level',
-                icon: Icons.auto_awesome_rounded,
-              ),
-              const SizedBox(height: 20),
-              IntroPrimaryButton(
-                label: 'Continue',
-                icon: Icons.arrow_forward_rounded,
-                onPressed: onNext,
-              ),
-            ],
+          const SizedBox(height: 20),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              childAspectRatio: 1.1,
+            ),
+            itemCount: items.length,
+            itemBuilder: (context, i) {
+              final item = items[i];
+              final isSelected = item.id == selectedId;
+              return _OptionCard(
+                item: item,
+                isSelected: isSelected,
+                onTap: () => onSelect(item.id),
+              );
+            },
           ),
         ],
       ),
@@ -248,87 +509,264 @@ class _Step1AboutYou extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-//  Step 2 – Goals
-// ─────────────────────────────────────────────
-
-class _Step2Goals extends StatelessWidget {
-  const _Step2Goals({
-    required this.purpose,
-    required this.goal,
-    required this.source,
-    required this.c,
-    required this.onSubmit,
+class _OptionCard extends StatelessWidget {
+  const _OptionCard({
+    required this.item,
+    required this.isSelected,
+    required this.onTap,
   });
 
-  final TextEditingController purpose;
-  final TextEditingController goal;
-  final TextEditingController source;
-  final ProfileController c;
-  final Future<void> Function(ProfileController) onSubmit;
+  final OnboardingItem item;
+  final bool isSelected;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.only(top: 8, bottom: 20),
-      child: Column(
-        children: [
-          const IntroHeroImage(
-            asset: IntroAssets.lessonCards,
-            height: 160,
-            blobColor: AppColors.date,
+    final mediaUrl = item.absoluteMediaUrl;
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: AppMotion.fast,
+        curve: AppMotion.out,
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.optionBgSelected : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? AppColors.accent : AppColors.palm.withValues(alpha: .12),
+            width: isSelected ? 2.5 : 1.2,
           ),
-          const SizedBox(height: 10),
-          const IntroTitleBlock(
-            title: 'Set Your\nGoals',
-            body:
-                'We\'ll build a custom path around your daily learning habit.',
-            titleSize: 30,
-            align: TextAlign.left,
-          ),
-          const SizedBox(height: 18),
-          const ProcessStepCard(
-            number: '02',
-            title: 'Daily goal',
-            body: 'Set a small habit you can keep every single day.',
-            icon: Icons.flag_rounded,
-          ),
-          const SizedBox(height: 18),
-          // goal time quick picks
-          _GoalPicker(controller: goal),
-          const SizedBox(height: 18),
-          AuthPanel(
-            children: [
-              IntroTextField(
-                controller: purpose,
-                label: 'Purpose for learning',
-                icon: Icons.menu_book_rounded,
-              ),
-              const SizedBox(height: 14),
-              IntroTextField(
-                controller: source,
-                label: 'How did you hear about us?',
-                icon: Icons.campaign_rounded,
-              ),
-              const SizedBox(height: 20),
-              Obx(
-                () => IntroPrimaryButton(
-                  label: 'Start Learning  🎉',
-                  loading: c.loading.value,
-                  onPressed: () => onSubmit(c),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isSelected ? .08 : .04),
+              blurRadius: isSelected ? 16 : 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (mediaUrl != null)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(
+                  mediaUrl,
+                  width: 56,
+                  height: 56,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, error, stackTrace) => _fallbackIcon(isSelected),
+                ),
+              )
+            else
+              _fallbackIcon(isSelected),
+            const SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Text(
+                item.title,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: isSelected ? AppColors.accent : AppColors.ink,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 13,
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          const Text(
-            'You can update all of this later from your profile.',
-            style: TextStyle(
-              color: AppColors.muted,
-              fontWeight: FontWeight.w600,
-              fontSize: 12,
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _fallbackIcon(bool isSelected) {
+    return Container(
+      width: 56,
+      height: 56,
+      decoration: BoxDecoration(
+        color: isSelected
+            ? AppColors.accent.withValues(alpha: .12)
+            : AppColors.palm.withValues(alpha: .08),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Icon(
+        Icons.auto_awesome_rounded,
+        color: isSelected ? AppColors.accent : AppColors.palm,
+        size: 28,
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Goal picker step (quick-pick chips + optional images)
+// ─────────────────────────────────────────────────────────────
+
+class _GoalPickerStep extends StatelessWidget {
+  const _GoalPickerStep({
+    required this.title,
+    required this.subtitle,
+    required this.items,
+    required this.selectedGoalTime,
+    required this.onSelect,
+  });
+
+  final String title, subtitle;
+  final List<OnboardingItem> items;
+  final String selectedGoalTime;
+  final ValueChanged<String> onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.only(top: 8, bottom: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          IntroTitleBlock(
+            title: title,
+            body: subtitle,
+            titleSize: 26,
+            align: TextAlign.left,
+          ),
+          const SizedBox(height: 20),
+          if (items.isNotEmpty)
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: 1.1,
+              ),
+              itemCount: items.length,
+              itemBuilder: (context, i) {
+                final item = items[i];
+                final goalVal = item.goalTime?.toString() ?? item.title;
+                final isSelected = goalVal == selectedGoalTime;
+                return _OptionCard(
+                  item: item,
+                  isSelected: isSelected,
+                  onTap: () => onSelect(goalVal),
+                );
+              },
+            )
+          else
+            _buildFallbackGoalChips(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFallbackGoalChips() {
+    const options = [5, 10, 15, 20];
+    return Row(
+      children: options.map((min) {
+        final isSelected = selectedGoalTime == '$min';
+        return Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: GestureDetector(
+              onTap: () => onSelect('$min'),
+              child: AnimatedContainer(
+                duration: AppMotion.fast,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                decoration: BoxDecoration(
+                  color: isSelected ? AppColors.accent : const Color(0xFFF5FAF7),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isSelected
+                        ? AppColors.accent
+                        : AppColors.palm.withValues(alpha: .12),
+                    width: isSelected ? 2 : 1,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      '$min',
+                      style: TextStyle(
+                        color: isSelected ? Colors.white : AppColors.ink,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 22,
+                      ),
+                    ),
+                    Text(
+                      'min',
+                      style: TextStyle(
+                        color: isSelected
+                            ? Colors.white.withValues(alpha: .80)
+                            : AppColors.muted,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Multi-select step (interests)
+// ─────────────────────────────────────────────────────────────
+
+class _MultiSelectStep extends StatelessWidget {
+  const _MultiSelectStep({
+    required this.title,
+    required this.subtitle,
+    required this.items,
+    required this.selectedIds,
+    required this.onToggle,
+  });
+
+  final String title, subtitle;
+  final List<OnboardingItem> items;
+  final List<String> selectedIds;
+  final ValueChanged<String> onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.only(top: 8, bottom: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          IntroTitleBlock(
+            title: title,
+            body: subtitle,
+            titleSize: 26,
+            align: TextAlign.left,
+          ),
+          const SizedBox(height: 20),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              childAspectRatio: 1.1,
+            ),
+            itemCount: items.length,
+            itemBuilder: (context, i) {
+              final item = items[i];
+              final isSelected = selectedIds.contains(item.id);
+              return _OptionCard(
+                item: item,
+                isSelected: isSelected,
+                onTap: () => onToggle(item.id),
+              );
+            },
           ),
         ],
       ),
@@ -336,91 +774,272 @@ class _Step2Goals extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-//  Quick goal-time picker chips
-// ─────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+//  Profile info step (name, contact, picture)
+// ─────────────────────────────────────────────────────────────
 
-class _GoalPicker extends StatefulWidget {
-  const _GoalPicker({required this.controller});
-  final TextEditingController controller;
+class _ProfileInfoStepContent extends StatefulWidget {
+  const _ProfileInfoStepContent({
+    required this.fullName,
+    required this.contactNumber,
+    required this.profilePicture,
+    required this.onFullNameChanged,
+    required this.onContactChanged,
+    required this.onPictureChanged,
+  });
+
+  final String fullName, contactNumber;
+  final File? profilePicture;
+  final ValueChanged<String> onFullNameChanged;
+  final ValueChanged<String> onContactChanged;
+  final ValueChanged<File?> onPictureChanged;
 
   @override
-  State<_GoalPicker> createState() => _GoalPickerState();
+  State<_ProfileInfoStepContent> createState() =>
+      _ProfileInfoStepContentState();
 }
 
-class _GoalPickerState extends State<_GoalPicker> {
-  final _options = const [5, 10, 15, 20];
-  int? _selected;
+class _ProfileInfoStepContentState extends State<_ProfileInfoStepContent> {
+  late final TextEditingController _nameCtrl;
+  late final TextEditingController _contactCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameCtrl = TextEditingController(text: widget.fullName);
+    _contactCtrl = TextEditingController(text: widget.contactNumber);
+    _nameCtrl.addListener(() => widget.onFullNameChanged(_nameCtrl.text));
+    _contactCtrl.addListener(() => widget.onContactChanged(_contactCtrl.text));
+  }
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    _contactCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 512,
+      maxHeight: 512,
+      imageQuality: 80,
+    );
+    if (picked != null) {
+      widget.onPictureChanged(File(picked.path));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Daily learning goal',
-          style: TextStyle(
-            color: AppColors.ink,
-            fontWeight: FontWeight.w900,
-            fontSize: 14,
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.only(top: 8, bottom: 20),
+      child: Column(
+        children: [
+          const IntroTitleBlock(
+            title: 'Tell us\nabout yourself',
+            body: 'Add your name and contact so we can personalise your experience.',
+            titleSize: 26,
+            align: TextAlign.left,
           ),
-        ),
-        const SizedBox(height: 10),
-        Row(
-          children: _options.map((min) {
-            final isSelected = _selected == min;
-            return Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() => _selected = min);
-                    widget.controller.text = '$min';
-                  },
-                  child: AnimatedContainer(
-                    duration: AppMotion.fast,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? AppColors.palm
-                          : const Color(0xFFF5FAF7),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: isSelected
-                            ? AppColors.palm
-                            : AppColors.palm.withValues(alpha: .12),
-                        width: isSelected ? 2 : 1,
+          const SizedBox(height: 20),
+          GestureDetector(
+            onTap: _pickImage,
+            child: Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.palm.withValues(alpha: .08),
+                border: Border.all(
+                  color: AppColors.accent.withValues(alpha: .30),
+                  width: 2,
+                ),
+              ),
+              child: widget.profilePicture != null
+                  ? ClipOval(
+                      child: Image.file(
+                        widget.profilePicture!,
+                        fit: BoxFit.cover,
+                        width: 100,
+                        height: 100,
                       ),
-                    ),
-                    child: Column(
+                    )
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          '$min',
-                          style: TextStyle(
-                            color: isSelected ? Colors.white : AppColors.ink,
-                            fontWeight: FontWeight.w900,
-                            fontSize: 20,
-                          ),
+                        Icon(
+                          Icons.camera_alt_rounded,
+                          color: AppColors.accent,
+                          size: 28,
                         ),
+                        const SizedBox(height: 4),
                         Text(
-                          'min',
+                          'Photo',
                           style: TextStyle(
-                            color: isSelected
-                                ? Colors.white.withValues(alpha: .80)
-                                : AppColors.muted,
+                            color: AppColors.accent,
                             fontWeight: FontWeight.w700,
-                            fontSize: 12,
+                            fontSize: 11,
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          AuthPanel(
+            children: [
+              IntroTextField(
+                controller: _nameCtrl,
+                label: 'Full name',
+                icon: Icons.person_rounded,
               ),
-            );
-          }).toList(),
-        ),
-      ],
+              const SizedBox(height: 14),
+              IntroTextField(
+                controller: _contactCtrl,
+                label: 'Contact number',
+                icon: Icons.phone_rounded,
+                keyboardType: TextInputType.phone,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Account step (email + password, read-only if already signed up)
+// ─────────────────────────────────────────────────────────────
+
+class _AccountStepContent extends StatefulWidget {
+  const _AccountStepContent({
+    required this.email,
+    required this.password,
+    required this.isReadOnly,
+    required this.onEmailChanged,
+    required this.onPasswordChanged,
+  });
+
+  final String email, password;
+  final bool isReadOnly;
+  final ValueChanged<String> onEmailChanged;
+  final ValueChanged<String> onPasswordChanged;
+
+  @override
+  State<_AccountStepContent> createState() => _AccountStepContentState();
+}
+
+class _AccountStepContentState extends State<_AccountStepContent> {
+  late final TextEditingController _emailCtrl;
+  late final TextEditingController _passCtrl;
+  bool _obscure = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailCtrl = TextEditingController(text: widget.email);
+    _passCtrl = TextEditingController(text: widget.password);
+    _emailCtrl.addListener(() => widget.onEmailChanged(_emailCtrl.text));
+    _passCtrl.addListener(() => widget.onPasswordChanged(_passCtrl.text));
+  }
+
+  @override
+  void dispose() {
+    _emailCtrl.dispose();
+    _passCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.only(top: 8, bottom: 20),
+      child: Column(
+        children: [
+          IntroTitleBlock(
+            title: 'Your account',
+            body: widget.isReadOnly
+                ? 'You\'re already signed in. Tap continue to finish setup.'
+                : 'Create your account to save progress and compete on the leaderboard.',
+            titleSize: 26,
+            align: TextAlign.left,
+          ),
+          const SizedBox(height: 20),
+          if (!widget.isReadOnly)
+            AuthPanel(
+              children: [
+                IntroTextField(
+                  controller: _emailCtrl,
+                  label: 'Email address',
+                  icon: Icons.email_rounded,
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                const SizedBox(height: 14),
+                IntroTextField(
+                  controller: _passCtrl,
+                  label: 'Password',
+                  icon: Icons.lock_rounded,
+                  obscureText: _obscure,
+                  isObscured: _obscure,
+                  onToggleObscure: () => setState(() => _obscure = !_obscure),
+                ),
+              ],
+            )
+          else
+            AuthPanel(
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: AppColors.palm.withValues(alpha: .10),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: const Icon(
+                        Icons.check_circle_rounded,
+                        color: AppColors.palm,
+                        size: 22,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Signed in as',
+                            style: TextStyle(
+                              color: AppColors.muted,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 12,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            widget.email,
+                            style: const TextStyle(
+                              color: AppColors.ink,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+        ],
+      ),
     );
   }
 }
