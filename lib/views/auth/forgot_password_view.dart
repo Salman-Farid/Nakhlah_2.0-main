@@ -5,6 +5,7 @@ import '../../common/nakhlah_intro_widgets.dart';
 import '../../common/app_motion.dart';
 import '../../constants/app_colors.dart';
 import '../../controllers/auth_controller.dart';
+import '../../routes/app_routes.dart';
 
 class ForgotPasswordView extends StatefulWidget {
   const ForgotPasswordView({super.key});
@@ -104,7 +105,9 @@ class _FormBlock extends StatelessWidget {
                   icon: Icons.send_rounded,
                   onPressed: () async {
                     final sent = await c.forgotPassword(email.text.trim());
-                    if (sent) onSent();
+                    if (sent) {
+                      Get.toNamed(Routes.otpVerification);
+                    }
                   },
                 ),
               ),

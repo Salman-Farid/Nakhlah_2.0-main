@@ -8,6 +8,7 @@ import '../../constants/app_colors.dart';
 import '../../common/app_motion.dart';
 import '../../controllers/auth_controller.dart';
 import '../../routes/app_routes.dart';
+import 'dart:math' as math;
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -20,6 +21,7 @@ class _LoginViewState extends State<LoginView> {
   final email = TextEditingController();
   final pass = TextEditingController();
   bool _obscure = true;
+  bool _rememberMe = false;
 
   @override
   void dispose() {
@@ -67,11 +69,10 @@ class _LoginViewState extends State<LoginView> {
 
             // ── titles ─────────────────────────────────
             const IntroTitleBlock(
-              title: 'Welcome\nBack!',
+              title: 'Hello there \u{1F44B}',
               body:
-                  'Enter your details below to continue your Arabic learning journey.',
+                  'Welcome back! Please sign in to continue.',
               titleSize: 36,
-              highlight: 'Arabic',
             ),
             const SizedBox(height: 26),
 
@@ -98,35 +99,63 @@ class _LoginViewState extends State<LoginView> {
                           setState(() => _obscure = !_obscure),
                     ),
                   ),
-                  // forgot password link
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () => Get.toNamed(Routes.forgotPassword),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 4,
-                          vertical: 2,
+                  // Remember me + forgot password
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: Checkbox(
+                          value: _rememberMe,
+                          onChanged: (v) =>
+                              setState(() => _rememberMe = v ?? false),
+                          activeColor: AppColors.accent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          side: BorderSide(
+                            color: AppColors.muted.withValues(alpha: .35),
+                          ),
+                          materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap,
                         ),
-                        minimumSize: Size.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
-                      child: const Text(
-                        'Forgot Password?',
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Remember me',
                         style: TextStyle(
-                          color: AppColors.palmDark,
-                          fontWeight: FontWeight.w800,
+                          color: AppColors.ink,
+                          fontWeight: FontWeight.w600,
                           fontSize: 13,
                         ),
                       ),
-                    ),
+                      const Spacer(),
+                      TextButton(
+                        onPressed: () => Get.toNamed(Routes.forgotPassword),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                            vertical: 2,
+                          ),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: const Text(
+                          'Forgot Password?',
+                          style: TextStyle(
+                            color: AppColors.accent,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 8),
                   Obx(
                     () => IntroPrimaryButton(
-                      label: 'Sign In',
+                      label: 'SIGN IN',
                       loading: c.loading.value,
-                      icon: Icons.arrow_forward_rounded,
                       onPressed: () => c.login(email.text.trim(), pass.text),
                     ),
                   ),
@@ -139,11 +168,11 @@ class _LoginViewState extends State<LoginView> {
                           color: AppColors.muted.withValues(alpha: .20),
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Text(
-                          'or',
-                          style: TextStyle(
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Text(
+                            'Or continue with',
+                            style: TextStyle(
                             color: AppColors.muted.withValues(alpha: .60),
                             fontWeight: FontWeight.w700,
                             fontSize: 12,
@@ -161,7 +190,6 @@ class _LoginViewState extends State<LoginView> {
                   Obx(
                     () => _SocialButton(
                       label: 'Continue with Google',
-                      icon: Icons.g_mobiledata_rounded,
                       loading: c.loading.value,
                       onTap: c.loading.value
                           ? null
@@ -175,7 +203,7 @@ class _LoginViewState extends State<LoginView> {
 
             // ── sign up link ───────────────────────────
             TextButton(
-              onPressed: () => Get.offNamed(Routes.signup),
+              onPressed: () => Get.offNamed(Routes.getStarted),
               child: const Text.rich(
                 TextSpan(
                   text: 'Don\'t have an account? ',
@@ -209,13 +237,11 @@ class _LoginViewState extends State<LoginView> {
 class _SocialButton extends StatelessWidget {
   const _SocialButton({
     required this.label,
-    required this.icon,
     required this.onTap,
     this.loading = false,
   });
 
   final String label;
-  final IconData icon;
   final VoidCallback? onTap;
   final bool loading;
 
@@ -250,7 +276,7 @@ class _SocialButton extends StatelessWidget {
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
               else
-                Icon(icon, size: 26, color: const Color(0xFF4285F4)),
+                _GoogleIcon(size: 24),
               const SizedBox(width: 10),
               Text(
                 label,
@@ -266,4 +292,98 @@ class _SocialButton extends StatelessWidget {
       ),
     );
   }
+}
+
+// ─────────────────────────────────────────────
+//  Google "G" icon (custom painted)
+// ─────────────────────────────────────────────
+
+class _GoogleIcon extends StatelessWidget {
+  const _GoogleIcon({this.size = 24});
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: size,
+      height: size,
+      child: CustomPaint(painter: _GooglePainter()),
+    );
+  }
+}
+
+class _GooglePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final cx = size.width / 2;
+    final cy = size.height / 2;
+    final r = size.width * 0.42;
+
+    final bluePaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = size.width * 0.13
+      ..strokeCap = StrokeCap.round
+      ..color = const Color(0xFF4285F4);
+    canvas.drawArc(
+      Rect.fromCircle(center: Offset(cx, cy), radius: r),
+      -math.pi / 2,
+      math.pi / 2,
+      false,
+      bluePaint,
+    );
+
+    final greenPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = size.width * 0.13
+      ..strokeCap = StrokeCap.round
+      ..color = const Color(0xFF34A853);
+    canvas.drawArc(
+      Rect.fromCircle(center: Offset(cx, cy), radius: r),
+      0,
+      math.pi / 2,
+      false,
+      greenPaint,
+    );
+
+    final yellowPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = size.width * 0.13
+      ..strokeCap = StrokeCap.round
+      ..color = const Color(0xFFFBBC05);
+    canvas.drawArc(
+      Rect.fromCircle(center: Offset(cx, cy), radius: r),
+      math.pi / 2,
+      math.pi / 2,
+      false,
+      yellowPaint,
+    );
+
+    final redPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = size.width * 0.13
+      ..strokeCap = StrokeCap.round
+      ..color = const Color(0xFFEA4335);
+    canvas.drawArc(
+      Rect.fromCircle(center: Offset(cx, cy), radius: r),
+      math.pi,
+      math.pi / 2,
+      false,
+      redPaint,
+    );
+
+    final barPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = size.width * 0.13
+      ..strokeCap = StrokeCap.round
+      ..color = Colors.white;
+    final barY = cy + r * 0.15;
+    canvas.drawLine(
+      Offset(cx - r * 0.7, barY),
+      Offset(cx + r * 0.7, barY),
+      barPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

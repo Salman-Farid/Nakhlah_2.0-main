@@ -355,19 +355,21 @@ class UserProfileModel {
 }
 
 class LeaderboardEntryModel {
-  const LeaderboardEntryModel({
+  LeaderboardEntryModel({
     required this.rank,
     required this.id,
     required this.fullName,
     required this.injazCount,
     this.email,
     this.profilePictureUrl,
+    this.isCurrentUser = false,
   });
 
   final int rank;
   final String id, fullName;
   final String? email, profilePictureUrl;
   final int injazCount;
+  bool isCurrentUser;
 
   String get initials {
     final words = fullName
@@ -776,6 +778,124 @@ class TextBlock {
   }
 }
 
+class OnboardingItem {
+  const OnboardingItem({
+    required this.id,
+    required this.title,
+    this.mediaUrl,
+    this.mediaAlt,
+    this.goalTime,
+  });
+
+  final String id, title;
+  final String? mediaUrl, mediaAlt;
+  final int? goalTime;
+
+  String? get absoluteMediaUrl {
+    final u = mediaUrl;
+    if (u == null || u.isEmpty) return null;
+    if (u.startsWith('http')) return u;
+    final normalized = u.startsWith('/api/') ? u.replaceFirst('/api', '') : u;
+    return '${ApiEndpoints.baseUrl}$normalized';
+  }
+
+  factory OnboardingItem.fromStrength(dynamic value) {
+    final m = _map(value) ?? const {};
+    return OnboardingItem(
+      id: _string(m['id']),
+      title: _string(m['strengthsTitle'] ?? m['title'] ?? m['label'] ?? m['name']),
+      mediaUrl: _extractMediaUrl(m, ['strengthsMedia', 'strengthMedia']),
+    );
+  }
+
+  factory OnboardingItem.fromGoal(dynamic value) {
+    final m = _map(value) ?? const {};
+    return OnboardingItem(
+      id: _string(m['id']),
+      title: _string(m['goalTime'] ?? m['title'] ?? m['label'] ?? m['name']),
+      mediaUrl: _extractMediaUrl(m, ['goalMedia', 'goalPicture']),
+      goalTime: _int(m['goalTime']),
+    );
+  }
+
+  factory OnboardingItem.fromPurpose(dynamic value) {
+    final m = _map(value) ?? const {};
+    return OnboardingItem(
+      id: _string(m['id']),
+      title: _string(m['purposeTitle'] ?? m['title'] ?? m['label'] ?? m['name']),
+      mediaUrl: _extractMediaUrl(m, ['purposeMedia', 'purposePicture']),
+    );
+  }
+
+  factory OnboardingItem.fromCountry(dynamic value) {
+    final m = _map(value) ?? const {};
+    return OnboardingItem(
+      id: _string(m['id']),
+      title: _string(m['countryName'] ?? m['title'] ?? m['label'] ?? m['name']),
+      mediaUrl: _extractMediaUrl(m, ['countryMedia', 'countryPicture']),
+    );
+  }
+
+  factory OnboardingItem.fromSource(dynamic value) {
+    final m = _map(value) ?? const {};
+    return OnboardingItem(
+      id: _string(m['id']),
+      title: _string(m['sourceName'] ?? m['title'] ?? m['label'] ?? m['name']),
+      mediaUrl: _extractMediaUrl(m, ['sourcePicture', 'sourceMedia']),
+    );
+  }
+
+  factory OnboardingItem.fromInterest(dynamic value) {
+    final m = _map(value) ?? const {};
+    return OnboardingItem(
+      id: _string(m['id']),
+      title: _string(m['interestTitle'] ?? m['title'] ?? m['label'] ?? m['name']),
+      mediaUrl: _extractMediaUrl(m, ['interestPicture', 'interestMedia']),
+    );
+  }
+
+  factory OnboardingItem.fromAge(dynamic value) {
+    final m = _map(value) ?? const {};
+    return OnboardingItem(
+      id: _string(m['id']),
+      title: _string(m['ageTitle'] ?? m['title'] ?? m['label'] ?? m['name']),
+    );
+  }
+
+  static String? _extractMediaUrl(
+    Map<String, dynamic> item,
+    List<String> preferredKeys,
+  ) {
+    for (final key in preferredKeys) {
+      final value = item[key];
+      if (value is String && value.isNotEmpty) return value;
+      if (value is Map) {
+        final url = value['url']?.toString();
+        if (url != null && url.isNotEmpty) return url;
+      }
+    }
+    for (final key in [
+      'media', 'image', 'picture', 'icon', 'thumbnail', 'asset',
+    ]) {
+      final value = item[key];
+      if (value is String && value.isNotEmpty) return value;
+      if (value is Map) {
+        final url = value['url']?.toString();
+        if (url != null && url.isNotEmpty) return url;
+      }
+    }
+    if (item['media'] is List) {
+      for (final entry in item['media'] as List) {
+        if (entry is Map) {
+          final url = entry['url']?.toString() ?? entry['media']?['url']?.toString();
+          if (url != null && url.isNotEmpty) return url;
+        }
+      }
+    }
+    return null;
+  }
+}
+
 class OnboardingOptions {
   const OnboardingOptions({
     this.purpose = const [],
@@ -785,9 +905,16 @@ class OnboardingOptions {
     this.languageStrength = const [],
     this.age = const [],
     this.interests = const [],
+    this.strengthsTitleTop = '',
+    this.goalTimeTopTitle = '',
+    this.purposeTitleTop = '',
+    this.countryNameTop = '',
+    this.sourceNameTop = '',
+    this.interestTitleTop = '',
+    this.ageTitleTop = '',
   });
 
-  final List<String> purpose,
+  final List<OnboardingItem> purpose,
       goal,
       country,
       userSource,
@@ -795,26 +922,54 @@ class OnboardingOptions {
       age,
       interests;
 
-  static List<String> _labels(dynamic value) => _list(value)
-      .map((e) {
-        final m = _map(e);
-        return m == null
-            ? e.toString()
-            : (m['label'] ?? m['title'] ?? m['value'] ?? m['name']).toString();
-      })
-      .where((e) => e != 'null')
-      .toList();
+  final String strengthsTitleTop,
+      goalTimeTopTitle,
+      purposeTitleTop,
+      countryNameTop,
+      sourceNameTop,
+      interestTitleTop,
+      ageTitleTop;
 
   factory OnboardingOptions.fromJson(dynamic value) {
     final j = _map(_unwrap(value)) ?? const {};
+
+    final langStrength = _map(j['languageStrength']) ?? const {};
+    final goalSection = _map(j['Goal']) ?? _map(j['goal']) ?? const {};
+    final purposeSection = _map(j['purpose']) ?? const {};
+    final countrySection = _map(j['Country']) ?? _map(j['country']) ?? const {};
+    final sourceSection = _map(j['userSource']) ?? const {};
+    final interestSection = _map(j['interests']) ?? const {};
+    final ageSection = _map(j['age']) ?? const {};
+
     return OnboardingOptions(
-      purpose: _labels(j['purpose']),
-      goal: _labels(j['Goal'] ?? j['goal']),
-      country: _labels(j['Country'] ?? j['country']),
-      userSource: _labels(j['userSource']),
-      languageStrength: _labels(j['languageStrength']),
-      age: _labels(j['age']),
-      interests: _labels(j['interests']),
+      languageStrength: _list(langStrength['strengthsList'])
+          .map((e) => OnboardingItem.fromStrength(e))
+          .toList(),
+      goal: _list(goalSection['goalList'])
+          .map((e) => OnboardingItem.fromGoal(e))
+          .toList(),
+      purpose: _list(purposeSection['purposeList'])
+          .map((e) => OnboardingItem.fromPurpose(e))
+          .toList(),
+      country: _list(countrySection['countryList'])
+          .map((e) => OnboardingItem.fromCountry(e))
+          .toList(),
+      userSource: _list(sourceSection['sourceList'])
+          .map((e) => OnboardingItem.fromSource(e))
+          .toList(),
+      interests: _list(interestSection['interestList'])
+          .map((e) => OnboardingItem.fromInterest(e))
+          .toList(),
+      age: _list(ageSection['ageList'])
+          .map((e) => OnboardingItem.fromAge(e))
+          .toList(),
+      strengthsTitleTop: _string(langStrength['strengthsTitleTop'] ?? langStrength['titleTop']),
+      goalTimeTopTitle: _string(goalSection['goalTimeTopTitle'] ?? goalSection['titleTop']),
+      purposeTitleTop: _string(purposeSection['purposeTitleTop'] ?? purposeSection['titleTop']),
+      countryNameTop: _string(countrySection['countryNameTop'] ?? countrySection['titleTop']),
+      sourceNameTop: _string(sourceSection['sourceNameTop'] ?? sourceSection['titleTop']),
+      interestTitleTop: _string(interestSection['interestTitleTop'] ?? interestSection['titleTop']),
+      ageTitleTop: _string(ageSection['ageTitleTop'] ?? ageSection['titleTop'] ?? 'How old are you?'),
     );
   }
 }
