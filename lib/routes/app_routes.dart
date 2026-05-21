@@ -1,11 +1,14 @@
 class Routes {
   static const splash = '/';
+  static const getStarted = '/get-started';
   static const arabicLessonFlow = '/arabic-lesson-flow';
   static const onboarding = '/onboarding';
   static const onboardingForm = '/onboarding-form';
   static const login = '/login';
   static const signup = '/signup';
   static const forgotPassword = '/forgot-password';
+  static const welcomeBack = '/welcome-back';
+  static const socialRedirect = '/social-redirect';
   static const shell = '/app';
   static const lessons = '/lessons';
   static const exercise = '/exercise';
