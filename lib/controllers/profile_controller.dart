@@ -15,6 +15,7 @@ class ProfileController extends GetxController {
   final progress = const ProgressModel().obs;
   final stock = const GamificationStock().obs;
   final leaderboard = <LeaderboardEntryModel>[].obs;
+  final onboardingOptions = Rxn<OnboardingOptions>();
 
   Future<void> load() async {
     try {
@@ -40,10 +41,28 @@ class ProfileController extends GetxController {
     }
   }
 
-  Future<bool> createOnboarding(OnboardInfo info) async {
+  Future<void> loadOnboardingOptions() async {
+    try {
+      onboardingOptions.value = await service.fetchOnboardingOptions();
+    } catch (e) {
+      AppSnackbar.error(e.toString());
+    }
+  }
+
+  Future<bool> createOnboarding(
+    OnboardInfo info, {
+    String? fullName,
+    String? contactNumber,
+    String? profilePictureUrl,
+  }) async {
     try {
       loading.value = true;
-      profile.value = await service.createProfile(info);
+      profile.value = await service.createProfile(
+        info,
+        fullName: fullName,
+        contactNumber: contactNumber,
+        profilePictureUrl: profilePictureUrl,
+      );
       AppSnackbar.success('Profile created.');
       return true;
     } catch (e) {

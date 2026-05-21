@@ -14,12 +14,29 @@ class ProfileService {
     return UserProfileModel.fromJson(await _api.get(ApiEndpoints.userProfile));
   }
 
-  Future<UserProfileModel> createProfile(OnboardInfo info) async {
+  Future<OnboardingOptions> fetchOnboardingOptions() async {
+    return OnboardingOptions.fromJson(
+      await _api.get(ApiEndpoints.userOnboarding, auth: false),
+    );
+  }
+
+  Future<UserProfileModel> createProfile(
+    OnboardInfo info, {
+    String? fullName,
+    String? contactNumber,
+    String? profilePictureUrl,
+  }) async {
+    final body = <String, dynamic>{
+      'onboardInfo': info.toJson(),
+      if (fullName != null && fullName.trim().isNotEmpty)
+        'fullName': fullName.trim(),
+      if (contactNumber != null && contactNumber.trim().isNotEmpty)
+        'contactNumber': contactNumber.trim(),
+      if (profilePictureUrl != null && profilePictureUrl.trim().isNotEmpty)
+        'profilePictureUrl': profilePictureUrl.trim(),
+    };
     return UserProfileModel.fromJson(
-      await _api.post(
-        ApiEndpoints.userProfile,
-        body: {'onboardInfo': info.toJson()},
-      ),
+      await _api.post(ApiEndpoints.userProfile, body: body),
     );
   }
 

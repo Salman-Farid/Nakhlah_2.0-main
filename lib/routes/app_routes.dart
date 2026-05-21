@@ -9,6 +9,7 @@ class Routes {
   static const shell = '/app';
   static const lessons = '/lessons';
   static const exercise = '/exercise';
+  static const lessonResult = '/lesson-result';
   static const settings = '/settings';
   static const premium = '/premium';
   static const purchaseDates = '/purchase-dates';
@@ -16,7 +17,13 @@ class Routes {
   static const helpCenter = '/help-center';
   static const about = '/about';
   static const legal = '/legal';
+  static const otpVerification = '/otp-verification';
   static const resetPassword = '/reset-password';
+  static const challenges = '/challenges';
+  static const faq = '/faq';
+  static const terms = '/terms';
+  static const stats = '/stats';
+  static const contact = '/contact';
 
   static const screen2AssalamuAlaykum = '/screen-2-assalamu-alaykum';
   static const question1 = '/question-1';
