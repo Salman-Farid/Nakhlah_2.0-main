@@ -35,6 +35,7 @@ class ApiService {
     if (json) 'Content-Type': 'application/json',
     if (auth && _storage.token != null)
       'Authorization': 'Bearer ${_storage.token}',
+    if (_storage.cookies != null) 'Cookie': _storage.cookies!,
   };
 
   Future<dynamic> get(
@@ -142,10 +143,13 @@ class ApiService {
       }
 
       final response = await request().timeout(_timeout);
+      await _captureCookies(response);
       if (_shouldRefresh(response, auth: auth, path: path)) {
         final refreshed = await _refreshAccessToken();
         if (refreshed) {
-          return _decode(await request().timeout(_timeout));
+          final retryResponse = await request().timeout(_timeout);
+          await _captureCookies(retryResponse);
+          return _decode(retryResponse);
         }
       }
 
@@ -173,6 +177,26 @@ class ApiService {
         _storage.token!.isNotEmpty;
   }
 
+  /// Persist Set-Cookie headers so the refresh-token cookie is replayed on
+  /// subsequent requests (mimics the browser's credentials: "include" behaviour).
+  Future<void> _captureCookies(http.Response response) async {
+    final setCookies = response.headers['set-cookie'];
+    if (setCookies == null || setCookies.isEmpty) return;
+
+    final cookieHeader = _cookieHeaderFromSetCookie(setCookies);
+    if (cookieHeader.isEmpty) return;
+
+    await _storage.saveCookies(cookieHeader);
+  }
+
+  String _cookieHeaderFromSetCookie(String setCookieHeader) {
+    return setCookieHeader
+        .split(RegExp(r',(?=\s*[^;,=\s]+=)'))
+        .map((cookie) => cookie.trim().split(';').first.trim())
+        .where((cookie) => cookie.isNotEmpty)
+        .join('; ');
+  }
+
   Future<bool>? _refreshRequest;
 
   Future<bool> _refreshAccessToken() {
@@ -197,11 +221,13 @@ class ApiService {
               'Accept': 'application/json',
               'Content-Type': 'application/json',
               'Authorization': 'Bearer $currentToken',
+              if (_storage.cookies != null) 'Cookie': _storage.cookies!,
             },
             body: jsonEncode({}),
           )
           .timeout(_timeout);
 
+      await _captureCookies(response);
       if (response.statusCode != 200) return false;
 
       final decoded = _decode(response);
@@ -220,14 +246,18 @@ class ApiService {
                   'Accept': 'application/json',
                   'Content-Type': 'application/json',
                   'Authorization': 'Bearer $finalToken',
+                  if (_storage.cookies != null) 'Cookie': _storage.cookies!,
                 },
               )
               .timeout(_timeout);
 
+          await _captureCookies(meResp);
+
           if (meResp.statusCode == 200) {
             final meData = _decode(meResp);
             if (meData is Map) {
-              final meToken = meData['token']?.toString();
+              final meToken = (meData['token'] ?? meData['refreshedToken'])
+                  ?.toString();
               if (meToken != null && meToken.isNotEmpty) {
                 finalToken = meToken;
               }

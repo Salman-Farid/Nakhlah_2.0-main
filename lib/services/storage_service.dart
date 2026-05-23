@@ -5,6 +5,7 @@ class StorageService {
   static const _token = 'auth.token',
       _refreshToken = 'auth.refreshToken',
       _exp = 'auth.exp',
+      _cookies = 'auth.cookies',
       _onboarded = 'app.onboarded';
   String? get token => _box.read<String>(_token);
   String? get refreshToken => _box.read<String>(_refreshToken);
@@ -16,6 +17,13 @@ class StorageService {
     if (expiry == null) return false;
     final nowSeconds = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     return expiry <= nowSeconds + 30;
+  }
+
+  /// Stored cookies sent back on every request (mimics credentials: "include").
+  String? get cookies => _box.read<String>(_cookies);
+
+  Future<void> saveCookies(String cookieHeader) async {
+    await _box.write(_cookies, cookieHeader);
   }
 
   Future<void> saveToken(String token, {int? exp, String? refreshToken}) async {
@@ -31,5 +39,6 @@ class StorageService {
     await _box.remove(_token);
     await _box.remove(_refreshToken);
     await _box.remove(_exp);
+    await _box.remove(_cookies);
   }
 }
