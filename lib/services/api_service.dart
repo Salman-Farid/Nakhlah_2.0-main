@@ -189,31 +189,64 @@ class ApiService {
     final currentToken = _storage.token;
     if (currentToken == null || currentToken.isEmpty) return false;
 
-    final refreshToken = _storage.refreshToken;
     try {
       final response = await _client
           .post(
             _uri(ApiEndpoints.refreshToken),
-            headers: _headers(),
-            body: jsonEncode({
-              if (refreshToken != null && refreshToken.isNotEmpty)
-                'refreshToken': refreshToken,
-            }),
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $currentToken',
+            },
+            body: jsonEncode({}),
           )
           .timeout(_timeout);
 
+      if (response.statusCode != 200) return false;
+
       final decoded = _decode(response);
       final session = AuthSession.fromJson(decoded);
-      if (session.token == null || session.token!.isEmpty) return false;
 
-      await _storage.saveToken(
-        session.token!,
-        exp: session.exp,
-        refreshToken: session.refreshToken,
-      );
+      // Web calls /me after refresh to validate the token and handle rotation.
+      String? finalToken = session.token;
+      int? finalExp = session.exp;
+
+      if (finalToken != null && finalToken.isNotEmpty) {
+        try {
+          final meResp = await _client
+              .get(
+                _uri(ApiEndpoints.me),
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json',
+                  'Authorization': 'Bearer $finalToken',
+                },
+              )
+              .timeout(_timeout);
+
+          if (meResp.statusCode == 200) {
+            final meData = _decode(meResp);
+            if (meData is Map) {
+              final meToken = meData['token']?.toString();
+              if (meToken != null && meToken.isNotEmpty) {
+                finalToken = meToken;
+              }
+              if (meData['exp'] is int) {
+                finalExp = meData['exp'] as int;
+              }
+            }
+          }
+        } catch (_) {
+          // /me failed but refresh token is still valid — use it.
+        }
+      }
+
+      if (finalToken == null || finalToken.isEmpty) return false;
+
+      await _storage.saveToken(finalToken, exp: finalExp);
       return true;
     } catch (_) {
-      await _storage.clearAuth();
+      // Don't clear auth on transient failures — let the caller decide.
       return false;
     }
   }

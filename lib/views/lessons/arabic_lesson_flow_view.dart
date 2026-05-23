@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 
 import '../../common/app_snackbar.dart';
+import '../../common/nakhlah_mascot.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_theme.dart';
 import '../../controllers/content_controller.dart';
@@ -228,7 +229,7 @@ class _ArabicLessonFlowViewState extends State<ArabicLessonFlowView> {
 class _Assets {
   static const man = 'assets/nakhlah_web/assalamu_alaykum.webp';
   static const manWoman = 'assets/nakhlah_web/my_name.webp';
-  static const mascot = 'assets/nakhlah_web/water_drop_cartoon.png';
+  // mascot now uses NakhlahMascot widget
 }
 
 String? _audioUrlForLessonStep(int stepIndex) {
@@ -736,15 +737,7 @@ class LessonCompleteStepWidget extends StatelessWidget {
           child: Column(
             children: [
               const Spacer(),
-              Image.asset(
-                _Assets.mascot,
-                height: 140,
-                errorBuilder: (_, error, stackTrace) => const Icon(
-                  Icons.water_drop_rounded,
-                  size: 120,
-                  color: AppColors.accent,
-                ),
-              ),
+              const NakhlahMascot(size: 108, animate: false),
               const SizedBox(height: 18),
               const Text(
                 'Lesson completed!',

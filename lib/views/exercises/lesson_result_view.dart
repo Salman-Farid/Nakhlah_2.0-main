@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../common/nakhlah_mascot.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_theme.dart';
 
@@ -81,15 +82,7 @@ class LessonResultView extends StatelessWidget {
   }
 
   Widget _buildMascot() {
-    return Image.asset(
-      'assets/nakhlah_web/water_drop_cartoon.png',
-      height: 140,
-      errorBuilder: (_, error, stackTrace) => const Icon(
-        Icons.water_drop_rounded,
-        size: 120,
-        color: AppColors.accent,
-      ),
-    );
+    return const NakhlahMascot(size: 108, animate: false);
   }
 
   Widget _buildInjazBanner(LessonResultData data) {

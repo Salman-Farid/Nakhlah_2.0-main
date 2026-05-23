@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import '../../common/app_motion.dart';
 import '../../common/empty_state.dart';
 import '../../common/loading_state.dart';
+import '../../common/nakhlah_mascot.dart';
 import '../../controllers/content_controller.dart';
 import '../../controllers/gamification_controller.dart';
 import '../../controllers/profile_controller.dart';
@@ -240,9 +241,54 @@ class _ZigzagPath extends StatelessWidget {
   final List<_PathSection> sections;
   final List<_PathNodeData> nodes;
 
+  /// Compute mascot placements globally across ALL nodes (matching the web's
+  /// mascotPlacementsByAnchorId). This ensures slotIndex alternates across
+  /// sections instead of restarting at 0 per section.
+  Map<String, List<_MascotPlacement>> _computeGlobalMascots() {
+    if (nodes.length < 4) return {};
+
+    const pathFrequency = 0.8;
+    final halfWave = math.pi / pathFrequency;
+    final firstTurningPoint = math.pi / (2 * pathFrequency);
+    final placements = <_MascotPlacement>[];
+    var lastMidpoint = -1.0;
+
+    for (
+      var turningPoint = firstTurningPoint, slotIndex = 0;
+      turningPoint + halfWave <= nodes.length;
+      turningPoint += halfWave, slotIndex++
+    ) {
+      var midpoint = turningPoint + halfWave / 2;
+      if (midpoint - lastMidpoint < 1.0) {
+        midpoint = lastMidpoint + 1.0;
+      }
+      lastMidpoint = midpoint;
+
+      final anchorIndex = midpoint.floor().clamp(0, nodes.length - 1);
+      final side = slotIndex % 2 == 0 ? 'left' : 'right';
+
+      placements.add(_MascotPlacement(
+        anchorIndex: anchorIndex,
+        midpoint: midpoint,
+        side: side,
+        slotIndex: slotIndex,
+      ));
+    }
+
+    // Group by sectionId
+    final bySection = <String, List<_MascotPlacement>>{};
+    for (final p in placements) {
+      final sectionId = nodes[p.anchorIndex].sectionId;
+      bySection.putIfAbsent(sectionId, () => []).add(p);
+    }
+    return bySection;
+  }
+
   @override
   Widget build(BuildContext context) {
     if (nodes.isEmpty) return const SizedBox.shrink();
+
+    final mascotsBySection = _computeGlobalMascots();
 
     return Column(
       children: [
@@ -263,6 +309,7 @@ class _ZigzagPath extends StatelessWidget {
                       .toList(),
                   allNodes: nodes,
                   sectionIndex: sectionIndex,
+                  mascots: mascotsBySection[sections[sectionIndex].id] ?? [],
                 ),
             ],
           ),
@@ -356,17 +403,25 @@ class _SectionPath extends StatelessWidget {
     required this.nodes,
     required this.allNodes,
     required this.sectionIndex,
+    required this.mascots,
   });
 
   final _PathSection section;
   final List<_PathNodeData> nodes;
   final List<_PathNodeData> allNodes;
   final int sectionIndex;
+  final List<_MascotPlacement> mascots;
+
+  // Web ZigzagPath constants
+  static const _lessonRowHeight = 112.0;
+  static const _mascotVerticalOffset = -150.0;
+  static const _mascotSidePositions = {'left': 0.22, 'right': 0.78};
 
   @override
   Widget build(BuildContext context) {
     if (nodes.isEmpty) return const SizedBox.shrink();
     final firstCurrent = nodes.first.isCurrent;
+    final levelStartIndex = allNodes.indexWhere((n) => n.id == nodes.first.id);
 
     return Column(
       children: [
@@ -382,7 +437,7 @@ class _SectionPath extends StatelessWidget {
                   children: [
                     for (var index = 0; index < nodes.length; index++)
                       SizedBox(
-                        height: 112,
+                        height: _lessonRowHeight,
                         width: double.infinity,
                         child: Stack(
                           clipBehavior: Clip.none,
@@ -400,17 +455,22 @@ class _SectionPath extends StatelessWidget {
                       ),
                   ],
                 ),
-                if (sectionIndex == 0 && nodes.length >= 2)
-                  _FloatingWaterDrop(
-                    left: constraints.maxWidth * .66,
-                    top: 1 * 112.0 - 18,
-                    delay: Duration.zero,
-                  ),
-                if (sectionIndex == 1 && nodes.length >= 2)
-                  _FloatingWaterDrop(
-                    left: constraints.maxWidth * .66,
-                    top: 1 * 112.0 - 10,
-                    delay: const Duration(milliseconds: 650),
+                // Mascots placed at sine wave turning points (matches web)
+                for (final mascot in mascots)
+                  Positioned(
+                    left: constraints.maxWidth *
+                        (_mascotSidePositions[mascot.side] ?? 0.22),
+                    top: (mascot.midpoint - levelStartIndex) *
+                            _lessonRowHeight +
+                        _lessonRowHeight / 2 +
+                        _mascotVerticalOffset,
+                    child: Transform.translate(
+                      offset: const Offset(-64, -64), // center the 128px mascot
+                      child: NakhlahMascot(
+                        size: 128,
+                        animate: true,
+                      ),
+                    ),
                   ),
               ],
             );
@@ -422,69 +482,17 @@ class _SectionPath extends StatelessWidget {
   }
 }
 
-class _FloatingWaterDrop extends StatefulWidget {
-  const _FloatingWaterDrop({
-    required this.left,
-    required this.top,
-    required this.delay,
+class _MascotPlacement {
+  const _MascotPlacement({
+    required this.anchorIndex,
+    required this.midpoint,
+    required this.side,
+    required this.slotIndex,
   });
-
-  final double left;
-  final double top;
-  final Duration delay;
-
-  @override
-  State<_FloatingWaterDrop> createState() => _FloatingWaterDropState();
-}
-
-class _FloatingWaterDropState extends State<_FloatingWaterDrop>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _offset;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 3200),
-    );
-    _offset = Tween<double>(begin: -7, end: 7).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOutSine),
-    );
-    Future<void>.delayed(widget.delay, () {
-      if (mounted) _controller.repeat(reverse: true);
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      left: widget.left - 220,
-      top: widget.top + 190,
-      child: IgnorePointer(
-        child: AnimatedBuilder(
-          animation: _offset,
-          builder: (context, child) => Transform.translate(
-            offset: Offset(0, _offset.value),
-            child: child,
-          ),
-          child: Image.asset(
-            'assets/nakhlah_web/water_drop_cartoon.png',
-            width: 150,
-            height: 145,
-            fit: BoxFit.contain,
-          ),
-        ),
-      ),
-    );
-  }
+  final int anchorIndex;
+  final double midpoint;
+  final String side;
+  final int slotIndex;
 }
 
 class _LevelBarrier extends StatelessWidget {

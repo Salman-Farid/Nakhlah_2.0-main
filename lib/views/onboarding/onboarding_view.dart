@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../common/nakhlah_mascot.dart';
 import '../../routes/app_routes.dart';
 import '../../services/storage_service.dart';
 
@@ -121,13 +122,8 @@ class _LandingPage extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
-            // ── Mascot — real website asset ─────────────────────────
-            Image.asset(
-              'assets/nakhlah_web/water_drop_cartoon.png',
-              width: 160,
-              height: 160,
-              fit: BoxFit.contain,
-            ),
+            // ── Mascot — matches web SVG ─────────────────────────
+            const NakhlahMascot(size: 160),
 
             const Spacer(flex: 2),
 
@@ -336,12 +332,7 @@ class _LanguageSelectionPage extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Image.asset(
-                  'assets/nakhlah_web/water_drop_cartoon.png',
-                  width: 72,
-                  height: 72,
-                  fit: BoxFit.contain,
-                ),
+                const NakhlahMascot(size: 72, animate: false),
                 const SizedBox(width: 12),
                 Container(
                   padding: const EdgeInsets.symmetric(
