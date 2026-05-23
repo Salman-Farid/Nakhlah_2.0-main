@@ -12,6 +12,7 @@ import '../../controllers/gamification_controller.dart';
 import '../../controllers/profile_controller.dart';
 import '../../models/models.dart';
 import '../../routes/app_routes.dart';
+import '../exercises/exercise_view.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -375,10 +376,8 @@ class _StickyUnitHeader extends StatelessWidget {
               shape: const CircleBorder(),
               clipBehavior: Clip.antiAlias,
               child: InkWell(
-                onTap: () {
-                  Get.toNamed(Routes.lessons, arguments: currentNode.apiId);
-                  Get.find<ContentController>().loadLessons(currentNode.apiId);
-                },
+                onTap: () =>
+                    _showLessonChooserDialog(context, currentNode.apiId),
                 child: const SizedBox(
                   width: 44,
                   height: 44,
@@ -678,10 +677,7 @@ class _PathCircleState extends State<_PathCircle>
     final child = GestureDetector(
       onTap: node.isLocked
           ? null
-          : () {
-              Get.toNamed(Routes.lessons, arguments: node.apiId);
-              Get.find<ContentController>().loadLessons(node.apiId);
-            },
+          : () => _showLessonChooserDialog(context, node.apiId),
       child: PressableScale(
         scale: node.isLocked ? 1 : .91,
         child: isTrophy
@@ -1110,6 +1106,304 @@ class _CurrentHeader {
   const _CurrentHeader({required this.section, required this.node});
   final _PathSection section;
   final _PathNodeData node;
+}
+
+void _showLessonChooserDialog(BuildContext context, String taskId) {
+  final content = Get.find<ContentController>();
+  content.loadLessons(taskId);
+
+  showDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierColor: Colors.black54,
+    builder: (ctx) {
+      return Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 420, maxHeight: 580),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Purple header
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(24, 20, 16, 18),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF7D49DF), Color(0xFF5B2CB0)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          Text(
+                            'Choose a Lesson',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          SizedBox(height: 3),
+                          Text(
+                            'All lessons unlocked',
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Material(
+                      color: Colors.white.withValues(alpha: .18),
+                      shape: const CircleBorder(),
+                      clipBehavior: Clip.antiAlias,
+                      child: InkWell(
+                        onTap: () => Navigator.of(ctx).pop(),
+                        child: const SizedBox(
+                          width: 36,
+                          height: 36,
+                          child: Icon(Icons.close_rounded, color: Colors.white, size: 22),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Lesson grid
+              Flexible(
+                child: Obx(() {
+                  final lessons = [...content.lessons]
+                    ..sort((a, b) => a.lessonOrder.compareTo(b.lessonOrder));
+                  final profile = Get.find<ProfileController>().profile.value;
+                  final progress = profile?.currentProgress;
+
+                  if (content.loading.value && lessons.isEmpty) {
+                    return const Padding(
+                      padding: EdgeInsets.all(48),
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: Color(0xFF7D49DF),
+                          strokeWidth: 3,
+                        ),
+                      ),
+                    );
+                  }
+
+                  if (lessons.isEmpty) {
+                    return const Padding(
+                      padding: EdgeInsets.all(32),
+                      child: Center(
+                        child: Text(
+                          'No lessons available yet.',
+                          style: TextStyle(
+                            color: Color(0xFF846F61),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                          child: GridView.builder(
+                            shrinkWrap: true,
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              mainAxisSpacing: 12,
+                              crossAxisSpacing: 12,
+                              childAspectRatio: 0.95,
+                            ),
+                            itemCount: lessons.length,
+                            itemBuilder: (_, i) {
+                              final lesson = lessons[i];
+                              final completed = _isLessonCompleted(
+                                lesson, progress,
+                              );
+                              return _LessonDialogCard(
+                                lesson: lesson,
+                                completed: completed,
+                                taskId: taskId,
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      // Footer
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 4, 24, 16),
+                        child: Text(
+                          'ALL CONTENT IS AVAILABLE TO PRACTICE',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: WebHomeColors.mutedForeground,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: .6,
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+bool _isLessonCompleted(LessonModel lesson, ProgressModel? progress) {
+  if (progress == null) return lesson.active;
+  final sameTask =
+      lesson.levelOrder == progress.levelOrder &&
+      lesson.unitOrder == progress.unitOrder &&
+      lesson.taskOrder == progress.taskOrder;
+  if (sameTask) return lesson.lessonOrder < progress.lessonOrder;
+  return lesson.levelOrder < progress.levelOrder ||
+      (lesson.levelOrder == progress.levelOrder &&
+          lesson.unitOrder < progress.unitOrder) ||
+      (lesson.levelOrder == progress.levelOrder &&
+          lesson.unitOrder == progress.unitOrder &&
+          lesson.taskOrder < progress.taskOrder);
+}
+
+class _LessonDialogCard extends StatelessWidget {
+  const _LessonDialogCard({
+    required this.lesson,
+    required this.completed,
+    required this.taskId,
+  });
+
+  final LessonModel lesson;
+  final bool completed;
+  final String taskId;
+
+  @override
+  Widget build(BuildContext context) {
+    return PressableScale(
+      scale: .95,
+      child: GestureDetector(
+        onTap: () {
+          Navigator.of(context).pop();
+          Get.toNamed(
+            Routes.exercise,
+            arguments: LessonEngineArgs(
+              lessonId: lesson.id,
+              taskId: taskId,
+              isExamLesson: lesson.isExam,
+            ),
+          );
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFFFCFAF6),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFE2D8C9)),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x12000000),
+                blurRadius: 8,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Book illustration with checkmark
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: completed
+                          ? const Color(0xFFE8F5E9)
+                          : const Color(0xFFF3E8FF),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Icon(
+                      lesson.isExam
+                          ? Icons.quiz_rounded
+                          : Icons.menu_book_rounded,
+                      color: completed
+                          ? const Color(0xFF4CAF50)
+                          : const Color(0xFF7D49DF),
+                      size: 30,
+                    ),
+                  ),
+                  if (completed)
+                    Positioned(
+                      right: -4,
+                      bottom: -4,
+                      child: Container(
+                        width: 22,
+                        height: 22,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF4CAF50),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        child: const Icon(
+                          Icons.check_rounded,
+                          color: Colors.white,
+                          size: 14,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              // Lesson name
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Text(
+                  lesson.title.trim().isNotEmpty
+                      ? lesson.title
+                      : lesson.isExam
+                          ? 'Test ${lesson.lessonOrder.toString().padLeft(2, '0')}'
+                          : 'Lesson ${lesson.lessonOrder.toString().padLeft(2, '0')}',
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF30261D),
+                    height: 1.25,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 _JourneyFlat _buildJourneyView(
