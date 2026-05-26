@@ -53,7 +53,7 @@ class IntroScaffold extends StatelessWidget {
             right: -54,
             child: _DecorativeBlob(
               size: 150,
-              color: AppColors.palm.withValues(alpha: .05),
+              color: AppColors.accent.withValues(alpha: .05),
             ),
           ),
           Positioned(
@@ -201,7 +201,7 @@ class IntroTitleBlock extends StatelessWidget {
             TextSpan(text: parts.first),
             TextSpan(
               text: highlight,
-              style: const TextStyle(color: AppColors.palm),
+              style: const TextStyle(color: AppColors.accent),
             ),
             TextSpan(text: parts.last),
           ],
@@ -306,10 +306,10 @@ class IntroSecondaryButton extends StatelessWidget {
         child: OutlinedButton(
           onPressed: onPressed,
           style: OutlinedButton.styleFrom(
-            foregroundColor: AppColors.palmDark,
+            foregroundColor: AppColors.accent,
             backgroundColor: Colors.white,
             side: BorderSide(
-              color: AppColors.palm.withValues(alpha: .22),
+              color: AppColors.accent.withValues(alpha: .22),
               width: 1.4,
             ),
             shape: RoundedRectangleBorder(
@@ -370,7 +370,7 @@ class IntroTextField extends StatelessWidget {
         ),
         prefixIcon: Padding(
           padding: const EdgeInsets.only(left: 4),
-          child: Icon(icon, color: AppColors.palm, size: 20),
+          child: Icon(icon, color: AppColors.accent, size: 20),
         ),
         suffixIcon: onToggleObscure != null
             ? IconButton(
@@ -385,22 +385,22 @@ class IntroTextField extends StatelessWidget {
               )
             : null,
         filled: true,
-        fillColor: const Color(0xFFF5FAF7),
+        fillColor: const Color(0xFFF5F0FA),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 18,
           vertical: 18,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: AppColors.palm.withValues(alpha: .10)),
+          borderSide: BorderSide(color: AppColors.accent.withValues(alpha: .10)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: AppColors.palm.withValues(alpha: .10)),
+          borderSide: BorderSide(color: AppColors.accent.withValues(alpha: .10)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: AppColors.palm, width: 1.8),
+          borderSide: const BorderSide(color: AppColors.accent, width: 1.8),
         ),
       ),
     );
@@ -424,7 +424,7 @@ class AuthPanel extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: AppColors.palm.withValues(alpha: .09)),
+        border: Border.all(color: AppColors.accent.withValues(alpha: .09)),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF1E3A2A).withValues(alpha: .08),
@@ -466,9 +466,9 @@ class ProcessStepCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF5FAF7),
+        color: const Color(0xFFF5F0FA),
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: AppColors.palm.withValues(alpha: .09)),
+        border: Border.all(color: AppColors.accent.withValues(alpha: .09)),
       ),
       child: Row(
         children: [
@@ -480,12 +480,12 @@ class ProcessStepCard extends StatelessWidget {
               gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFF9F67FF), AppColors.palmDark],
+                colors: [AppColors.premiumGradientStart, AppColors.premiumGradientEnd],
               ),
               borderRadius: BorderRadius.circular(18),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.palm.withValues(alpha: .30),
+                  color: AppColors.accent.withValues(alpha: .30),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -506,13 +506,13 @@ class ProcessStepCard extends StatelessWidget {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.palm.withValues(alpha: .12),
+                        color: AppColors.accent.withValues(alpha: .12),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
                         number,
                         style: const TextStyle(
-                          color: AppColors.palmDark,
+                          color: AppColors.accent,
                           fontWeight: FontWeight.w900,
                           fontSize: 11,
                           letterSpacing: .4,
@@ -650,7 +650,7 @@ class FeaturePill extends StatelessWidget {
     super.key,
     required this.icon,
     required this.label,
-    this.color = AppColors.palm,
+    this.color = AppColors.accent,
   });
 
   final IconData icon;
@@ -751,7 +751,7 @@ class _ArabicLetterShowcaseState extends State<ArabicLetterShowcase>
             letter,
             style: const TextStyle(
               fontSize: 64,
-              color: AppColors.palm,
+              color: AppColors.accent,
               fontWeight: FontWeight.w900,
               height: 1,
             ),
@@ -794,12 +794,12 @@ class FloatingProgressPill extends StatelessWidget {
         borderRadius: BorderRadius.circular(50),
         boxShadow: [
           BoxShadow(
-            color: AppColors.palm.withValues(alpha: .18),
+            color: AppColors.accent.withValues(alpha: .18),
             blurRadius: 18,
             offset: const Offset(0, 6),
           ),
         ],
-        border: Border.all(color: AppColors.palm.withValues(alpha: .12)),
+        border: Border.all(color: AppColors.accent.withValues(alpha: .12)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -821,8 +821,8 @@ class FloatingProgressPill extends StatelessWidget {
               borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
                 value: progress,
-                backgroundColor: AppColors.palm.withValues(alpha: .15),
-                valueColor: const AlwaysStoppedAnimation<Color>(AppColors.palm),
+                backgroundColor: AppColors.accent.withValues(alpha: .15),
+                valueColor: const AlwaysStoppedAnimation<Color>(AppColors.accent),
                 minHeight: 6,
               ),
             ),

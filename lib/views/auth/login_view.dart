@@ -63,7 +63,7 @@ class _LoginViewState extends State<LoginView> {
             const IntroHeroImage(
               asset: IntroAssets.leafBook,
               height: 200,
-              blobColor: AppColors.palm,
+              blobColor: AppColors.accent,
             ),
             const SizedBox(height: 12),
 
@@ -215,7 +215,7 @@ class _LoginViewState extends State<LoginView> {
                     TextSpan(
                       text: 'Sign Up',
                       style: TextStyle(
-                        color: AppColors.palmDark,
+                        color: AppColors.accent,
                         fontWeight: FontWeight.w900,
                       ),
                     ),
