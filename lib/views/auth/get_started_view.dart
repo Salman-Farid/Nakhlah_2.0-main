@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../common/app_motion.dart';
+import '../../common/nakhlah_mascot.dart';
 import '../../constants/app_colors.dart';
 import '../../routes/app_routes.dart';
 import '../../services/storage_service.dart';
@@ -30,15 +31,10 @@ class GetStartedView extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
 
-                  // Mascot — real website asset
-                  PageEnter(
-                    delay: const Duration(milliseconds: 300),
-                    child: Image.asset(
-                      'assets/nakhlah_web/water_drop_cartoon.png',
-                      width: 160,
-                      height: 160,
-                      fit: BoxFit.contain,
-                    ),
+                  // Mascot — matches web SVG
+                  const PageEnter(
+                    delay: Duration(milliseconds: 300),
+                    child: NakhlahMascot(size: 160),
                   ),
 
                   const Spacer(flex: 2),

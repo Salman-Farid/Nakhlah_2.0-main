@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../common/app_motion.dart';
+import '../../common/nakhlah_mascot.dart';
 import '../../constants/app_colors.dart';
 import '../../controllers/gamification_controller.dart';
 import '../../routes/app_routes.dart';
@@ -187,16 +188,7 @@ class _PremiumBanner extends StatelessWidget {
           padding: const EdgeInsets.all(24),
           child: Column(
             children: [
-              Image.asset(
-                'assets/nakhlah_web/water_drop_cartoon.png',
-                height: 120,
-                fit: BoxFit.contain,
-                errorBuilder: (context, error, stackTrace) => const Icon(
-                  Icons.celebration,
-                  size: 80,
-                  color: Colors.white54,
-                ),
-              ),
+              const NakhlahMascot(size: 92, animate: false),
               const SizedBox(height: 16),
               const Text(
                 'Get a better & super fast learning up to 5x',

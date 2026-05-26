@@ -11,9 +11,9 @@ void main() {
     expect(AppTheme.light.appBarTheme.backgroundColor, Colors.white);
   });
 
-  test('water drop asset exists for home screen decoration', () {
+  test('mascot SVG asset exists for home screen decoration', () {
     expect(
-      File('assets/nakhlah_web/water_drop_cartoon.png').existsSync(),
+      File('assets/nakhlah_web/mascot.svg').existsSync(),
       isTrue,
     );
   });

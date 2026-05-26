@@ -223,7 +223,8 @@ class AuthSession {
       exp: source['exp'] is int
           ? source['exp'] as int
           : int.tryParse('${source['exp']}'),
-      token: (source['token'] ?? source['accessToken'])?.toString(),
+      token: (source['token'] ?? source['accessToken'] ?? source['refreshedToken'])
+          ?.toString(),
       refreshToken:
           (source['refreshToken'] ??
                   source['refresh_token'] ??

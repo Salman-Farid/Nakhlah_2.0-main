@@ -1,16 +1,20 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
 import '../../common/app_motion.dart';
 import '../../common/empty_state.dart';
 import '../../common/loading_state.dart';
+import '../../common/nakhlah_mascot.dart';
 import '../../controllers/content_controller.dart';
 import '../../controllers/gamification_controller.dart';
 import '../../controllers/profile_controller.dart';
 import '../../models/models.dart';
 import '../../routes/app_routes.dart';
+import '../../widgets/nakhlah_icons.dart';
+import '../exercises/exercise_view.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -188,14 +192,20 @@ class _WebStatsBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 72,
-      color: WebHomeColors.primary,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          colors: [Color(0xFF7B3FE4), Color(0xFF8E4EF2)],
+        ),
+      ),
       padding: const EdgeInsets.symmetric(horizontal: 14),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _HeaderIconValue(icon: _FlameIcon(size: 34), value: streak),
-          _HeaderIconValue(icon: _GemIcon(size: 34), value: dates),
-          _HeaderIconValue(icon: _HeartIcon(size: 34), value: palms),
+          _HeaderIconValue(icon: ActiveStreakIcon(size: 34), value: streak),
+          _HeaderIconValue(icon: DatesIcon(size: 34), value: dates),
+          _HeaderIconValue(icon: PalmTreeIcon(size: 34), value: palms),
         ],
       ),
     );
@@ -213,6 +223,7 @@ class _HeaderIconValue extends StatelessWidget {
     return PressableScale(
       scale: .94,
       child: Container(
+        color: Colors.transparent,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         child: Row(
           children: [
@@ -221,7 +232,7 @@ class _HeaderIconValue extends StatelessWidget {
             Text(
               '$value',
               style: const TextStyle(
-                color: WebHomeColors.primaryForeground,
+                color: Colors.white,
                 fontSize: 18,
                 fontWeight: FontWeight.w900,
                 height: 1,
@@ -240,9 +251,54 @@ class _ZigzagPath extends StatelessWidget {
   final List<_PathSection> sections;
   final List<_PathNodeData> nodes;
 
+  /// Compute mascot placements globally across ALL nodes (matching the web's
+  /// mascotPlacementsByAnchorId). This ensures slotIndex alternates across
+  /// sections instead of restarting at 0 per section.
+  Map<String, List<_MascotPlacement>> _computeGlobalMascots() {
+    if (nodes.length < 4) return {};
+
+    const pathFrequency = 0.8;
+    final halfWave = math.pi / pathFrequency;
+    final firstTurningPoint = math.pi / (2 * pathFrequency);
+    final placements = <_MascotPlacement>[];
+    var lastMidpoint = -1.0;
+
+    for (
+      var turningPoint = firstTurningPoint, slotIndex = 0;
+      turningPoint + halfWave <= nodes.length;
+      turningPoint += halfWave, slotIndex++
+    ) {
+      var midpoint = turningPoint + halfWave / 2;
+      if (midpoint - lastMidpoint < 1.0) {
+        midpoint = lastMidpoint + 1.0;
+      }
+      lastMidpoint = midpoint;
+
+      final anchorIndex = midpoint.floor().clamp(0, nodes.length - 1);
+      final side = slotIndex % 2 == 0 ? 'left' : 'right';
+
+      placements.add(_MascotPlacement(
+        anchorIndex: anchorIndex,
+        midpoint: midpoint,
+        side: side,
+        slotIndex: slotIndex,
+      ));
+    }
+
+    // Group by sectionId
+    final bySection = <String, List<_MascotPlacement>>{};
+    for (final p in placements) {
+      final sectionId = nodes[p.anchorIndex].sectionId;
+      bySection.putIfAbsent(sectionId, () => []).add(p);
+    }
+    return bySection;
+  }
+
   @override
   Widget build(BuildContext context) {
     if (nodes.isEmpty) return const SizedBox.shrink();
+
+    final mascotsBySection = _computeGlobalMascots();
 
     return Column(
       children: [
@@ -263,6 +319,7 @@ class _ZigzagPath extends StatelessWidget {
                       .toList(),
                   allNodes: nodes,
                   sectionIndex: sectionIndex,
+                  mascots: mascotsBySection[sections[sectionIndex].id] ?? [],
                 ),
             ],
           ),
@@ -328,10 +385,8 @@ class _StickyUnitHeader extends StatelessWidget {
               shape: const CircleBorder(),
               clipBehavior: Clip.antiAlias,
               child: InkWell(
-                onTap: () {
-                  Get.toNamed(Routes.lessons, arguments: currentNode.apiId);
-                  Get.find<ContentController>().loadLessons(currentNode.apiId);
-                },
+                onTap: () =>
+                    _showLessonChooserDialog(context, currentNode.apiId),
                 child: const SizedBox(
                   width: 44,
                   height: 44,
@@ -356,17 +411,25 @@ class _SectionPath extends StatelessWidget {
     required this.nodes,
     required this.allNodes,
     required this.sectionIndex,
+    required this.mascots,
   });
 
   final _PathSection section;
   final List<_PathNodeData> nodes;
   final List<_PathNodeData> allNodes;
   final int sectionIndex;
+  final List<_MascotPlacement> mascots;
+
+  // Web ZigzagPath constants
+  static const _lessonRowHeight = 112.0;
+  static const _mascotVerticalOffset = -150.0;
+  static const _mascotSidePositions = {'left': 0.22, 'right': 0.78};
 
   @override
   Widget build(BuildContext context) {
     if (nodes.isEmpty) return const SizedBox.shrink();
     final firstCurrent = nodes.first.isCurrent;
+    final levelStartIndex = allNodes.indexWhere((n) => n.id == nodes.first.id);
 
     return Column(
       children: [
@@ -382,7 +445,7 @@ class _SectionPath extends StatelessWidget {
                   children: [
                     for (var index = 0; index < nodes.length; index++)
                       SizedBox(
-                        height: 112,
+                        height: _lessonRowHeight,
                         width: double.infinity,
                         child: Stack(
                           clipBehavior: Clip.none,
@@ -400,17 +463,22 @@ class _SectionPath extends StatelessWidget {
                       ),
                   ],
                 ),
-                if (sectionIndex == 0 && nodes.length >= 2)
-                  _FloatingWaterDrop(
-                    left: constraints.maxWidth * .66,
-                    top: 1 * 112.0 - 18,
-                    delay: Duration.zero,
-                  ),
-                if (sectionIndex == 1 && nodes.length >= 2)
-                  _FloatingWaterDrop(
-                    left: constraints.maxWidth * .66,
-                    top: 1 * 112.0 - 10,
-                    delay: const Duration(milliseconds: 650),
+                // Mascots placed at sine wave turning points (matches web)
+                for (final mascot in mascots)
+                  Positioned(
+                    left: constraints.maxWidth *
+                        (_mascotSidePositions[mascot.side] ?? 0.22),
+                    top: (mascot.midpoint - levelStartIndex) *
+                            _lessonRowHeight +
+                        _lessonRowHeight / 2 +
+                        _mascotVerticalOffset,
+                    child: Transform.translate(
+                      offset: const Offset(-64, -64), // center the 128px mascot
+                      child: NakhlahMascot(
+                        size: 128,
+                        animate: true,
+                      ),
+                    ),
                   ),
               ],
             );
@@ -422,69 +490,17 @@ class _SectionPath extends StatelessWidget {
   }
 }
 
-class _FloatingWaterDrop extends StatefulWidget {
-  const _FloatingWaterDrop({
-    required this.left,
-    required this.top,
-    required this.delay,
+class _MascotPlacement {
+  const _MascotPlacement({
+    required this.anchorIndex,
+    required this.midpoint,
+    required this.side,
+    required this.slotIndex,
   });
-
-  final double left;
-  final double top;
-  final Duration delay;
-
-  @override
-  State<_FloatingWaterDrop> createState() => _FloatingWaterDropState();
-}
-
-class _FloatingWaterDropState extends State<_FloatingWaterDrop>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _offset;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 3200),
-    );
-    _offset = Tween<double>(begin: -7, end: 7).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOutSine),
-    );
-    Future<void>.delayed(widget.delay, () {
-      if (mounted) _controller.repeat(reverse: true);
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      left: widget.left - 220,
-      top: widget.top + 190,
-      child: IgnorePointer(
-        child: AnimatedBuilder(
-          animation: _offset,
-          builder: (context, child) => Transform.translate(
-            offset: Offset(0, _offset.value),
-            child: child,
-          ),
-          child: Image.asset(
-            'assets/nakhlah_web/water_drop_cartoon.png',
-            width: 150,
-            height: 145,
-            fit: BoxFit.contain,
-          ),
-        ),
-      ),
-    );
-  }
+  final int anchorIndex;
+  final double midpoint;
+  final String side;
+  final int slotIndex;
 }
 
 class _LevelBarrier extends StatelessWidget {
@@ -670,10 +686,7 @@ class _PathCircleState extends State<_PathCircle>
     final child = GestureDetector(
       onTap: node.isLocked
           ? null
-          : () {
-              Get.toNamed(Routes.lessons, arguments: node.apiId);
-              Get.find<ContentController>().loadLessons(node.apiId);
-            },
+          : () => _showLessonChooserDialog(context, node.apiId),
       child: PressableScale(
         scale: node.isLocked ? 1 : .91,
         child: isTrophy
@@ -1104,6 +1117,290 @@ class _CurrentHeader {
   final _PathNodeData node;
 }
 
+void _showLessonChooserDialog(BuildContext context, String taskId) {
+  final content = Get.find<ContentController>();
+  content.loadLessons(taskId);
+
+  showDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierColor: Colors.black54,
+    builder: (ctx) {
+      return Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 420, maxHeight: 580),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Purple header
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(24, 20, 16, 18),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF7D49DF), Color(0xFF5B2CB0)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: const [
+                          Text(
+                            'Choose a Lesson',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          SizedBox(height: 3),
+                          Text(
+                            'All lessons unlocked',
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Material(
+                      color: Colors.white.withValues(alpha: .18),
+                      shape: const CircleBorder(),
+                      clipBehavior: Clip.antiAlias,
+                      child: InkWell(
+                        onTap: () => Navigator.of(ctx).pop(),
+                        child: const SizedBox(
+                          width: 36,
+                          height: 36,
+                          child: Icon(Icons.close_rounded, color: Colors.white, size: 22),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Lesson grid
+              Flexible(
+                child: Obx(() {
+                  final lessons = [...content.lessons]
+                    ..sort((a, b) => a.lessonOrder.compareTo(b.lessonOrder));
+                  final profile = Get.find<ProfileController>().profile.value;
+                  final progress = profile?.currentProgress;
+
+                  if (content.loading.value && lessons.isEmpty) {
+                    return const Padding(
+                      padding: EdgeInsets.all(48),
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: Color(0xFF7D49DF),
+                          strokeWidth: 3,
+                        ),
+                      ),
+                    );
+                  }
+
+                  if (lessons.isEmpty) {
+                    return const Padding(
+                      padding: EdgeInsets.all(32),
+                      child: Center(
+                        child: Text(
+                          'No lessons available yet.',
+                          style: TextStyle(
+                            color: Color(0xFF846F61),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                          child: GridView.builder(
+                            shrinkWrap: true,
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              mainAxisSpacing: 12,
+                              crossAxisSpacing: 12,
+                              childAspectRatio: 0.95,
+                            ),
+                            itemCount: lessons.length,
+                            itemBuilder: (_, i) {
+                              final lesson = lessons[i];
+                              final completed = _isLessonCompleted(
+                                lesson, progress,
+                              );
+                              return _LessonDialogCard(
+                                lesson: lesson,
+                                completed: completed,
+                                taskId: taskId,
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      // Footer
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 4, 24, 16),
+                        child: Text(
+                          'ALL CONTENT IS AVAILABLE TO PRACTICE',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: WebHomeColors.mutedForeground,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: .6,
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+bool _isLessonCompleted(LessonModel lesson, ProgressModel? progress) {
+  if (progress == null) return lesson.active;
+  final sameTask =
+      lesson.levelOrder == progress.levelOrder &&
+      lesson.unitOrder == progress.unitOrder &&
+      lesson.taskOrder == progress.taskOrder;
+  if (sameTask) return lesson.lessonOrder < progress.lessonOrder;
+  return lesson.levelOrder < progress.levelOrder ||
+      (lesson.levelOrder == progress.levelOrder &&
+          lesson.unitOrder < progress.unitOrder) ||
+      (lesson.levelOrder == progress.levelOrder &&
+          lesson.unitOrder == progress.unitOrder &&
+          lesson.taskOrder < progress.taskOrder);
+}
+
+class _LessonDialogCard extends StatelessWidget {
+  const _LessonDialogCard({
+    required this.lesson,
+    required this.completed,
+    required this.taskId,
+  });
+
+  final LessonModel lesson;
+  final bool completed;
+  final String taskId;
+
+  @override
+  Widget build(BuildContext context) {
+    return PressableScale(
+      scale: .95,
+      child: GestureDetector(
+        onTap: () {
+          Navigator.of(context).pop();
+          Get.toNamed(
+            Routes.exercise,
+            arguments: LessonEngineArgs(
+              lessonId: lesson.id,
+              taskId: taskId,
+              isExamLesson: lesson.isExam,
+            ),
+          );
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFE8D9F8), width: 3),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    width: 95,
+                    height: 95,
+                    child: SvgPicture.asset(
+                      'assets/nakhlah_design/book_svg.svg',
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                   if (completed)
+                    Positioned(
+                      top: -10,
+                      right: -20,
+                      //bottom: -4,
+                      child: Container(
+                        width: 20,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF1F8F1),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.green.shade200, width: 2),
+                          // boxShadow: const [
+                          //   BoxShadow(
+                          //     color: Color(0x33000000),
+                          //     blurRadius: 4,
+                          //     offset: Offset(0, 2),
+                          //   ),
+                          // ],
+                        ),
+                        child: Icon(
+                          Icons.check_rounded,
+                          color: Colors.green.shade200,
+                          size: 14,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              // Lesson name
+              Text(
+                lesson.title.trim().isNotEmpty
+                    ? lesson.title
+                    : lesson.isExam
+                        ? 'Test ${lesson.lessonOrder.toString().padLeft(2, '0')}'
+                        : 'Lesson ${lesson.lessonOrder.toString().padLeft(2, '0')}',
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF30261D),
+                  height: 1.25,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 _JourneyFlat _buildJourneyView(
   List<JourneyLevel> journeyLevels,
   ProgressModel? progress,
@@ -1377,40 +1674,6 @@ class _GemIcon extends StatelessWidget {
     return Icon(
       Icons.diamond_rounded,
       color: const Color(0xFF1E88E5),
-      size: size,
-      shadows: const [
-        Shadow(color: Color(0x33000000), offset: Offset(0, 2), blurRadius: 2),
-      ],
-    );
-  }
-}
-
-class _FlameIcon extends StatelessWidget {
-  const _FlameIcon({required this.size});
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    return Icon(
-      Icons.local_fire_department_rounded,
-      color: const Color(0xFFFF6D00),
-      size: size,
-      shadows: const [
-        Shadow(color: Color(0x33000000), offset: Offset(0, 2), blurRadius: 2),
-      ],
-    );
-  }
-}
-
-class _HeartIcon extends StatelessWidget {
-  const _HeartIcon({required this.size});
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    return Icon(
-      Icons.favorite_rounded,
-      color: const Color(0xFFFF262E),
       size: size,
       shadows: const [
         Shadow(color: Color(0x33000000), offset: Offset(0, 2), blurRadius: 2),

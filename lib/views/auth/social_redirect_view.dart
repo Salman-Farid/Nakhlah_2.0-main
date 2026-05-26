@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../common/nakhlah_mascot.dart';
 import '../../constants/app_colors.dart';
 
 class SocialRedirectView extends StatelessWidget {
@@ -18,13 +19,8 @@ class SocialRedirectView extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Mascot — real website asset
-                  Image.asset(
-                    'assets/nakhlah_web/water_drop_cartoon.png',
-                    width: 120,
-                    height: 120,
-                    fit: BoxFit.contain,
-                  ),
+                  // Mascot — matches web SVG
+                  const NakhlahMascot(size: 120),
                   const SizedBox(height: 24),
 
                   // Title

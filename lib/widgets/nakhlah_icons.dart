@@ -16,7 +16,7 @@ class PalmTreeIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SvgPicture.asset(
-      'assets/nakhlah_web/icons/Palm_Tree.svg',
+      'assets/nakhlah_design/Palm_Trees.svg',
       width: size,
       height: size,
     );
@@ -30,7 +30,7 @@ class ActiveStreakIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SvgPicture.asset(
-      'assets/nakhlah_web/icons/active-streak.svg',
+      'assets/nakhlah_design/active-streak.svg',
       width: size,
       height: size,
     );
@@ -44,7 +44,7 @@ class DatesIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SvgPicture.asset(
-      'assets/nakhlah_web/icons/dates.svg',
+      'assets/nakhlah_design/dates.svg',
       width: size,
       height: size,
     );

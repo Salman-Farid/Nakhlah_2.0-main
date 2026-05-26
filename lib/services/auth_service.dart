@@ -50,27 +50,6 @@ class AuthService {
         ApiEndpoints.changePassword,
         body: {'currentPassword': currentPassword, 'newPassword': newPassword},
       );
-  Future<AuthSession> refreshToken() async {
-    final refreshToken = _storage.refreshToken;
-    final s = AuthSession.fromJson(
-      await _api.post(
-        ApiEndpoints.refreshToken,
-        body: {
-          if (refreshToken != null && refreshToken.isNotEmpty)
-            'refreshToken': refreshToken,
-        },
-      ),
-    );
-    if (s.token != null) {
-      await _storage.saveToken(
-        s.token!,
-        exp: s.exp,
-        refreshToken: s.refreshToken,
-      );
-    }
-    return s;
-  }
-
   Future<UserModel> me() async {
     final r = await _api.get(ApiEndpoints.me);
     if (r is Map && r['token'] != null) {

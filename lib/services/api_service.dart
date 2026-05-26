@@ -30,12 +30,36 @@ class ApiService {
     ).replace(queryParameters: qp.isEmpty ? null : qp);
   }
 
-  Map<String, String> _headers({bool auth = true, bool json = true}) => {
-    'Accept': 'application/json',
-    if (json) 'Content-Type': 'application/json',
-    if (auth && _storage.token != null)
-      'Authorization': 'Bearer ${_storage.token}',
-  };
+  Map<String, String> _headers({bool auth = true, bool json = true}) {
+    final token = _storage.token;
+    final cookies = _storage.cookies;
+    return {
+      'Accept': 'application/json',
+      if (json) 'Content-Type': 'application/json',
+      if (auth && token != null && token.isNotEmpty)
+        'Authorization': 'Bearer $token',
+      if (cookies != null && cookies.isNotEmpty) 'Cookie': cookies,
+    };
+  }
+
+  /// Returns auth headers from the central token store.
+  ///
+  /// Any code that cannot use get/post/patch/delete directly (for example
+  /// just_audio media requests) must call this instead of reading/caching the
+  /// token itself. This refreshes first when the token is inside the expiry
+  /// buffer, then reads the updated token from [StorageService].
+  Future<Map<String, String>> authHeaders({
+    String accept = 'application/json',
+    bool json = false,
+  }) async {
+    if (_storage.isLoggedIn && _storage.isTokenExpired) {
+      await _refreshAccessToken();
+    }
+
+    final headers = _headers(auth: true, json: json);
+    headers['Accept'] = accept;
+    return headers;
+  }
 
   Future<dynamic> get(
     String p, {
@@ -129,6 +153,14 @@ class ApiService {
     return _send(request, auth: auth, path: p);
   }
 
+  /// Refresh the saved access token immediately.
+  ///
+  /// This is intentionally public so app startup can refresh the session before
+  /// the first screen/API call is made.
+  Future<bool> refreshAccessToken() => _refreshAccessToken();
+
+  void close() => _client.close();
+
   Future<dynamic> _send(
     Future<http.Response> Function() request, {
     bool auth = true,
@@ -142,10 +174,13 @@ class ApiService {
       }
 
       final response = await request().timeout(_timeout);
+      await _captureCookies(response);
       if (_shouldRefresh(response, auth: auth, path: path)) {
         final refreshed = await _refreshAccessToken();
         if (refreshed) {
-          return _decode(await request().timeout(_timeout));
+          final retryResponse = await request().timeout(_timeout);
+          await _captureCookies(retryResponse);
+          return _decode(retryResponse);
         }
       }
 
@@ -167,10 +202,30 @@ class ApiService {
     String? path,
   }) {
     return auth &&
-        response.statusCode == 401 &&
+        (response.statusCode == 401 || response.statusCode == 403) &&
         path != ApiEndpoints.refreshToken &&
         _storage.token != null &&
         _storage.token!.isNotEmpty;
+  }
+
+  /// Persist Set-Cookie headers so the refresh-token cookie is replayed on
+  /// subsequent requests (mimics the browser's credentials: "include" behaviour).
+  Future<void> _captureCookies(http.Response response) async {
+    final setCookies = response.headers['set-cookie'];
+    if (setCookies == null || setCookies.isEmpty) return;
+
+    final cookieHeader = _cookieHeaderFromSetCookie(setCookies);
+    if (cookieHeader.isEmpty) return;
+
+    await _storage.saveCookies(cookieHeader);
+  }
+
+  String _cookieHeaderFromSetCookie(String setCookieHeader) {
+    return setCookieHeader
+        .split(RegExp(r',(?=\s*[^;,=\s]+=)'))
+        .map((cookie) => cookie.trim().split(';').first.trim())
+        .where((cookie) => cookie.isNotEmpty)
+        .join('; ');
   }
 
   Future<bool>? _refreshRequest;
@@ -189,31 +244,81 @@ class ApiService {
     final currentToken = _storage.token;
     if (currentToken == null || currentToken.isEmpty) return false;
 
-    final refreshToken = _storage.refreshToken;
     try {
       final response = await _client
           .post(
             _uri(ApiEndpoints.refreshToken),
-            headers: _headers(),
-            body: jsonEncode({
-              if (refreshToken != null && refreshToken.isNotEmpty)
-                'refreshToken': refreshToken,
-            }),
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $currentToken',
+              if (_storage.cookies != null) 'Cookie': _storage.cookies!,
+            },
+            body: jsonEncode({}),
           )
           .timeout(_timeout);
 
-      final decoded = _decode(response);
-      final session = AuthSession.fromJson(decoded);
-      if (session.token == null || session.token!.isEmpty) return false;
+      await _captureCookies(response);
+      if (response.statusCode != 200) return false;
 
-      await _storage.saveToken(
-        session.token!,
-        exp: session.exp,
-        refreshToken: session.refreshToken,
-      );
+      final decoded = _decode(response);
+      final refreshMap = decoded is Map ? decoded : const <String, dynamic>{};
+      // The refresh response may nest data under "data" (same as login).
+      final data =
+          refreshMap['data'] is Map
+              ? refreshMap['data'] as Map
+              : refreshMap;
+
+      // Match web: prefer refreshedToken over token (the refresh endpoint
+      // returns the new JWT as refreshedToken, not token).
+      String? finalToken =
+          (data['refreshedToken'] ?? data['token'] ?? data['accessToken'])
+              ?.toString();
+      int? finalExp =
+          data['exp'] is int
+              ? data['exp'] as int
+              : int.tryParse('${data['exp']}');
+
+      if (finalToken != null && finalToken.isNotEmpty) {
+        try {
+          final meResp = await _client
+              .get(
+                _uri(ApiEndpoints.me),
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json',
+                  'Authorization': 'Bearer $finalToken',
+                  if (_storage.cookies != null) 'Cookie': _storage.cookies!,
+                },
+              )
+              .timeout(_timeout);
+
+          await _captureCookies(meResp);
+
+          if (meResp.statusCode == 200) {
+            final meData = _decode(meResp);
+            if (meData is Map) {
+              final meToken =
+                  (meData['token'] ?? meData['refreshedToken'])?.toString();
+              if (meToken != null && meToken.isNotEmpty) {
+                finalToken = meToken;
+              }
+              if (meData['exp'] is int) {
+                finalExp = meData['exp'] as int;
+              }
+            }
+          }
+        } catch (_) {
+          // /me failed but refresh token is still valid — use it.
+        }
+      }
+
+      if (finalToken == null || finalToken.isEmpty) return false;
+
+      await _storage.saveToken(finalToken, exp: finalExp);
       return true;
     } catch (_) {
-      await _storage.clearAuth();
+      // Don't clear auth on transient failures — let the caller decide.
       return false;
     }
   }
