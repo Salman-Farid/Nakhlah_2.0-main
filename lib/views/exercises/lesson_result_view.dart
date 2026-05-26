@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
 import '../../common/nakhlah_mascot.dart';
@@ -123,7 +124,11 @@ class LessonResultView extends StatelessWidget {
           child: _StatBox(
             label: 'Total Dates',
             value: '${data.palmTreesRemaining}',
-            icon: Icons.park_rounded,
+            icon: SvgPicture.asset(
+              'assets/nakhlah_design/Palm_Trees.svg',
+              width: 20,
+              height: 20,
+            ),
           ),
         ),
         const SizedBox(width: 10),
@@ -131,7 +136,7 @@ class LessonResultView extends StatelessWidget {
           child: _StatBox(
             label: 'Time',
             value: data.formattedTime,
-            icon: Icons.timer_rounded,
+            icon: const Icon(Icons.timer_rounded, size: 20, color: AppColors.accent),
           ),
         ),
         const SizedBox(width: 10),
@@ -139,7 +144,7 @@ class LessonResultView extends StatelessWidget {
           child: _StatBox(
             label: 'Accuracy',
             value: '${data.accuracyPercentage}%',
-            icon: Icons.track_changes_rounded,
+            icon: const Icon(Icons.track_changes_rounded, size: 20, color: AppColors.accent),
           ),
         ),
       ],
@@ -180,7 +185,7 @@ class _StatBox extends StatelessWidget {
 
   final String label;
   final String value;
-  final IconData icon;
+  final Widget icon;
 
   @override
   Widget build(BuildContext context) {
@@ -193,7 +198,7 @@ class _StatBox extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Icon(icon, size: 20, color: AppColors.accent),
+          SizedBox(width: 20, height: 20, child: icon),
           const SizedBox(height: 6),
           Text(
             label,

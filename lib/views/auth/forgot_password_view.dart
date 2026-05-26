@@ -38,7 +38,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
             const IntroHeroImage(
               asset: IntroAssets.leafBook,
               height: 190,
-              blobColor: AppColors.palm,
+              blobColor: AppColors.accent,
             ),
             const SizedBox(height: 14),
 
@@ -138,16 +138,16 @@ class _SuccessBlock extends StatelessWidget {
             width: 90,
             height: 90,
             decoration: BoxDecoration(
-              color: AppColors.palm.withValues(alpha: .10),
+              color: AppColors.accent.withValues(alpha: .10),
               shape: BoxShape.circle,
               border: Border.all(
-                color: AppColors.palm.withValues(alpha: .18),
+                color: AppColors.accent.withValues(alpha: .18),
                 width: 2,
               ),
             ),
             child: const Icon(
               Icons.mark_email_read_rounded,
-              color: AppColors.palm,
+              color: AppColors.accent,
               size: 44,
             ),
           ),
@@ -178,15 +178,15 @@ class _SuccessBlock extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.palm.withValues(alpha: .05),
+              color: AppColors.accent.withValues(alpha: .05),
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: AppColors.palm.withValues(alpha: .10)),
+              border: Border.all(color: AppColors.accent.withValues(alpha: .10)),
             ),
             child: const Row(
               children: [
                 Icon(
                   Icons.info_outline_rounded,
-                  color: AppColors.palm,
+                  color: AppColors.accent,
                   size: 20,
                 ),
                 SizedBox(width: 12),

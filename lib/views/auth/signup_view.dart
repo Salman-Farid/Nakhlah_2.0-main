@@ -118,7 +118,7 @@ class _SignupViewState extends State<SignupView> {
                     TextSpan(
                       text: 'Sign In',
                       style: TextStyle(
-                        color: AppColors.palmDark,
+                        color: AppColors.accent,
                         fontWeight: FontWeight.w900,
                       ),
                     ),

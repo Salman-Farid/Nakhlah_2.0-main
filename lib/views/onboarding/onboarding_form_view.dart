@@ -165,7 +165,7 @@ class _OnboardingFormViewState extends State<OnboardingFormView> {
                 icon: const Icon(Icons.arrow_back_rounded, size: 18),
                 label: const Text('Back'),
                 style: TextButton.styleFrom(
-                  foregroundColor: AppColors.palmDark,
+                  foregroundColor: AppColors.accent,
                   textStyle: const TextStyle(fontWeight: FontWeight.w900),
                   minimumSize: Size.zero,
                   padding: EdgeInsets.zero,
@@ -181,7 +181,7 @@ class _OnboardingFormViewState extends State<OnboardingFormView> {
               final opts = _profileCtrl.onboardingOptions.value;
               if (opts == null) {
                 return const Center(
-                  child: CircularProgressIndicator(color: AppColors.palm),
+                  child: CircularProgressIndicator(color: AppColors.accent),
                 );
               }
               return PageView(
@@ -393,12 +393,12 @@ class _OnboardingFormViewState extends State<OnboardingFormView> {
               gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFF9F67FF), AppColors.palmDark],
+                colors: [AppColors.premiumGradientStart, AppColors.premiumGradientEnd],
               ),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.palm.withValues(alpha: .30),
+                  color: AppColors.accent.withValues(alpha: .30),
                   blurRadius: 24,
                   offset: const Offset(0, 8),
                 ),
@@ -453,8 +453,8 @@ class _StepProgressBar extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(4),
                   color: done || active
-                      ? AppColors.palm
-                      : AppColors.palm.withValues(alpha: .15),
+                      ? AppColors.accent
+                      : AppColors.accent.withValues(alpha: .15),
                 ),
               ),
             ),
@@ -547,7 +547,7 @@ class _OptionCard extends StatelessWidget {
           color: isSelected ? AppColors.optionBgSelected : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? AppColors.accent : AppColors.palm.withValues(alpha: .12),
+            color: isSelected ? AppColors.accent : AppColors.accent.withValues(alpha: .12),
             width: isSelected ? 2.5 : 1.2,
           ),
           boxShadow: [
@@ -602,12 +602,12 @@ class _OptionCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: isSelected
             ? AppColors.accent.withValues(alpha: .12)
-            : AppColors.palm.withValues(alpha: .08),
+            : AppColors.accent.withValues(alpha: .08),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Icon(
         Icons.auto_awesome_rounded,
-        color: isSelected ? AppColors.accent : AppColors.palm,
+        color: isSelected ? AppColors.accent : AppColors.accent,
         size: 28,
       ),
     );
@@ -690,12 +690,12 @@ class _GoalPickerStep extends StatelessWidget {
                 duration: AppMotion.fast,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 decoration: BoxDecoration(
-                  color: isSelected ? AppColors.accent : const Color(0xFFF5FAF7),
+                  color: isSelected ? AppColors.accent : const Color(0xFFF5F0FA),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: isSelected
                         ? AppColors.accent
-                        : AppColors.palm.withValues(alpha: .12),
+                        : AppColors.accent.withValues(alpha: .12),
                     width: isSelected ? 2 : 1,
                   ),
                 ),
@@ -868,7 +868,7 @@ class _ProfileInfoStepContentState extends State<_ProfileInfoStepContent> {
               height: 100,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.palm.withValues(alpha: .08),
+                color: AppColors.accent.withValues(alpha: .08),
                 border: Border.all(
                   color: AppColors.accent.withValues(alpha: .30),
                   width: 2,
@@ -1015,12 +1015,12 @@ class _AccountStepContentState extends State<_AccountStepContent> {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color: AppColors.palm.withValues(alpha: .10),
+                        color: AppColors.accent.withValues(alpha: .10),
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: const Icon(
                         Icons.check_circle_rounded,
-                        color: AppColors.palm,
+                        color: AppColors.accent,
                         size: 22,
                       ),
                     ),

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 
@@ -564,10 +565,14 @@ class _ExerciseViewState extends State<ExerciseView>
         final active = i < _palmTrees;
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 1),
-          child: Icon(
-            Icons.park_rounded,
-            size: 18,
-            color: active ? AppColors.palm : AppColors.optionBorderDefault,
+          child: SvgPicture.asset(
+            'assets/nakhlah_design/Palm_Trees.svg',
+            width: 18,
+            height: 18,
+            colorFilter: ColorFilter.mode(
+              active ? AppColors.palm : AppColors.optionBorderDefault,
+              BlendMode.srcIn,
+            ),
           ),
         );
       }),
