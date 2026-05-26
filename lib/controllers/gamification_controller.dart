@@ -14,6 +14,34 @@ class GamificationController extends GetxController {
   final streak = const StreakModel().obs;
   final stock = const GamificationStock().obs;
 
+  /// Alias mapping matching web's questAliases in useDailyQuestStore.js
+  static const _questAliases = {
+    'lessonWithNoMistake': ['lessonWithNoMistake', 'noMistakes'],
+    'scoreHighPoints': ['scoreHighPoints', 'highScore', 'scoreEightyPlus'],
+    'shareTheApp': ['shareTheApp', 'shareApp'],
+    'spendMinutes': ['spendMinutes', 'practiceTime'],
+    'spendDatesForLives': ['spendDatesForLives', 'spendDates'],
+    'completeLessonsToday': ['completeLessonsToday', 'completeLessons'],
+    'earnInjazToday': ['earnInjazToday', 'earnInjaz'],
+  };
+
+  static List<String> _resolveAliases(String questId) {
+    if (questId.isEmpty) return [];
+    final explicit = _questAliases[questId] ?? [];
+    final fromGroup = _questAliases.values
+        .firstWhere((aliases) => aliases.contains(questId), orElse: () => []);
+    return {questId, ...explicit, ...fromGroup}.toList();
+  }
+
+  /// Find a matching QuestStatus for a given config key, using alias matching.
+  QuestStatus? findQuestStatus(String configKey) {
+    final aliases = _resolveAliases(configKey);
+    for (final q in quests) {
+      if (aliases.contains(q.challengeId)) return q;
+    }
+    return null;
+  }
+
   Map<String, dynamic> _configMap(dynamic value) {
     dynamic current = value;
     for (var i = 0; i < 4; i++) {
