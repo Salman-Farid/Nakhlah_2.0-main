@@ -89,8 +89,8 @@ class _StatsViewState extends State<StatsView> {
               value: '${p.stock.value.palmStock}',
               label: 'Palm Trees',
               subtitle: 'lives remaining',
-              color: const Color(0xFF4A7A5A),
-              bgColor: const Color(0xFFDCFCE7),
+              color: AppColors.accent,
+              bgColor: const Color(0xFFEDE9FE),
             ),
             _StatsCardData(
               icon: Icons.circle,
@@ -136,8 +136,8 @@ class _StatsViewState extends State<StatsView> {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      AppColors.palm,
-                      AppColors.palm.withValues(alpha: 0.85),
+                      AppColors.accent,
+                      AppColors.accent.withValues(alpha: 0.85),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(20),

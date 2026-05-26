@@ -110,7 +110,7 @@ class _ProfileViewState extends State<ProfileView> {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: AppColors.palm,
+                color: AppColors.accent,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: const Icon(
@@ -194,7 +194,7 @@ class _ProfileViewState extends State<ProfileView> {
                       ? const Icon(
                           Icons.person,
                           size: 52,
-                          color: AppColors.palm,
+                          color: AppColors.accent,
                         )
                       : null,
                 ),
@@ -206,7 +206,7 @@ class _ProfileViewState extends State<ProfileView> {
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: AppColors.palm,
+                    color: AppColors.accent,
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.white, width: 2),
                     boxShadow: [
@@ -323,7 +323,7 @@ class _ProfileViewState extends State<ProfileView> {
             icon: const Icon(Icons.edit, size: 18),
             label: const Text('Edit Profile', overflow: TextOverflow.ellipsis),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.palm,
+              backgroundColor: AppColors.accent,
               foregroundColor: Colors.white,
               elevation: 0,
               padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
@@ -348,8 +348,8 @@ class _ProfileViewState extends State<ProfileView> {
             icon: const Icon(Icons.share, size: 18),
             label: const Text('Share', overflow: TextOverflow.ellipsis),
             style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.palm,
-              side: const BorderSide(color: AppColors.palm, width: 1.5),
+              foregroundColor: AppColors.accent,
+              side: const BorderSide(color: AppColors.accent, width: 1.5),
               padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(24),
@@ -771,7 +771,7 @@ class _ProfileViewState extends State<ProfileView> {
                       color: AppColors.ink,
                     ),
                   ),
-                  const Icon(Icons.arrow_forward, color: AppColors.palm),
+                  const Icon(Icons.arrow_forward, color: AppColors.accent),
                 ],
               ),
               const SizedBox(height: 16),
@@ -887,7 +887,7 @@ class _ProfileViewState extends State<ProfileView> {
                           value: progressClamped,
                           backgroundColor: Colors.grey.shade200,
                           valueColor: const AlwaysStoppedAnimation(
-                            AppColors.palm,
+                            AppColors.accent,
                           ),
                           minHeight: 8,
                         ),
@@ -899,7 +899,7 @@ class _ProfileViewState extends State<ProfileView> {
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.palm,
+                        color: AppColors.accent,
                       ),
                     ),
                   ],
@@ -1028,8 +1028,8 @@ class _AreaChartPainter extends CustomPainter {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          AppColors.palm.withValues(alpha: 0.12),
-          AppColors.palm.withValues(alpha: 0.01),
+          AppColors.accent.withValues(alpha: 0.12),
+          AppColors.accent.withValues(alpha: 0.01),
         ],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
     canvas.drawPath(fillPath, fillPaint);
@@ -1046,7 +1046,7 @@ class _AreaChartPainter extends CustomPainter {
     }
 
     final linePaint = Paint()
-      ..color = AppColors.palm
+      ..color = AppColors.accent
       ..strokeWidth = 2.5
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
@@ -1058,7 +1058,7 @@ class _AreaChartPainter extends CustomPainter {
         ..color = Colors.white
         ..style = PaintingStyle.fill;
       final pointBorderPaint = Paint()
-        ..color = AppColors.palm
+        ..color = AppColors.accent
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2;
       canvas.drawCircle(point, 4, pointPaint);

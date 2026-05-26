@@ -23,7 +23,7 @@ export default function QuickStats({ profileData }) {
       label: "Longest Streak",
       value: `${longestStreak} day${longestStreak === 1 ? "" : "s"}`,
       icon: Target,
-      color: "text-palm-green",
+      color: "text-accent",
     },
     {
       label: "Missed Days",

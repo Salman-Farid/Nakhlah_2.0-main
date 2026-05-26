@@ -64,7 +64,7 @@ export default function HeaderSection({
         <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-8">
           {/* Avatar */}
           <div className="relative">
-            <div className="w-28 h-28 lg:w-32 lg:h-32 rounded-full bg-gradient-to-br from-primary via-accent to-palm-green">
+            <div className="w-28 h-28 lg:w-32 lg:h-32 rounded-full bg-gradient-to-br from-primary via-accent to-accent">
               <div className="w-full h-full rounded-full bg-gradient-to-br from-primary/80 to-accent/80 overflow-hidden flex items-center justify-center text-3xl lg:text-4xl font-bold text-primary-foreground">
                 {avatarUrl ? (
                   <img

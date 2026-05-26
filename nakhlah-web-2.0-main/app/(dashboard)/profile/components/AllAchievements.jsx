@@ -15,7 +15,7 @@ const getMediaUrl = (url) => {
 
 const levelColorClasses = [
   "bg-violet text-white",
-  "bg-palm-green text-white",
+  "bg-accent text-accent-foreground",
   "bg-primary text-primary-foreground",
   "bg-amber-500 text-white",
 ];
