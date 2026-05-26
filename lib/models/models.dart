@@ -30,6 +30,8 @@ dynamic _unwrap(dynamic value) {
     seen.add(current);
     if (current['data'] is Map || current['data'] is List) {
       current = current['data'];
+    } else if (current['doc'] is Map) {
+      current = current['doc'];
     } else if (current['profile'] is Map) {
       current = current['profile'];
     } else if (current['docs'] is List &&
@@ -371,6 +373,15 @@ class LeaderboardEntryModel {
   final String? email, profilePictureUrl;
   final int injazCount;
   bool isCurrentUser;
+
+  /// Resolves [profilePictureUrl] to an absolute URL for Image.network.
+  String? get absolutePictureUrl {
+    final u = profilePictureUrl;
+    if (u == null || u.isEmpty) return null;
+    if (u.startsWith('http')) return u;
+    final normalized = u.startsWith('/api/') ? u.replaceFirst('/api', '') : u;
+    return '${ApiEndpoints.baseUrl}$normalized';
+  }
 
   String get initials {
     final words = fullName
