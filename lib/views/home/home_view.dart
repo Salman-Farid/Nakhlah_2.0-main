@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
 import '../../common/app_motion.dart';
@@ -191,12 +192,18 @@ class _WebStatsBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 72,
-      color: const Color(0xFFF4ECFF),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          colors: [Color(0xFF7B3FE4), Color(0xFF8E4EF2)],
+        ),
+      ),
       padding: const EdgeInsets.symmetric(horizontal: 14),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _HeaderIconValue(icon: NakhlahFlameIcon(size: 34), value: streak),
+          _HeaderIconValue(icon: ActiveStreakIcon(size: 34), value: streak),
           _HeaderIconValue(icon: DatesIcon(size: 34), value: dates),
           _HeaderIconValue(icon: PalmTreeIcon(size: 34), value: palms),
         ],
@@ -216,6 +223,7 @@ class _HeaderIconValue extends StatelessWidget {
     return PressableScale(
       scale: .94,
       child: Container(
+        color: Colors.transparent,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         child: Row(
           children: [
@@ -1146,7 +1154,7 @@ void _showLessonChooserDialog(BuildContext context, String taskId) {
                   children: [
                     Expanded(
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: const [
                           Text(
                             'Choose a Lesson',
@@ -1320,58 +1328,47 @@ class _LessonDialogCard extends StatelessWidget {
         },
         child: Container(
           decoration: BoxDecoration(
-            color: const Color(0xFFFCFAF6),
+            color: Colors.transparent,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFE2D8C9)),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x12000000),
-                blurRadius: 8,
-                offset: Offset(0, 3),
-              ),
-            ],
+            border: Border.all(color: const Color(0xFFE8D9F8), width: 3),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Book illustration with checkmark
               Stack(
                 clipBehavior: Clip.none,
                 children: [
                   Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: completed
-                          ? const Color(0xFFE8F5E9)
-                          : const Color(0xFFF3E8FF),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Icon(
-                      lesson.isExam
-                          ? Icons.quiz_rounded
-                          : Icons.menu_book_rounded,
-                      color: completed
-                          ? const Color(0xFF4CAF50)
-                          : const Color(0xFF7D49DF),
-                      size: 30,
+                    width: 95,
+                    height: 95,
+                    child: SvgPicture.asset(
+                      'assets/nakhlah_design/book_svg.svg',
+                      fit: BoxFit.contain,
                     ),
                   ),
-                  if (completed)
+                   if (completed)
                     Positioned(
-                      right: -4,
-                      bottom: -4,
+                      top: -10,
+                      right: -20,
+                      //bottom: -4,
                       child: Container(
-                        width: 22,
-                        height: 22,
+                        width: 20,
+                        height: 20,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF4CAF50),
+                          color: const Color(0xFFF1F8F1),
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2),
+                          border: Border.all(color: Colors.green.shade200, width: 2),
+                          // boxShadow: const [
+                          //   BoxShadow(
+                          //     color: Color(0x33000000),
+                          //     blurRadius: 4,
+                          //     offset: Offset(0, 2),
+                          //   ),
+                          // ],
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.check_rounded,
-                          color: Colors.white,
+                          color: Colors.green.shade200,
                           size: 14,
                         ),
                       ),
@@ -1380,23 +1377,20 @@ class _LessonDialogCard extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               // Lesson name
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Text(
-                  lesson.title.trim().isNotEmpty
-                      ? lesson.title
-                      : lesson.isExam
-                          ? 'Test ${lesson.lessonOrder.toString().padLeft(2, '0')}'
-                          : 'Lesson ${lesson.lessonOrder.toString().padLeft(2, '0')}',
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF30261D),
-                    height: 1.25,
-                  ),
+              Text(
+                lesson.title.trim().isNotEmpty
+                    ? lesson.title
+                    : lesson.isExam
+                        ? 'Test ${lesson.lessonOrder.toString().padLeft(2, '0')}'
+                        : 'Lesson ${lesson.lessonOrder.toString().padLeft(2, '0')}',
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF30261D),
+                  height: 1.25,
                 ),
               ),
             ],
