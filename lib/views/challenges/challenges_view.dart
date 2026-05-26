@@ -47,26 +47,18 @@ class _ChallengesViewState extends State<ChallengesView> {
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppColors.accent.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.lock_open_rounded,
-              color: AppColors.accent,
-              size: 22,
-            ),
-          ),
-          const SizedBox(width: 12),
           Text(
             'Challenges',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w900,
-                  color: AppColors.ink,
-                ),
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+              fontWeight: FontWeight.w900,
+              color: Colors.black,
+              fontSize: 28,
+            ),
+          ),
+          const SizedBox(width: 8),
+          const Text(
+            '🔐',
+            style: TextStyle(fontSize: 26),
           ),
         ],
       ),
@@ -79,21 +71,19 @@ class _ChallengesViewState extends State<ChallengesView> {
       child: Container(
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          color: AppColors.card,
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: AppColors.border),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(50),
+          border: Border.all(color: const Color(0xFFE8E0D0), width: 1),
         ),
         child: Row(
           children: [
             _TabButton(
               label: 'Target',
-              icon: Icons.flag_rounded,
               selected: _selectedTab == 0,
               onTap: () => setState(() => _selectedTab = 0),
             ),
             _TabButton(
               label: 'Badges',
-              icon: Icons.military_tech_rounded,
               selected: _selectedTab == 1,
               onTap: () => setState(() => _selectedTab = 1),
             ),
@@ -107,13 +97,11 @@ class _ChallengesViewState extends State<ChallengesView> {
 class _TabButton extends StatelessWidget {
   const _TabButton({
     required this.label,
-    required this.icon,
     required this.selected,
     required this.onTap,
   });
 
   final String label;
-  final IconData icon;
   final bool selected;
   final VoidCallback onTap;
 
@@ -124,38 +112,21 @@ class _TabButton extends StatelessWidget {
         onTap: onTap,
         child: AnimatedContainer(
           duration: AppMotion.fast,
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: const EdgeInsets.symmetric(vertical: 14),
           decoration: BoxDecoration(
-            color: selected ? AppColors.accent : Colors.transparent,
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: selected
-                ? [
-                    BoxShadow(
-                      color: AppColors.accent.withValues(alpha: 0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ]
-                : null,
+            // Tan/beige color when selected (matches screenshot)
+            color: selected ? const Color(0xFFD4B896) : Colors.transparent,
+            borderRadius: BorderRadius.circular(50),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                size: 18,
-                color: selected ? Colors.white : AppColors.muted,
+          child: Center(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: selected ? Colors.black87 : const Color(0xFF999999),
+                fontWeight: FontWeight.w700,
+                fontSize: 15,
               ),
-              const SizedBox(width: 6),
-              Text(
-                label,
-                style: TextStyle(
-                  color: selected ? Colors.white : AppColors.muted,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 14,
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
