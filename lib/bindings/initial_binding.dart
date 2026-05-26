@@ -15,8 +15,12 @@ import '../services/storage_service.dart';
 class InitialBinding extends Bindings {
   @override
   void dependencies() {
-    Get.put(StorageService(), permanent: true);
-    Get.put(ApiService(Get.find()), permanent: true);
+    if (!Get.isRegistered<StorageService>()) {
+      Get.put(StorageService(), permanent: true);
+    }
+    if (!Get.isRegistered<ApiService>()) {
+      Get.put(ApiService(Get.find()), permanent: true);
+    }
     Get.put(AuthService(Get.find(), Get.find()), permanent: true);
     Get.put(ProfileService(Get.find()), permanent: true);
     Get.put(ContentService(Get.find()), permanent: true);

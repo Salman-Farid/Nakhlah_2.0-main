@@ -30,13 +30,36 @@ class ApiService {
     ).replace(queryParameters: qp.isEmpty ? null : qp);
   }
 
-  Map<String, String> _headers({bool auth = true, bool json = true}) => {
-    'Accept': 'application/json',
-    if (json) 'Content-Type': 'application/json',
-    if (auth && _storage.token != null)
-      'Authorization': 'Bearer ${_storage.token}',
-    if (_storage.cookies != null) 'Cookie': _storage.cookies!,
-  };
+  Map<String, String> _headers({bool auth = true, bool json = true}) {
+    final token = _storage.token;
+    final cookies = _storage.cookies;
+    return {
+      'Accept': 'application/json',
+      if (json) 'Content-Type': 'application/json',
+      if (auth && token != null && token.isNotEmpty)
+        'Authorization': 'Bearer $token',
+      if (cookies != null && cookies.isNotEmpty) 'Cookie': cookies,
+    };
+  }
+
+  /// Returns auth headers from the central token store.
+  ///
+  /// Any code that cannot use get/post/patch/delete directly (for example
+  /// just_audio media requests) must call this instead of reading/caching the
+  /// token itself. This refreshes first when the token is inside the expiry
+  /// buffer, then reads the updated token from [StorageService].
+  Future<Map<String, String>> authHeaders({
+    String accept = 'application/json',
+    bool json = false,
+  }) async {
+    if (_storage.isLoggedIn && _storage.isTokenExpired) {
+      await _refreshAccessToken();
+    }
+
+    final headers = _headers(auth: true, json: json);
+    headers['Accept'] = accept;
+    return headers;
+  }
 
   Future<dynamic> get(
     String p, {
@@ -130,6 +153,14 @@ class ApiService {
     return _send(request, auth: auth, path: p);
   }
 
+  /// Refresh the saved access token immediately.
+  ///
+  /// This is intentionally public so app startup can refresh the session before
+  /// the first screen/API call is made.
+  Future<bool> refreshAccessToken() => _refreshAccessToken();
+
+  void close() => _client.close();
+
   Future<dynamic> _send(
     Future<http.Response> Function() request, {
     bool auth = true,
@@ -171,7 +202,7 @@ class ApiService {
     String? path,
   }) {
     return auth &&
-        response.statusCode == 401 &&
+        (response.statusCode == 401 || response.statusCode == 403) &&
         path != ApiEndpoints.refreshToken &&
         _storage.token != null &&
         _storage.token!.isNotEmpty;
@@ -231,11 +262,22 @@ class ApiService {
       if (response.statusCode != 200) return false;
 
       final decoded = _decode(response);
-      final session = AuthSession.fromJson(decoded);
+      final refreshMap = decoded is Map ? decoded : const <String, dynamic>{};
+      // The refresh response may nest data under "data" (same as login).
+      final data =
+          refreshMap['data'] is Map
+              ? refreshMap['data'] as Map
+              : refreshMap;
 
-      // Web calls /me after refresh to validate the token and handle rotation.
-      String? finalToken = session.token;
-      int? finalExp = session.exp;
+      // Match web: prefer refreshedToken over token (the refresh endpoint
+      // returns the new JWT as refreshedToken, not token).
+      String? finalToken =
+          (data['refreshedToken'] ?? data['token'] ?? data['accessToken'])
+              ?.toString();
+      int? finalExp =
+          data['exp'] is int
+              ? data['exp'] as int
+              : int.tryParse('${data['exp']}');
 
       if (finalToken != null && finalToken.isNotEmpty) {
         try {
@@ -256,8 +298,8 @@ class ApiService {
           if (meResp.statusCode == 200) {
             final meData = _decode(meResp);
             if (meData is Map) {
-              final meToken = (meData['token'] ?? meData['refreshedToken'])
-                  ?.toString();
+              final meToken =
+                  (meData['token'] ?? meData['refreshedToken'])?.toString();
               if (meToken != null && meToken.isNotEmpty) {
                 finalToken = meToken;
               }

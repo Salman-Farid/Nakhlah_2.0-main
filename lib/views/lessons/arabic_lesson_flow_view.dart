@@ -9,7 +9,7 @@ import '../../common/nakhlah_mascot.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_theme.dart';
 import '../../controllers/content_controller.dart';
-import '../../services/storage_service.dart';
+import '../../services/api_service.dart';
 
 class ArabicLessonFlowView extends StatefulWidget {
   const ArabicLessonFlowView({super.key});
@@ -1124,16 +1124,12 @@ class _StepLabelState extends State<_StepLabel> {
     setState(() => _loading = true);
     try {
       await _player.stop();
-      final token = Get.isRegistered<StorageService>()
-          ? Get.find<StorageService>().token
-          : null;
+      final headers = Get.isRegistered<ApiService>()
+          ? await Get.find<ApiService>().authHeaders(accept: 'audio/*,*/*')
+          : {'Accept': 'audio/*,*/*'};
       await _player.setUrl(
         url,
-        headers: {
-          'Accept': 'audio/*,*/*',
-          if (token != null && token.isNotEmpty)
-            'Authorization': 'Bearer $token',
-        },
+        headers: headers,
       );
       await _player.play();
     } catch (e) {

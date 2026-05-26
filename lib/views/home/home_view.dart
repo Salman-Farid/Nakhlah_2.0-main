@@ -12,6 +12,7 @@ import '../../controllers/gamification_controller.dart';
 import '../../controllers/profile_controller.dart';
 import '../../models/models.dart';
 import '../../routes/app_routes.dart';
+import '../../widgets/nakhlah_icons.dart';
 import '../exercises/exercise_view.dart';
 
 class HomeView extends StatefulWidget {
@@ -190,14 +191,14 @@ class _WebStatsBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 72,
-      color: WebHomeColors.primary,
+      color: const Color(0xFFF4ECFF),
       padding: const EdgeInsets.symmetric(horizontal: 14),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _HeaderIconValue(icon: _FlameIcon(size: 34), value: streak),
-          _HeaderIconValue(icon: _GemIcon(size: 34), value: dates),
-          _HeaderIconValue(icon: _HeartIcon(size: 34), value: palms),
+          _HeaderIconValue(icon: NakhlahFlameIcon(size: 34), value: streak),
+          _HeaderIconValue(icon: DatesIcon(size: 34), value: dates),
+          _HeaderIconValue(icon: PalmTreeIcon(size: 34), value: palms),
         ],
       ),
     );
@@ -223,7 +224,7 @@ class _HeaderIconValue extends StatelessWidget {
             Text(
               '$value',
               style: const TextStyle(
-                color: WebHomeColors.primaryForeground,
+                color: Colors.white,
                 fontSize: 18,
                 fontWeight: FontWeight.w900,
                 height: 1,
@@ -1679,40 +1680,6 @@ class _GemIcon extends StatelessWidget {
     return Icon(
       Icons.diamond_rounded,
       color: const Color(0xFF1E88E5),
-      size: size,
-      shadows: const [
-        Shadow(color: Color(0x33000000), offset: Offset(0, 2), blurRadius: 2),
-      ],
-    );
-  }
-}
-
-class _FlameIcon extends StatelessWidget {
-  const _FlameIcon({required this.size});
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    return Icon(
-      Icons.local_fire_department_rounded,
-      color: const Color(0xFFFF6D00),
-      size: size,
-      shadows: const [
-        Shadow(color: Color(0x33000000), offset: Offset(0, 2), blurRadius: 2),
-      ],
-    );
-  }
-}
-
-class _HeartIcon extends StatelessWidget {
-  const _HeartIcon({required this.size});
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    return Icon(
-      Icons.favorite_rounded,
-      color: const Color(0xFFFF262E),
       size: size,
       shadows: const [
         Shadow(color: Color(0x33000000), offset: Offset(0, 2), blurRadius: 2),

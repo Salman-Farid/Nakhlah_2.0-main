@@ -8,8 +8,8 @@ import '../../common/app_snackbar.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_theme.dart';
 import '../../models/lesson_question_model.dart';
+import '../../services/api_service.dart';
 import '../../services/content_service.dart';
-import '../../services/storage_service.dart';
 import 'lesson_result_view.dart';
 
 const _lessonMaxWidth = 430.0;
@@ -319,16 +319,12 @@ class _ExerciseViewState extends State<ExerciseView>
     setState(() => _audioLoading = true);
     try {
       await _audioPlayer.stop();
-      final token = Get.isRegistered<StorageService>()
-          ? Get.find<StorageService>().token
-          : null;
+      final headers = Get.isRegistered<ApiService>()
+          ? await Get.find<ApiService>().authHeaders(accept: 'audio/*,*/*')
+          : {'Accept': 'audio/*,*/*'};
       await _audioPlayer.setUrl(
         url,
-        headers: {
-          'Accept': 'audio/*,*/*',
-          if (token != null && token.isNotEmpty)
-            'Authorization': 'Bearer $token',
-        },
+        headers: headers,
       );
       _audioPlayer.setSpeed(speed);
       await _audioPlayer.play();
