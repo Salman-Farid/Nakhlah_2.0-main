@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:share_plus/share_plus.dart';
@@ -248,25 +249,29 @@ class _ProfileViewState extends State<ProfileView> {
   ) {
     final stats = [
       _GamificationStat(
-        icon: Icons.park,
+        icon: SvgPicture.asset(
+          'assets/nakhlah_design/Palm_Trees.svg',
+          width: 22,
+          height: 22,
+        ),
         value: '${p.stock.value.palmStock}',
         label: 'Palm Trees',
         color: const Color(0xFF10B981),
       ),
       _GamificationStat(
-        icon: Icons.circle,
+        icon: const Icon(Icons.circle, color: Color(0xFFF59E0B), size: 22),
         value: '${p.stock.value.dateStock}',
         label: 'Dates',
         color: const Color(0xFFF59E0B),
       ),
       _GamificationStat(
-        icon: Icons.diamond,
+        icon: const Icon(Icons.diamond, color: Color(0xFF7C3AED), size: 22),
         value: '${g.stock.value.injazStock}',
         label: 'Gems',
         color: const Color(0xFF7C3AED),
       ),
       _GamificationStat(
-        icon: Icons.star,
+        icon: const Icon(Icons.star, color: Color(0xFF3B82F6), size: 22),
         value: '${p.stock.value.injazStock}',
         label: 'Injaz',
         color: const Color(0xFF3B82F6),
@@ -291,7 +296,7 @@ class _ProfileViewState extends State<ProfileView> {
       ),
       child: Column(
         children: [
-          Icon(stat.icon, color: stat.color, size: 22),
+          SizedBox(width: 22, height: 22, child: stat.icon),
           const SizedBox(height: 6),
           Text(
             stat.value,
@@ -951,7 +956,7 @@ class _StatData {
 }
 
 class _GamificationStat {
-  final IconData icon;
+  final Widget icon;
   final String value;
   final String label;
   final Color color;

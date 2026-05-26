@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
 import '../../constants/app_colors.dart';
@@ -61,7 +62,7 @@ class _StatsViewState extends State<StatsView> {
 
           final stats = [
             _StatsCardData(
-              icon: Icons.local_fire_department,
+              icon: const Icon(Icons.local_fire_department, color: Color(0xFFEF4444), size: 20),
               value: '${g.streak.value.currentStreak}',
               label: 'Current Streak',
               subtitle: 'days in a row',
@@ -69,7 +70,7 @@ class _StatsViewState extends State<StatsView> {
               bgColor: const Color(0xFFFEE2E2),
             ),
             _StatsCardData(
-              icon: Icons.bolt,
+              icon: const Icon(Icons.bolt, color: Color(0xFFF59E0B), size: 20),
               value: '${p.stock.value.injazStock}',
               label: 'Total XP',
               subtitle: 'experience points',
@@ -77,7 +78,7 @@ class _StatsViewState extends State<StatsView> {
               bgColor: const Color(0xFFFFF7ED),
             ),
             _StatsCardData(
-              icon: Icons.menu_book,
+              icon: const Icon(Icons.menu_book, color: Color(0xFF10B981), size: 20),
               value: '${p.progress.value.lessonOrder}',
               label: 'Lessons Completed',
               subtitle: 'lessons finished',
@@ -85,7 +86,11 @@ class _StatsViewState extends State<StatsView> {
               bgColor: const Color(0xFFDCFCE7),
             ),
             _StatsCardData(
-              icon: Icons.park,
+              icon: SvgPicture.asset(
+                'assets/nakhlah_design/Palm_Trees.svg',
+                width: 20,
+                height: 20,
+              ),
               value: '${p.stock.value.palmStock}',
               label: 'Palm Trees',
               subtitle: 'lives remaining',
@@ -93,7 +98,7 @@ class _StatsViewState extends State<StatsView> {
               bgColor: const Color(0xFFEDE9FE),
             ),
             _StatsCardData(
-              icon: Icons.circle,
+              icon: const Icon(Icons.circle, color: Color(0xFFF59E0B), size: 20),
               value: '${p.stock.value.dateStock}',
               label: 'Dates',
               subtitle: 'currency earned',
@@ -101,7 +106,7 @@ class _StatsViewState extends State<StatsView> {
               bgColor: const Color(0xFFFFF7ED),
             ),
             _StatsCardData(
-              icon: Icons.emoji_events,
+              icon: const Icon(Icons.emoji_events, color: Color(0xFF7C3AED), size: 20),
               value: '${g.achievements.where((a) => a.achieved).length}',
               label: 'Achievements',
               subtitle: 'badges unlocked',
@@ -109,7 +114,7 @@ class _StatsViewState extends State<StatsView> {
               bgColor: const Color(0xFFEDE9FE),
             ),
             _StatsCardData(
-              icon: Icons.assignment_turned_in,
+              icon: const Icon(Icons.assignment_turned_in, color: Color(0xFF3B82F6), size: 20),
               value: '${p.progress.value.taskOrder}',
               label: 'Tasks Completed',
               subtitle: 'tasks finished',
@@ -117,7 +122,7 @@ class _StatsViewState extends State<StatsView> {
               bgColor: const Color(0xFFDBEAFE),
             ),
             _StatsCardData(
-              icon: Icons.star,
+              icon: const Icon(Icons.star, color: Color(0xFFEC4899), size: 20),
               value: '${p.progress.value.levelOrder}',
               label: 'Current Level',
               subtitle: 'level reached',
@@ -232,7 +237,7 @@ class _StatsViewState extends State<StatsView> {
                             color: stat.bgColor,
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(stat.icon, color: stat.color, size: 20),
+                          child: SizedBox(width: 20, height: 20, child: stat.icon),
                         ),
                         const SizedBox(height: 10),
                         Text(
@@ -290,7 +295,7 @@ class _StatsViewState extends State<StatsView> {
 }
 
 class _StatsCardData {
-  final IconData icon;
+  final Widget icon;
   final String value;
   final String label;
   final String subtitle;
