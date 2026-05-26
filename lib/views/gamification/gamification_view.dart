@@ -69,22 +69,33 @@ void _showStoreFeatureSheet(BuildContext context, _StoreFeature feature) {
                 ),
               ),
               const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.palm,
-                    foregroundColor: Colors.white,
-                    minimumSize: const Size.fromHeight(52),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    elevation: 0,
+              Container(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [AppColors.premiumGradientStart, AppColors.premiumGradientEnd],
                   ),
-                  child: const Text(
-                    'Got it',
-                    style: TextStyle(fontWeight: FontWeight.w700),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size.fromHeight(52),
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      'Got it',
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                    ),
                   ),
                 ),
               ),
@@ -182,7 +193,11 @@ class _PremiumBanner extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         child: Ink(
           decoration: BoxDecoration(
-            color: AppColors.palm,
+            gradient: const LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              colors: [AppColors.premiumGradientStart, AppColors.premiumGradientEnd],
+            ),
             borderRadius: BorderRadius.circular(24),
           ),
           padding: const EdgeInsets.all(24),
@@ -295,14 +310,21 @@ class _GoPremiumButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PressableScale(
-      child: SizedBox(
-        width: double.infinity,
-        height: 56,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: [AppColors.premiumGradientStart, AppColors.premiumGradientEnd],
+          ),
+          borderRadius: BorderRadius.circular(16),
+        ),
         child: ElevatedButton(
           onPressed: () => Get.toNamed(Routes.premium),
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.palm,
+            backgroundColor: Colors.transparent,
             foregroundColor: Colors.white,
+            shadowColor: Colors.transparent,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),

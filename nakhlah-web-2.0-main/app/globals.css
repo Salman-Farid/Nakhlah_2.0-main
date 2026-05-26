@@ -84,6 +84,11 @@
       hsl(144 26% 39%),
       hsl(144 30% 55%)
     );
+    --gradient-premium: linear-gradient(
+      90deg,
+      #7b3fe4,
+      #8e4ef2
+    );
 
     /* Shadows */
     --shadow-sm: 0 2px 8px hsl(30 25% 15% / 0.08);

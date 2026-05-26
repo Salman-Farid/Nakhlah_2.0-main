@@ -58,13 +58,23 @@ class _PremiumViewState extends State<PremiumView> {
               child: PageEnter(
                 delay: const Duration(milliseconds: 400),
                 child: PressableScale(
+                  child: Container(
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [AppColors.premiumGradientStart, AppColors.premiumGradientEnd],
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   child: SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () => Get.toNamed(Routes.payment),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.palm,
+                        backgroundColor: Colors.transparent,
                         foregroundColor: Colors.white,
+                        shadowColor: Colors.transparent,
                         minimumSize: const Size.fromHeight(56),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
@@ -80,6 +90,7 @@ class _PremiumViewState extends State<PremiumView> {
                       ),
                     ),
                   ),
+                ),
                 ),
               ),
             ),
@@ -216,7 +227,7 @@ class _PlanCard extends StatelessWidget {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(24),
                 border: isSelected
-                    ? Border.all(color: AppColors.palm, width: 2)
+                    ? Border.all(color: AppColors.premiumGradientStart, width: 2)
                     : null,
                 boxShadow: [
                   BoxShadow(
@@ -256,7 +267,7 @@ class _PlanCard extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.palm,
+                        color: AppColors.premiumGradientStart,
                       ),
                     ),
                   ] else
@@ -280,7 +291,7 @@ class _PlanCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.palm,
+                      color: AppColors.premiumGradientStart,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -305,7 +316,11 @@ class _PlanCard extends StatelessWidget {
                   vertical: 5,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.palm,
+                  gradient: const LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [AppColors.premiumGradientStart, AppColors.premiumGradientEnd],
+                  ),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: const Row(

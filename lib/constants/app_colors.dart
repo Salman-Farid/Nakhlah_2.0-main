@@ -13,6 +13,10 @@ class AppColors {
   // Greens — Palm theme
   static const palm = Color(0xFF4A7A5A);
   static const palmDark = Color(0xFF3D6349);
+
+  // Premium Gradient — Purple/Violet
+  static const premiumGradientStart = Color(0xFF7B3FE4);
+  static const premiumGradientEnd = Color(0xFF8E4EF2);
   static const correctGreen = Color(0xFF22C55E);
   static const success = correctGreen;
 

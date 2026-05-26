@@ -183,7 +183,7 @@ class _DatePackCard extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.palm,
+                  color: AppColors.premiumGradientStart,
                 ),
               ),
               const SizedBox(height: 4),
@@ -218,24 +218,35 @@ class _DatePackCard extends StatelessWidget {
               ),
               const SizedBox(height: 14),
               PressableScale(
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => Get.toNamed(Routes.payment),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.palm,
-                      foregroundColor: Colors.white,
-                      minimumSize: const Size.fromHeight(50),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      elevation: 0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [AppColors.premiumGradientStart, AppColors.premiumGradientEnd],
                     ),
-                    child: const Text(
-                      'Buy Now',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () => Get.toNamed(Routes.payment),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        foregroundColor: Colors.white,
+                        shadowColor: Colors.transparent,
+                        minimumSize: const Size.fromHeight(50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: const Text(
+                        'Buy Now',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ),
@@ -256,7 +267,11 @@ class _DatePackCard extends StatelessWidget {
                   vertical: 5,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.palm,
+                  gradient: const LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [AppColors.premiumGradientStart, AppColors.premiumGradientEnd],
+                  ),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: const Row(

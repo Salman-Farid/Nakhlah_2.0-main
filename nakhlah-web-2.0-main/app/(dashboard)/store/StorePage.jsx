@@ -113,17 +113,17 @@ export default function StorePage() {
                 onClick={() => setSelectedOption("premium")}
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
-                className="relative group rounded-xl bg-card border border-border hover:border-primary p-6 text-left shadow-sm hover:shadow-md transition-all"
+                className="relative group rounded-xl bg-card border border-border hover:border-accent p-6 text-left shadow-sm hover:shadow-md transition-all"
               >
                 {/* Popular badge */}
-                <div className="absolute top-3 right-3 bg-primary text-primary-foreground text-xs font-bold px-2 py-1 rounded-md">
+                <div className="absolute top-3 right-3 text-white text-xs font-bold px-2 py-1 rounded-md" style={{background: 'linear-gradient(90deg, #7B3FE4, #8E4EF2)'}}>
                   RECOMMENDED
                 </div>
 
                 <div className="space-y-4">
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Crown size="md" className="text-primary" />
+                    <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center">
+                      <Crown size="md" className="text-accent" />
                     </div>
                     <div className="flex-1 pr-20">
                       <h3 className="text-xl font-bold text-foreground mb-1">
@@ -151,7 +151,7 @@ export default function StorePage() {
                     <span className="text-sm text-muted-foreground">
                       From $10/mo
                     </span>
-                    <div className="inline-flex items-center gap-1 text-primary text-sm font-semibold">
+                    <div className="inline-flex items-center gap-1 text-accent text-sm font-semibold">
                       <span>Select</span>
                       <svg
                         className="w-4 h-4 group-hover:translate-x-0.5 transition-transform"
