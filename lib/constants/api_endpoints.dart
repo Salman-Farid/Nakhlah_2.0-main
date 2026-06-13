@@ -1,9 +1,10 @@
+
 class ApiEndpoints {
+
   ApiEndpoints._();
 
   static const String baseUrl = 'https://nakhlah-admin.codemonks.dev/api';
   static const String apiPrefix = '';
-
   static const String signUp = '/users/sign-in';
   static const String login = '/users/login';
   static const String logout = '/users/logout';
@@ -13,7 +14,6 @@ class ApiEndpoints {
   static const String changePassword = '/users/change-password';
   static const String refreshToken = '/users/refresh-token';
   static const String me = '/users/me';
-
   static const String userProfile = '/user-profile';
   static const String updateProfile = '/user-profile/update-me';
   static const String deleteProfile = '/user-profile/me';
@@ -23,7 +23,6 @@ class ApiEndpoints {
   static const String learnerStreak = '/user-profile/learner-streak';
   static const String gamificationStocks = '/user-profile/gamification-stocks';
   static const String leaderboard = '/user-profile/get-leaderboard';
-
   static const String helpCenter = '/globals/help-center';
   static const String about = '/globals/about';
   static const String legalDocuments = '/globals/legal-documents';
@@ -46,7 +45,7 @@ class ApiEndpoints {
   static String examQuestions(String id) => '/lessons/tasks/$id/exam-questions';
   static String questionsByLesson(String id) => '/lessons/$id';
   static String fullMarks(String id) => '/lessons/full-marks/$id';
-  static String makeLearnerProgress(String id) =>
-      '/lessons/make-learner-progress/$id';
+  static String makeLearnerProgress(String id) => '/lessons/make-learner-progress/$id';
   static String restoreStreak(int days) => '/lessons/restore-streak/$days';
+
 }

@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:just_audio/just_audio.dart';
 
 import '../../common/app_snackbar.dart';
@@ -1273,10 +1275,20 @@ class _ExerciseViewState extends State<ExerciseView>
           clipBehavior: Clip.antiAlias,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(6),
-            child: Image.network(
-              imageUrl,
+            child: CachedNetworkImage(
+              imageUrl: imageUrl,
               fit: BoxFit.cover,
-              errorBuilder: (_, a, b) => const Column(
+              memCacheWidth: (size * 2).toInt(),
+              fadeInDuration: const Duration(milliseconds: 200),
+              fadeOutDuration: const Duration(milliseconds: 100),
+              placeholder: (_, __) => Shimmer.fromColors(
+                baseColor: AppColors.optionBorderDefault,
+                highlightColor: AppColors.card,
+                child: Container(
+                  color: AppColors.card,
+                ),
+              ),
+              errorWidget: (_, a, b) => const Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
