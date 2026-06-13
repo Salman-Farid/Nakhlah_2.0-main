@@ -64,9 +64,7 @@ class _HomeViewState extends State<HomeView> {
                     () => _WebStatsBar(
                       streak: gamification.streak.value.currentStreak,
                       dates: gamification.stock.value.dateStock,
-                      palms: gamification.stock.value.palmStock == 0
-                          ? 5
-                          : gamification.stock.value.palmStock,
+                      palms: gamification.stock.value.palmStock,
                       gamification: gamification,
                     ),
                   ),

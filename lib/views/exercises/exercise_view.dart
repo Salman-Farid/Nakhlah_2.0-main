@@ -109,6 +109,7 @@ class _ExerciseViewState extends State<ExerciseView>
     _timer?.cancel();
     _audioPlayer.dispose();
     _feedbackController.dispose();
+    Get.find<GamificationController>().load();
     super.dispose();
   }
 
@@ -142,7 +143,7 @@ class _ExerciseViewState extends State<ExerciseView>
         _currentIndex = 0;
         final gamCtrl = Get.find<GamificationController>();
         final apiPalm = gamCtrl.stock.value.palmStock;
-        _maxPalmTreesForSession = apiPalm > 0 ? apiPalm : _maxPalmTrees;
+        _maxPalmTreesForSession = apiPalm;
         _palmTrees = _maxPalmTreesForSession;
         _correctAnswers = 0;
         _hasWrongAnswer = false;
@@ -452,7 +453,7 @@ class _ExerciseViewState extends State<ExerciseView>
                     final newPalm = gamCtrl.stock.value.palmStock;
                     if (mounted) {
                       setState(() {
-                        _maxPalmTreesForSession = newPalm > 0 ? newPalm : _maxPalmTrees;
+                        _maxPalmTreesForSession = newPalm;
                         _palmTrees = _maxPalmTreesForSession;
                       });
                     }
