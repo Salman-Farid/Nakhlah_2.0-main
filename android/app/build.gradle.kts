@@ -12,6 +12,7 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
+
 android {
     namespace = "com.example.nakhlah"
     compileSdk = flutter.compileSdkVersion
