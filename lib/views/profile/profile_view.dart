@@ -27,6 +27,10 @@ class ProfileView extends StatefulWidget {
 }
 
 class _ProfileViewState extends State<ProfileView> {
+  // Cache-bust version counter — incremented after each photo upload
+  // so CachedNetworkImageProvider fetches the new image.
+  int _pictureVersion = 0;
+
   Future<void> _pickProfilePhoto(ProfileController controller) async {
     try {
       final picked = await ImagePicker().pickImage(
@@ -35,6 +39,7 @@ class _ProfileViewState extends State<ProfileView> {
       );
       if (picked == null) return;
       await controller.updateProfile(picture: File(picked.path));
+      if (mounted) setState(() => _pictureVersion++);
     } catch (e) {
       AppSnackbar.error('Could not update profile photo.');
     }
@@ -158,7 +163,10 @@ class _ProfileViewState extends State<ProfileView> {
     ProfileController p,
     AuthController a,
   ) {
-    final imageUrl = p.profile.value?.profilePicture?.absoluteUrl;
+    String? imageUrl = p.profile.value?.profilePicture?.absoluteUrl;
+    if (imageUrl != null && imageUrl.isNotEmpty && _pictureVersion > 0) {
+      imageUrl = '$imageUrl?v=$_pictureVersion';
+    }
     final name =
         p.profile.value?.fullName ??
         a.user.value?.name ??
