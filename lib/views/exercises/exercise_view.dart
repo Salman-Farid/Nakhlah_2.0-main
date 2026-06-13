@@ -8,6 +8,7 @@ import 'package:just_audio/just_audio.dart';
 import '../../common/app_snackbar.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_theme.dart';
+import '../../controllers/gamification_controller.dart';
 import '../../models/lesson_question_model.dart';
 import '../../services/api_service.dart';
 import '../../services/content_service.dart';
@@ -45,6 +46,7 @@ class _ExerciseViewState extends State<ExerciseView>
 
   int _currentIndex = 0;
   int _palmTrees = _maxPalmTrees;
+  int _maxPalmTreesForSession = _maxPalmTrees;
   int _elapsedSeconds = 0;
   Timer? _timer;
 
@@ -138,7 +140,10 @@ class _ExerciseViewState extends State<ExerciseView>
         _questions = questions;
         _loading = false;
         _currentIndex = 0;
-        _palmTrees = _maxPalmTrees;
+        final gamCtrl = Get.find<GamificationController>();
+        final apiPalm = gamCtrl.stock.value.palmStock;
+        _maxPalmTreesForSession = apiPalm > 0 ? apiPalm : _maxPalmTrees;
+        _palmTrees = _maxPalmTreesForSession;
         _correctAnswers = 0;
         _hasWrongAnswer = false;
       });
@@ -381,22 +386,94 @@ class _ExerciseViewState extends State<ExerciseView>
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Out of lives!',
-            style: TextStyle(fontWeight: FontWeight.w900)),
-        content: const Text(
-            'You ran out of palm trees. Come back later or refill to continue.'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              Get.back();
-            },
-            child: const Text('Leave',
-                style: TextStyle(fontWeight: FontWeight.w800)),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 8),
+              const Text(
+                '\u{1F4A7}',
+                style: TextStyle(fontSize: 64),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'No Palm Trees left for this lesson',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Take a short break, refill your Palm Trees, and come back ready to continue the journey.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textSecondary,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: AppTheme.buttonHeight,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.accent,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppTheme.buttonRadius),
+                    ),
+                  ),
+                  child: const Text('Back to Home',
+                      style: TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w900)),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                height: AppTheme.buttonHeight,
+                child: OutlinedButton(
+                  onPressed: () async {
+                    Navigator.pop(ctx);
+                    final gamCtrl = Get.find<GamificationController>();
+                    await gamCtrl.refillPalm();
+                    final newPalm = gamCtrl.stock.value.palmStock;
+                    if (mounted) {
+                      setState(() {
+                        _maxPalmTreesForSession = newPalm > 0 ? newPalm : _maxPalmTrees;
+                        _palmTrees = _maxPalmTreesForSession;
+                      });
+                    }
+                  },
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: AppColors.optionBorderDefault),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppTheme.buttonRadius),
+                    ),
+                  ),
+                  child: const Text('Refill Palm Trees',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.textPrimary,
+                      )),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -532,7 +609,7 @@ class _ExerciseViewState extends State<ExerciseView>
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: List.generate(_maxPalmTrees, (i) {
+                  children: List.generate(_maxPalmTreesForSession, (i) {
                     final active = i < _palmTrees;
                     return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 1),
