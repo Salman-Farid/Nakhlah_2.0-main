@@ -297,7 +297,7 @@ class _PodiumAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = _gradientFor(colorIndex);
-    final imageUrl = entry.profilePictureUrl;
+    final imageUrl = entry.absolutePictureUrl;
 
     return Container(
       width: size,
@@ -461,7 +461,7 @@ class _LeaderboardRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = _gradientFor(colorIndex);
-    final imageUrl = entry.profilePictureUrl;
+    final imageUrl = entry.absolutePictureUrl;
 
     return Material(
       color: Colors.transparent,
@@ -664,10 +664,10 @@ class UserProfilePage extends StatelessWidget {
                             border: Border.all(color: Colors.white, width: 4),
                           ),
                           child: ClipOval(
-                            child: user.profilePictureUrl != null &&
-                                    user.profilePictureUrl!.isNotEmpty
+                            child: user.absolutePictureUrl != null &&
+                                    user.absolutePictureUrl!.isNotEmpty
                                 ? Image.network(
-                                    user.profilePictureUrl!,
+                                    user.absolutePictureUrl!,
                                     fit: BoxFit.cover,
                                     errorBuilder: (_, a, b) =>
                                         _profileInitials(user, 100),
