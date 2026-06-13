@@ -53,25 +53,20 @@ class _ExerciseViewState extends State<ExerciseView>
   bool _questionAnswered = false;
   bool? _lastAnswerCorrect;
 
-  // MCQ / True-False / Fill-blank state
   String? _selectedOptionId;
   bool? _selectedTrueFalse;
   String? _selectedFillBlankId;
 
-  // Word/Sentence making state
   final List<LessonAnswer> _selectedTokens = [];
   final Set<String> _usedTokenIds = {};
 
-  // Pair matching state
   String? _selectedLeftId;
   final Map<String, String> _matchedPairs = {};
   bool _pairPenaltyApplied = false;
 
-  // Feedback animation
   late AnimationController _feedbackController;
   late Animation<double> _feedbackAnimation;
 
-  // Audio
   late AudioPlayer _audioPlayer;
   bool _audioLoading = false;
 
@@ -174,9 +169,8 @@ class _ExerciseViewState extends State<ExerciseView>
   bool get _isLastQuestion => _currentIndex >= _totalQuestions - 1;
   int get _scoredQuestions => _questions.where((q) => q.isScored).length;
 
-  double get _progress => _totalQuestions > 0
-      ? (_currentIndex + 1) / _totalQuestions
-      : 0;
+  double get _progress =>
+      _totalQuestions > 0 ? (_currentIndex + 1) / _totalQuestions : 0;
 
   void _resetQuestionState() {
     _selectedOptionId = null;
@@ -198,9 +192,7 @@ class _ExerciseViewState extends State<ExerciseView>
     if (q.isTrueFalse) return _selectedTrueFalse != null;
     if (q.isFillBlank) return _selectedFillBlankId != null;
     if (q.isWordMaking || q.isSentenceMaking) return _selectedTokens.isNotEmpty;
-    if (q.isPairMatching) {
-      return _matchedPairs.length == q.answers.length;
-    }
+    if (q.isPairMatching) return _matchedPairs.length == q.answers.length;
     return false;
   }
 
@@ -208,14 +200,14 @@ class _ExerciseViewState extends State<ExerciseView>
     final q = _currentQuestion;
     if (q.isLearn) return true;
     if (q.isMcq) {
-      final selected = q.answers.where((a) => a.id == _selectedOptionId).firstOrNull;
+      final selected =
+          q.answers.where((a) => a.id == _selectedOptionId).firstOrNull;
       return selected?.isCorrect == true;
     }
-    if (q.isTrueFalse) {
-      return _selectedTrueFalse == q.trueFalseAnswer;
-    }
+    if (q.isTrueFalse) return _selectedTrueFalse == q.trueFalseAnswer;
     if (q.isFillBlank) {
-      final selected = q.answers.where((a) => a.id == _selectedFillBlankId).firstOrNull;
+      final selected =
+          q.answers.where((a) => a.id == _selectedFillBlankId).firstOrNull;
       return selected?.isCorrect == true;
     }
     if (q.isWordMaking || q.isSentenceMaking) {
@@ -226,9 +218,7 @@ class _ExerciseViewState extends State<ExerciseView>
       }
       return true;
     }
-    if (q.isPairMatching) {
-      return _matchedPairs.length == q.answers.length;
-    }
+    if (q.isPairMatching) return _matchedPairs.length == q.answers.length;
     return false;
   }
 
@@ -253,7 +243,6 @@ class _ExerciseViewState extends State<ExerciseView>
       _palmTrees--;
       _feedbackController.forward(from: 0);
       _reportWrongAnswer();
-
       if (_palmTrees <= 0) {
         _showOutOfLivesDialog();
         return;
@@ -299,12 +288,10 @@ class _ExerciseViewState extends State<ExerciseView>
       _completeLesson();
       return;
     }
-
     setState(() {
       _currentIndex++;
       _resetQuestionState();
     });
-
     _autoPlayAudio();
   }
 
@@ -323,10 +310,7 @@ class _ExerciseViewState extends State<ExerciseView>
       final headers = Get.isRegistered<ApiService>()
           ? await Get.find<ApiService>().authHeaders(accept: 'audio/*,*/*')
           : {'Accept': 'audio/*,*/*'};
-      await _audioPlayer.setUrl(
-        url,
-        headers: headers,
-      );
+      await _audioPlayer.setUrl(url, headers: headers);
       _audioPlayer.setSpeed(speed);
       await _audioPlayer.play();
     } catch (e) {
@@ -336,42 +320,32 @@ class _ExerciseViewState extends State<ExerciseView>
     }
   }
 
-  void _handleBack() {
-    _showLeavingDialog();
-  }
+  void _handleBack() => _showLeavingDialog();
 
   void _showLeavingDialog() {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text(
-          'Leave lesson?',
-          style: TextStyle(fontWeight: FontWeight.w900),
-        ),
-        content: const Text(
-          'Your progress in this lesson will be lost.',
-        ),
+        title: const Text('Leave lesson?',
+            style: TextStyle(fontWeight: FontWeight.w900)),
+        content:
+        const Text('Your progress in this lesson will be lost.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text(
-              'Stay',
-              style: TextStyle(fontWeight: FontWeight.w800),
-            ),
+            child: const Text('Stay',
+                style: TextStyle(fontWeight: FontWeight.w800)),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
               Get.back();
             },
-            child: const Text(
-              'Leave',
-              style: TextStyle(
-                color: AppColors.wrongRed,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
+            child: const Text('Leave',
+                style: TextStyle(
+                    color: AppColors.wrongRed,
+                    fontWeight: FontWeight.w800)),
           ),
         ],
       ),
@@ -384,23 +358,18 @@ class _ExerciseViewState extends State<ExerciseView>
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text(
-          'Out of lives!',
-          style: TextStyle(fontWeight: FontWeight.w900),
-        ),
+        title: const Text('Out of lives!',
+            style: TextStyle(fontWeight: FontWeight.w900)),
         content: const Text(
-          'You ran out of palm trees. Come back later or refill to continue.',
-        ),
+            'You ran out of palm trees. Come back later or refill to continue.'),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
               Get.back();
             },
-            child: const Text(
-              'Leave',
-              style: TextStyle(fontWeight: FontWeight.w800),
-            ),
+            child: const Text('Leave',
+                style: TextStyle(fontWeight: FontWeight.w800)),
           ),
         ],
       ),
@@ -436,13 +405,10 @@ class _ExerciseViewState extends State<ExerciseView>
           children: [
             CircularProgressIndicator(color: AppColors.accent),
             SizedBox(height: 16),
-            Text(
-              'Loading lesson...',
-              style: TextStyle(
-                color: AppColors.textSecondary,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+            Text('Loading lesson...',
+                style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w700)),
           ],
         ),
       );
@@ -455,21 +421,15 @@ class _ExerciseViewState extends State<ExerciseView>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
-                Icons.error_outline_rounded,
-                size: 64,
-                color: AppColors.wrongRed,
-              ),
+              const Icon(Icons.error_outline_rounded,
+                  size: 64, color: AppColors.wrongRed),
               const SizedBox(height: 16),
-              Text(
-                _error!,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
+              Text(_error!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700)),
               const SizedBox(height: 24),
               SizedBox(
                 height: AppTheme.buttonHeight,
@@ -479,13 +439,11 @@ class _ExerciseViewState extends State<ExerciseView>
                     backgroundColor: AppColors.accent,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppTheme.buttonRadius),
-                    ),
+                        borderRadius:
+                        BorderRadius.circular(AppTheme.buttonRadius)),
                   ),
-                  child: const Text(
-                    'Go Back',
-                    style: TextStyle(fontWeight: FontWeight.w900),
-                  ),
+                  child: const Text('Go Back',
+                      style: TextStyle(fontWeight: FontWeight.w900)),
                 ),
               ),
             ],
@@ -509,79 +467,102 @@ class _ExerciseViewState extends State<ExerciseView>
     );
   }
 
+  // ─── TOP BAR (matches screenshot exactly) ──────────────────────────────
   Widget _buildTopBar() {
-    return SizedBox(
-      height: 72,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 8, 12, 4),
-        child: Row(
-          children: [
-            IconButton(
-              onPressed: _handleBack,
-              icon: const Icon(
-                Icons.close_rounded,
-                color: AppColors.textPrimary,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 8, 12, 4),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              // X close button
+              IconButton(
+                onPressed: _handleBack,
+                icon: const Icon(Icons.close_rounded,
+                    color: AppColors.textPrimary),
               ),
-            ),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: LinearProgressIndicator(
-                      value: _progress,
-                      minHeight: 8,
-                      backgroundColor: AppColors.optionBorderDefault,
-                      valueColor: const AlwaysStoppedAnimation<Color>(
-                        AppColors.accent,
-                      ),
-                    ),
+              // Progress bar
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: LinearProgressIndicator(
+                    value: _progress,
+                    minHeight: 10,
+                    backgroundColor: AppColors.optionBorderDefault,
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                        AppColors.accent),
                   ),
-                  const SizedBox(height: 6),
+                ),
+              ),
+              const SizedBox(width: 12),
+              // Palm trees in a pill container
+              Container(
+                padding:
+                const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.optionBorderDefault),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: List.generate(_maxPalmTrees, (i) {
+                    final active = i < _palmTrees;
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 1),
+                      child: SvgPicture.asset(
+                        'assets/nakhlah_design/Palm_Trees.svg',
+                        width: 18,
+                        height: 18,
+                        colorFilter: ColorFilter.mode(
+                          active
+                              ? AppColors.palm
+                              : AppColors.optionBorderDefault,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          // Timer badge right-aligned below the row
+          Align(
+            alignment: Alignment.centerRight,
+            child: Container(
+              padding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                border: Border.all(color: AppColors.optionBorderDefault),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.access_time_rounded,
+                      size: 14, color: AppColors.accent),
+                  const SizedBox(width: 4),
                   Text(
                     _timerText,
                     style: const TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 12,
+                      color: AppColors.textPrimary,
+                      fontSize: 13,
                       fontWeight: FontWeight.w900,
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(width: 12),
-            _buildPalmTrees(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPalmTrees() {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: List.generate(_maxPalmTrees, (i) {
-        final active = i < _palmTrees;
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 1),
-          child: SvgPicture.asset(
-            'assets/nakhlah_design/Palm_Trees.svg',
-            width: 18,
-            height: 18,
-            colorFilter: ColorFilter.mode(
-              active ? AppColors.palm : AppColors.optionBorderDefault,
-              BlendMode.srcIn,
-            ),
           ),
-        );
-      }),
+        ],
+      ),
     );
   }
 
   Widget _buildQuestionContent() {
     final q = _currentQuestion;
-
     switch (q.questionType) {
       case 'learn':
         return _buildLearnQuestion(q);
@@ -611,15 +592,15 @@ class _ExerciseViewState extends State<ExerciseView>
           const SizedBox(height: 20),
           if (q.imageUrl != null) ...[
             _buildImageCard(q.imageUrl!),
-            const SizedBox(height: 24),
+            const SizedBox(height: 18),
           ],
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(22),
+            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 18),
             decoration: BoxDecoration(
               color: AppColors.card,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: AppColors.border),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: AppColors.border, width: 1.5),
             ),
             child: Column(
               children: [
@@ -629,10 +610,13 @@ class _ExerciseViewState extends State<ExerciseView>
                     child: Text(
                       q.questionTitle,
                       textAlign: TextAlign.center,
-                      style: AppTheme.arabicTextStyle(fontSize: 36),
+                      style: AppTheme.arabicTextStyle(fontSize: 38),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 14),
+                  const Divider(
+                      color: Color(0xFFE8E5E0), thickness: 1, height: 1),
+                  const SizedBox(height: 14),
                 ],
                 if (q.learnAnswer.isNotEmpty)
                   Text(
@@ -666,11 +650,10 @@ class _ExerciseViewState extends State<ExerciseView>
             q.questionTitle,
             textAlign: TextAlign.center,
             style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w900,
-              color: AppColors.textPrimary,
-              height: 1.25,
-            ),
+                fontSize: 20,
+                fontWeight: FontWeight.w900,
+                color: AppColors.textPrimary,
+                height: 1.25),
           ),
           if (q.imageUrl != null) ...[
             const SizedBox(height: 18),
@@ -694,7 +677,6 @@ class _ExerciseViewState extends State<ExerciseView>
               final showCorrect = _questionAnswered && isCorrectAnswer;
               final showWrong =
                   _questionAnswered && isSelected && !isCorrectAnswer;
-
               return _McqOption(
                 text: answer.title,
                 selected: isSelected,
@@ -732,11 +714,10 @@ class _ExerciseViewState extends State<ExerciseView>
               q.questionTitle,
               textAlign: TextAlign.center,
               style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w900,
-                color: AppColors.textPrimary,
-                height: 1.25,
-              ),
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.textPrimary,
+                  height: 1.25),
             ),
           ),
           if (q.imageUrl != null) ...[
@@ -784,11 +765,8 @@ class _ExerciseViewState extends State<ExerciseView>
 
   // ─── FILL BLANK ────────────────────────────────────────────────────────
   Widget _buildFillBlankQuestion(LessonQuestion q) {
-    final displayTitle = q.questionTitle.replaceAll(
-      RegExp(r'[_\-\.]{2,}'),
-      '____',
-    );
-
+    final displayTitle = q.questionTitle
+        .replaceAll(RegExp(r'[_\-\.]{2,}'), '____');
     return Padding(
       padding: const EdgeInsets.only(top: 12),
       child: Column(
@@ -832,7 +810,6 @@ class _ExerciseViewState extends State<ExerciseView>
               final showCorrect = _questionAnswered && isCorrectAnswer;
               final showWrong =
                   _questionAnswered && isSelected && !isCorrectAnswer;
-
               return _McqOption(
                 text: answer.title,
                 selected: isSelected,
@@ -841,7 +818,7 @@ class _ExerciseViewState extends State<ExerciseView>
                 onTap: _questionAnswered
                     ? null
                     : () =>
-                          setState(() => _selectedFillBlankId = answer.id),
+                    setState(() => _selectedFillBlankId = answer.id),
               );
             },
           ),
@@ -854,23 +831,20 @@ class _ExerciseViewState extends State<ExerciseView>
   Widget _buildTokenMakingQuestion(LessonQuestion q) {
     final sorted = q.sortedAnswers;
     final isSentence = q.questionType == 'sentence_making';
-
     return Padding(
       padding: const EdgeInsets.only(top: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildQuestionLabel(isSentence ? 'Arrange the words' : 'Build the word'),
+          _buildQuestionLabel(
+              isSentence ? 'Arrange the words' : 'Build the word'),
           const SizedBox(height: 18),
-          Text(
-            q.questionTitle,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w900,
-              color: AppColors.textPrimary,
-            ),
-          ),
+          Text(q.questionTitle,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.textPrimary)),
           const SizedBox(height: 24),
           Container(
             width: double.infinity,
@@ -882,8 +856,8 @@ class _ExerciseViewState extends State<ExerciseView>
               border: Border.all(
                 color: _questionAnswered
                     ? (_lastAnswerCorrect == true
-                        ? AppColors.correctGreen
-                        : AppColors.wrongRed)
+                    ? AppColors.correctGreen
+                    : AppColors.wrongRed)
                     : AppColors.accent,
                 width: 1.5,
               ),
@@ -896,21 +870,16 @@ class _ExerciseViewState extends State<ExerciseView>
                 runSpacing: 8,
                 children: [
                   if (_selectedTokens.isEmpty)
-                    const Text(
-                      '____',
-                      style: TextStyle(
-                        fontSize: 28,
-                        color: AppColors.textSecondary,
-                        fontFamily: AppTheme.arabicFontFamily,
-                      ),
-                    ),
+                    const Text('____',
+                        style: TextStyle(
+                            fontSize: 28,
+                            color: AppColors.textSecondary,
+                            fontFamily: AppTheme.arabicFontFamily)),
                   for (var i = 0; i < _selectedTokens.length; i++)
                     _LetterTile(
                       label: _selectedTokens[i].title,
                       active: true,
-                      onTap: _questionAnswered
-                          ? null
-                          : () => _removeToken(i),
+                      onTap: _questionAnswered ? null : () => _removeToken(i),
                     ),
                 ],
               ),
@@ -927,7 +896,8 @@ class _ExerciseViewState extends State<ExerciseView>
                   _LetterTile(
                     label: answer.title,
                     active: !_usedTokenIds.contains(answer.id),
-                    onTap: _questionAnswered || _usedTokenIds.contains(answer.id)
+                    onTap: _questionAnswered ||
+                        _usedTokenIds.contains(answer.id)
                         ? null
                         : () => _addToken(answer),
                   ),
@@ -955,8 +925,6 @@ class _ExerciseViewState extends State<ExerciseView>
 
   // ─── PAIR MATCHING ─────────────────────────────────────────────────────
   Widget _buildPairMatchingQuestion(LessonQuestion q) {
-    // Build left (Arabic) and right (English) item lists using matchKey
-    // This matches the web implementation's approach
     final pairs = q.answers;
     final leftItems = pairs.asMap().entries.map((entry) {
       final index = entry.key;
@@ -968,7 +936,6 @@ class _ExerciseViewState extends State<ExerciseView>
       );
     }).toList();
 
-    // Shuffle right items for variety
     final rightItems = pairs.asMap().entries.map((entry) {
       final index = entry.key;
       final pair = entry.value;
@@ -993,20 +960,18 @@ class _ExerciseViewState extends State<ExerciseView>
                 : 'Match Arabic & English',
             textAlign: TextAlign.center,
             style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w900,
-              color: AppColors.textPrimary,
-            ),
+                fontSize: 24,
+                fontWeight: FontWeight.w900,
+                color: AppColors.textPrimary),
           ),
           const SizedBox(height: 8),
           Text(
             '${_matchedPairs.length} of ${q.answers.length} pairs correctly matched',
             textAlign: TextAlign.center,
             style: const TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 15,
-              fontWeight: FontWeight.w800,
-            ),
+                color: AppColors.textSecondary,
+                fontSize: 15,
+                fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 18),
           Row(
@@ -1015,7 +980,8 @@ class _ExerciseViewState extends State<ExerciseView>
               Expanded(
                 child: Column(
                   children: leftItems.map((item) {
-                    final isMatched = _matchedPairs.containsKey(item.matchKey);
+                    final isMatched =
+                    _matchedPairs.containsKey(item.matchKey);
                     final isSelected = _selectedLeftId == item.id;
                     return _MatchTile(
                       label: item.text,
@@ -1024,7 +990,8 @@ class _ExerciseViewState extends State<ExerciseView>
                       matched: isMatched,
                       onTap: isMatched || _questionAnswered
                           ? null
-                          : () => setState(() => _selectedLeftId = item.id),
+                          : () =>
+                          setState(() => _selectedLeftId = item.id),
                     );
                   }).toList(),
                 ),
@@ -1033,7 +1000,8 @@ class _ExerciseViewState extends State<ExerciseView>
               Expanded(
                 child: Column(
                   children: rightItems.map((item) {
-                    final isMatched = _matchedPairs.containsValue(item.matchKey);
+                    final isMatched =
+                    _matchedPairs.containsValue(item.matchKey);
                     return _MatchTile(
                       label: item.text,
                       matched: isMatched,
@@ -1055,10 +1023,12 @@ class _ExerciseViewState extends State<ExerciseView>
     final selectedId = _selectedLeftId;
     if (selectedId == null) return;
 
-    // Find the left item that was selected
     final question = _currentQuestion;
-    final leftIndex = question.answers.asMap().entries
-        .where((entry) => 'left-${entry.key}-${entry.value.id}' == selectedId)
+    final leftIndex = question.answers
+        .asMap()
+        .entries
+        .where((entry) =>
+    'left-${entry.key}-${entry.value.id}' == selectedId)
         .map((entry) => entry.key)
         .firstOrNull;
 
@@ -1067,14 +1037,11 @@ class _ExerciseViewState extends State<ExerciseView>
     final leftAnswer = question.answers[leftIndex];
     final leftMatchKey = leftAnswer.id;
 
-    // Check if matchKeys are the same (correct pair)
     if (leftMatchKey == rightItem.matchKey) {
       setState(() {
         _matchedPairs[leftMatchKey] = rightItem.matchKey;
         _selectedLeftId = null;
       });
-
-      // Check if all pairs are matched
       if (_matchedPairs.length == question.answers.length) {
         setState(() {
           _questionAnswered = true;
@@ -1084,13 +1051,11 @@ class _ExerciseViewState extends State<ExerciseView>
         _feedbackController.forward(from: 0);
       }
     } else {
-      // Wrong match - apply penalty once
       if (!_pairPenaltyApplied) {
         _pairPenaltyApplied = true;
         _hasWrongAnswer = true;
         _palmTrees--;
         _reportWrongAnswer();
-
         if (_palmTrees <= 0) {
           _showOutOfLivesDialog();
           return;
@@ -1102,72 +1067,76 @@ class _ExerciseViewState extends State<ExerciseView>
 
   // ─── SHARED WIDGETS ────────────────────────────────────────────────────
 
+  // Question label with audio buttons matching the screenshot layout:
+  // [filled purple circle speaker] [grey circle turtle] Learn
   Widget _buildQuestionLabel(String label) {
     final audioUrl = _currentQuestion.audioUrl;
     final hasAudio = audioUrl != null && audioUrl.trim().isNotEmpty;
 
-    return Center(
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 16,
-              fontWeight: FontWeight.w900,
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (hasAudio) ...[
+          // Normal speed - filled purple circle
+          GestureDetector(
+            onTap: _audioLoading ? null : () => _playAudio(audioUrl),
+            child: Container(
+              width: 36,
+              height: 36,
+              decoration: const BoxDecoration(
+                color: AppColors.accent,
+                shape: BoxShape.circle,
+              ),
+              child: _audioLoading
+                  ? const Padding(
+                padding: EdgeInsets.all(8),
+                child: CircularProgressIndicator(
+                    strokeWidth: 2, color: Colors.white),
+              )
+                  : const Icon(Icons.volume_up_rounded,
+                  color: Colors.white, size: 20),
             ),
           ),
-          if (hasAudio) ...[
-            const SizedBox(width: 6),
-            InkWell(
-              onTap: _audioLoading ? null : () => _playAudio(audioUrl),
-              borderRadius: BorderRadius.circular(18),
-              child: Padding(
-                padding: const EdgeInsets.all(4),
-                child: _audioLoading
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(
-                        Icons.volume_up_rounded,
-                        color: AppColors.accent,
-                        size: 20,
-                      ),
+          const SizedBox(width: 8),
+          // Slow speed - grey circle with turtle emoji
+          GestureDetector(
+            onTap: _audioLoading
+                ? null
+                : () => _playAudio(audioUrl, speed: 0.6),
+            child: Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: AppColors.optionBorderDefault,
+                shape: BoxShape.circle,
+              ),
+              child: const Center(
+                child: Text('🐢', style: TextStyle(fontSize: 18)),
               ),
             ),
-            const SizedBox(width: 4),
-            InkWell(
-              onTap: _audioLoading ? null : () => _playAudio(audioUrl, speed: 0.6),
-              borderRadius: BorderRadius.circular(18),
-              child: Padding(
-                padding: const EdgeInsets.all(4),
-                child: Text(
-                  '0.6x',
-                  style: TextStyle(
-                    color: AppColors.accent,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
-            ),
-          ],
+          ),
+          const SizedBox(width: 10),
         ],
-      ),
+        Text(
+          label,
+          style: const TextStyle(
+            color: AppColors.textSecondary,
+            fontSize: 17,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildImageCard(String imageUrl, {double height = 170}) {
+  Widget _buildImageCard(String imageUrl, {double height = 220}) {
     return Container(
       height: height,
       width: double.infinity,
       decoration: BoxDecoration(
         color: AppColors.card,
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: AppColors.border),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.border, width: 1.5),
       ),
       clipBehavior: Clip.antiAlias,
       child: Image.network(
@@ -1178,14 +1147,11 @@ class _ExerciseViewState extends State<ExerciseView>
           children: [
             Icon(Icons.image_rounded, size: 56, color: AppColors.accent),
             SizedBox(height: 12),
-            Text(
-              'Image',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textSecondary,
-              ),
-            ),
+            Text('Image',
+                style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textSecondary)),
           ],
         ),
       ),
@@ -1201,9 +1167,8 @@ class _ExerciseViewState extends State<ExerciseView>
       feedbackText = 'Correct!';
     } else if (q.isMcq || q.isFillBlank) {
       final correct = q.correctAnswer;
-      feedbackText = correct != null
-          ? 'Correct answer: ${correct.title}'
-          : 'Incorrect';
+      feedbackText =
+      correct != null ? 'Correct answer: ${correct.title}' : 'Incorrect';
     } else if (q.isTrueFalse) {
       feedbackText = q.trueFalseAnswer == true ? 'True' : 'False';
     } else {
@@ -1226,7 +1191,8 @@ class _ExerciseViewState extends State<ExerciseView>
         margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: isCorrect ? AppColors.optionBgCorrect : AppColors.optionBgWrong,
+          color:
+          isCorrect ? AppColors.optionBgCorrect : AppColors.optionBgWrong,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isCorrect
@@ -1238,7 +1204,9 @@ class _ExerciseViewState extends State<ExerciseView>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              isCorrect ? Icons.check_circle_rounded : Icons.cancel_rounded,
+              isCorrect
+                  ? Icons.check_circle_rounded
+                  : Icons.cancel_rounded,
               color: isCorrect ? AppColors.success : AppColors.error,
               size: 20,
             ),
@@ -1301,30 +1269,24 @@ class _ExerciseViewState extends State<ExerciseView>
                 disabledBackgroundColor: AppColors.buttonDisabled,
                 disabledForegroundColor: AppColors.buttonDisabledText,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppTheme.buttonRadius),
+                  borderRadius:
+                  BorderRadius.circular(AppTheme.buttonRadius),
                 ),
               ),
-              child: Text(
-                buttonLabel,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
+              child: Text(buttonLabel,
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w900)),
             ),
           ),
           if (!q.isLearn && !_questionAnswered) ...[
             const SizedBox(height: 8),
             TextButton(
               onPressed: _handleContinue,
-              child: const Text(
-                'Skip',
-                style: TextStyle(
-                  decoration: TextDecoration.underline,
-                  color: AppColors.textSecondary,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
+              child: const Text('Skip',
+                  style: TextStyle(
+                      decoration: TextDecoration.underline,
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.w800)),
             ),
           ],
         ],
@@ -1332,7 +1294,8 @@ class _ExerciseViewState extends State<ExerciseView>
     );
   }
 
-  bool _isArabicText(String text) => RegExp(r'[\u0600-\u06FF]').hasMatch(text);
+  bool _isArabicText(String text) =>
+      RegExp(r'[\u0600-\u06FF]').hasMatch(text);
 }
 
 // ─── PRIVATE WIDGETS ────────────────────────────────────────────────────
@@ -1380,9 +1343,7 @@ class _McqOption extends StatelessWidget {
         decoration: BoxDecoration(
           color: color,
           border: Border.all(
-            color: border,
-            width: selected || correct || wrong ? 2 : 1,
-          ),
+              color: border, width: selected || correct || wrong ? 2 : 1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
@@ -1444,31 +1405,13 @@ class _TrueFalseButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: color,
           border: Border.all(
-            color: border,
-            width: selected || correct || wrong ? 2 : 1,
-          ),
+              color: border, width: selected || correct || wrong ? 2 : 1),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              color: wrong
-                  ? AppColors.wrongRed
-                  : correct
-                  ? AppColors.correctGreen
-                  : selected
-                  ? AppColors.accent
-                  : AppColors.textPrimary,
-              size: 24,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w900,
+            Icon(icon,
                 color: wrong
                     ? AppColors.wrongRed
                     : correct
@@ -1476,8 +1419,19 @@ class _TrueFalseButton extends StatelessWidget {
                     : selected
                     ? AppColors.accent
                     : AppColors.textPrimary,
-              ),
-            ),
+                size: 24),
+            const SizedBox(width: 8),
+            Text(label,
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    color: wrong
+                        ? AppColors.wrongRed
+                        : correct
+                        ? AppColors.correctGreen
+                        : selected
+                        ? AppColors.accent
+                        : AppColors.textPrimary)),
           ],
         ),
       ),
@@ -1486,7 +1440,8 @@ class _TrueFalseButton extends StatelessWidget {
 }
 
 class _LetterTile extends StatelessWidget {
-  const _LetterTile({required this.label, required this.active, this.onTap});
+  const _LetterTile(
+      {required this.label, required this.active, this.onTap});
 
   final String label;
   final bool active;
@@ -1508,14 +1463,11 @@ class _LetterTile extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: AppColors.border),
           ),
-          child: Text(
-            label,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w900,
-              color: AppColors.textPrimary,
-            ),
-          ),
+          child: Text(label,
+              style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.textPrimary)),
         ),
       ),
     );
@@ -1523,12 +1475,8 @@ class _LetterTile extends StatelessWidget {
 }
 
 class _MatchItem {
-  const _MatchItem({
-    required this.id,
-    required this.text,
-    required this.matchKey,
-  });
-
+  const _MatchItem(
+      {required this.id, required this.text, required this.matchKey});
   final String id;
   final String text;
   final String matchKey;
@@ -1567,7 +1515,8 @@ class _MatchTile extends StatelessWidget {
           width: double.infinity,
           constraints: const BoxConstraints(minHeight: 58),
           alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          padding:
+          const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
             color: color,
             borderRadius: BorderRadius.circular(18),
