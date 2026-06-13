@@ -63,6 +63,9 @@ class _ExerciseViewState extends State<ExerciseView>
   String? _selectedLeftId;
   final Map<String, String> _matchedPairs = {};
   bool _pairPenaltyApplied = false;
+  final List<_MatchItem> _shuffledRightItems = [];
+  String? _wrongLeftId;
+  String? _wrongRightId;
 
   late AnimationController _feedbackController;
   late Animation<double> _feedbackAnimation;
@@ -140,6 +143,7 @@ class _ExerciseViewState extends State<ExerciseView>
         _hasWrongAnswer = false;
       });
 
+      _shuffleRightItems();
       _startTimer();
       _autoPlayAudio();
     } catch (e) {
@@ -183,6 +187,27 @@ class _ExerciseViewState extends State<ExerciseView>
     _pairPenaltyApplied = false;
     _questionAnswered = false;
     _lastAnswerCorrect = null;
+    _wrongLeftId = null;
+    _wrongRightId = null;
+    _shuffleRightItems();
+  }
+
+  void _shuffleRightItems() {
+    final q = _currentQuestion;
+    _shuffledRightItems.clear();
+    if (!q.isPairMatching) return;
+    final pairs = q.answers;
+    final items = pairs.asMap().entries.map((entry) {
+      final index = entry.key;
+      final pair = entry.value;
+      return _MatchItem(
+        id: 'right-$index-${pair.id}',
+        text: pair.rightTitle.isNotEmpty ? pair.rightTitle : pair.title,
+        matchKey: pair.id,
+      );
+    }).toList();
+    items.shuffle();
+    _shuffledRightItems.addAll(items);
   }
 
   bool get _hasAnswer {
@@ -455,6 +480,7 @@ class _ExerciseViewState extends State<ExerciseView>
     return Column(
       children: [
         _buildTopBar(),
+        _buildDivider(),
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -561,6 +587,17 @@ class _ExerciseViewState extends State<ExerciseView>
     );
   }
 
+  Widget _buildDivider() {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 20),
+      child: Divider(
+        color: Color(0xFFE0E0E0),
+        thickness: 1,
+        height: 1,
+      ),
+    );
+  }
+
   Widget _buildQuestionContent() {
     final q = _currentQuestion;
     switch (q.questionType) {
@@ -587,47 +624,61 @@ class _ExerciseViewState extends State<ExerciseView>
     return Padding(
       padding: const EdgeInsets.only(top: 12),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const SizedBox(height: 60),
+
           _buildQuestionLabel('Learn'),
           const SizedBox(height: 20),
           if (q.imageUrl != null) ...[
-            _buildImageCard(q.imageUrl!),
+            _buildImageCard(q.imageUrl!, size: 240),
             const SizedBox(height: 18),
           ],
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 18),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: AppColors.card,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(color: AppColors.border, width: 1.5),
             ),
             child: Column(
               children: [
+                if (q.cleanLearnAnswer.isNotEmpty)
+                  Directionality(
+                    textDirection: TextDirection.rtl,
+                    child: Text(
+                      q.cleanLearnAnswer,
+                      textAlign: TextAlign.center,
+                      style: AppTheme.arabicTextStyle(
+                        fontSize: 24,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
                 if (q.questionTitle.isNotEmpty) ...[
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: Divider(
+                      color: Color(0xFFE0E0E0),
+                      thickness: 1,
+                      height: 1,
+                    ),
+                  ),
                   Directionality(
                     textDirection: TextDirection.rtl,
                     child: Text(
                       q.questionTitle,
                       textAlign: TextAlign.center,
-                      style: AppTheme.arabicTextStyle(fontSize: 38),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.textSecondary,
+                        height: 1.25,
+                        fontFamily: AppTheme.arabicFontFamily,
+                      )),
                     ),
-                  ),
-                  const SizedBox(height: 14),
-                  const Divider(
-                      color: Color(0xFFE8E5E0), thickness: 1, height: 1),
-                  const SizedBox(height: 14),
                 ],
-                if (q.learnAnswer.isNotEmpty)
-                  Text(
-                    q.learnAnswer,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
               ],
             ),
           ),
@@ -657,7 +708,7 @@ class _ExerciseViewState extends State<ExerciseView>
           ),
           if (q.imageUrl != null) ...[
             const SizedBox(height: 18),
-            _buildImageCard(q.imageUrl!, height: 150),
+            _buildImageCard(q.imageUrl!, size: 150),
           ],
           const SizedBox(height: 20),
           GridView.builder(
@@ -722,7 +773,7 @@ class _ExerciseViewState extends State<ExerciseView>
           ),
           if (q.imageUrl != null) ...[
             const SizedBox(height: 18),
-            _buildImageCard(q.imageUrl!, height: 150),
+            _buildImageCard(q.imageUrl!, size: 150),
           ],
           const SizedBox(height: 28),
           Row(
@@ -936,17 +987,6 @@ class _ExerciseViewState extends State<ExerciseView>
       );
     }).toList();
 
-    final rightItems = pairs.asMap().entries.map((entry) {
-      final index = entry.key;
-      final pair = entry.value;
-      return _MatchItem(
-        id: 'right-$index-${pair.id}',
-        text: pair.rightTitle.isNotEmpty ? pair.rightTitle : pair.title,
-        matchKey: pair.id,
-      );
-    }).toList()
-      ..shuffle();
-
     return Padding(
       padding: const EdgeInsets.only(top: 12),
       child: Column(
@@ -955,9 +995,7 @@ class _ExerciseViewState extends State<ExerciseView>
           _buildQuestionLabel('Match the pairs'),
           const SizedBox(height: 18),
           Text(
-            q.questionTitle.isNotEmpty
-                ? q.questionTitle
-                : 'Match Arabic & English',
+            'Match Arabic & English',
             textAlign: TextAlign.center,
             style: const TextStyle(
                 fontSize: 24,
@@ -988,6 +1026,7 @@ class _ExerciseViewState extends State<ExerciseView>
                       rtl: _isArabicText(item.text),
                       selected: isSelected,
                       matched: isMatched,
+                      wrong: _wrongLeftId == item.id,
                       onTap: isMatched || _questionAnswered
                           ? null
                           : () =>
@@ -999,12 +1038,13 @@ class _ExerciseViewState extends State<ExerciseView>
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
-                  children: rightItems.map((item) {
+                  children: _shuffledRightItems.map((item) {
                     final isMatched =
                     _matchedPairs.containsValue(item.matchKey);
                     return _MatchTile(
                       label: item.text,
                       matched: isMatched,
+                      wrong: _wrongRightId == item.id,
                       onTap: isMatched || _questionAnswered
                           ? null
                           : () => _tryMatchPair(item),
@@ -1061,6 +1101,18 @@ class _ExerciseViewState extends State<ExerciseView>
           return;
         }
       }
+      setState(() {
+        _wrongLeftId = selectedId;
+        _wrongRightId = rightItem.id;
+      });
+      Future.delayed(const Duration(seconds: 1), () {
+        if (mounted) {
+          setState(() {
+            _wrongLeftId = null;
+            _wrongRightId = null;
+          });
+        }
+      });
       setState(() => _selectedLeftId = null);
     }
   }
@@ -1120,39 +1172,47 @@ class _ExerciseViewState extends State<ExerciseView>
         Text(
           label,
           style: const TextStyle(
-            color: AppColors.textSecondary,
+            color: AppColors.textDark,
             fontSize: 17,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildImageCard(String imageUrl, {double height = 220}) {
-    return Container(
-      height: height,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border, width: 1.5),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Image.network(
-        imageUrl,
-        fit: BoxFit.cover,
-        errorBuilder: (_, a, b) => const Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.image_rounded, size: 56, color: AppColors.accent),
-            SizedBox(height: 12),
-            Text('Image',
-                style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textSecondary)),
-          ],
+  Widget _buildImageCard(String imageUrl, {double size = 240}) {
+    return Center(
+      child: SizedBox(
+        width: size,
+        height: size,
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.card,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.border, width: 6),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: Image.network(
+              imageUrl,
+              fit: BoxFit.cover,
+              errorBuilder: (_, a, b) => const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(Icons.image_rounded, size: 56, color: AppColors.accent),
+                  SizedBox(height: 12),
+                  Text('Image',
+                      style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textSecondary)),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -1257,6 +1317,12 @@ class _ExerciseViewState extends State<ExerciseView>
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          const Divider(
+            color: Color(0xFFE0E0E0),
+            thickness: 1,
+            height: 1,
+          ),
+          const SizedBox(height: 20),
           SizedBox(
             height: AppTheme.buttonHeight,
             width: double.infinity,
@@ -1278,17 +1344,15 @@ class _ExerciseViewState extends State<ExerciseView>
                       fontSize: 16, fontWeight: FontWeight.w900)),
             ),
           ),
-          if (!q.isLearn && !_questionAnswered) ...[
-            const SizedBox(height: 8),
-            TextButton(
-              onPressed: _handleContinue,
-              child: const Text('Skip',
-                  style: TextStyle(
-                      decoration: TextDecoration.underline,
-                      color: AppColors.textSecondary,
-                      fontWeight: FontWeight.w800)),
-            ),
-          ],
+          const SizedBox(height: 8),
+          TextButton(
+            onPressed: _handleContinue,
+            child: const Text('Skip',
+                style: TextStyle(
+                    decoration: TextDecoration.underline,
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w800)),
+          ),
         ],
       ),
     );
@@ -1488,6 +1552,7 @@ class _MatchTile extends StatelessWidget {
     this.rtl = false,
     this.selected = false,
     this.matched = false,
+    this.wrong = false,
     this.onTap,
   });
 
@@ -1495,16 +1560,23 @@ class _MatchTile extends StatelessWidget {
   final bool rtl;
   final bool selected;
   final bool matched;
+  final bool wrong;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    final color = matched
+    final color = wrong
+        ? const Color(0xFFFFEBEB)
+        : matched
         ? AppColors.optionBgCorrect
         : selected
         ? AppColors.optionBgSelected
         : AppColors.card;
-    final foreground = selected ? Colors.white : AppColors.textPrimary;
+    final foreground = wrong
+        ? AppColors.wrongRed
+        : selected
+        ? Colors.white
+        : AppColors.textPrimary;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -1521,12 +1593,14 @@ class _MatchTile extends StatelessWidget {
             color: color,
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
-              color: matched
+              color: wrong
+                  ? AppColors.wrongRed
+                  : matched
                   ? AppColors.optionBorderCorrect
                   : selected
                   ? AppColors.optionBorderSelected
                   : AppColors.optionBorderDefault,
-              width: selected || matched ? 2 : 1,
+              width: wrong || selected || matched ? 2 : 1,
             ),
           ),
           child: Directionality(
@@ -1537,7 +1611,7 @@ class _MatchTile extends StatelessWidget {
               style: TextStyle(
                 fontSize: rtl ? 18 : 14,
                 fontWeight: FontWeight.w800,
-                color: matched ? AppColors.success : foreground,
+                color: foreground,
                 fontFamily: rtl ? AppTheme.arabicFontFamily : null,
               ),
             ),

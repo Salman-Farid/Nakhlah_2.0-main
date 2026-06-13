@@ -117,6 +117,18 @@ class LessonQuestion {
   LessonAnswer? get correctAnswer =>
       answers.where((a) => a.isCorrect == true).firstOrNull;
 
+  String get cleanLearnAnswer {
+    var text = learnAnswer;
+    final arabicMatch = RegExp(r'\{([^}]*)\}').firstMatch(text);
+    if (arabicMatch != null) {
+      text = arabicMatch.group(1) ?? text;
+    }
+    text = text.replaceAll(RegExp(r'[\{\}]'), '').trim();
+    text = text.replaceAll(RegExp(r'[A-Za-z0-9(),.!?;:/\-]'), '').trim();
+    text = text.replaceAll(RegExp(r'\s+'), ' ').trim();
+    return text;
+  }
+
   factory LessonQuestion.fromJson(dynamic value) {
     final j = _map(value) ?? const {};
     return LessonQuestion(
