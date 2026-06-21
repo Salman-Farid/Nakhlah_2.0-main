@@ -8,6 +8,7 @@ plugins {
 }
 
 
+
 val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
 if (keystorePropertiesFile.exists()) {
