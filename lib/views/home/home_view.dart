@@ -60,13 +60,12 @@ class _HomeViewState extends State<HomeView> {
                 delegate: _StatsHeaderDelegate(
                   minHeight: 72,
                   maxHeight: 72,
-                  child: Obx(
+                  child:                   Obx(
                     () => _WebStatsBar(
                       streak: gamification.streak.value.currentStreak,
                       dates: gamification.stock.value.dateStock,
-                      palms: gamification.stock.value.palmStock == 0
-                          ? 5
-                          : gamification.stock.value.palmStock,
+                      palms: gamification.stock.value.palmStock,
+                      gamification: gamification,
                     ),
                   ),
                 ),
@@ -182,11 +181,13 @@ class _WebStatsBar extends StatelessWidget {
     required this.streak,
     required this.dates,
     required this.palms,
+    required this.gamification,
   });
 
   final int streak;
   final int dates;
   final int palms;
+  final GamificationController gamification;
 
   @override
   Widget build(BuildContext context) {
@@ -205,40 +206,145 @@ class _WebStatsBar extends StatelessWidget {
         children: [
           _HeaderIconValue(icon: ActiveStreakIcon(size: 34), value: streak),
           _HeaderIconValue(icon: DatesIcon(size: 34), value: dates),
-          _HeaderIconValue(icon: PalmTreeIcon(size: 34), value: palms),
+          _HeaderIconValue(
+            icon: PalmTreeIcon(size: 34),
+            value: palms,
+            onTap: () => _showPalmRefillDialog(context, gamification),
+          ),
         ],
+      ),
+    );
+  }
+
+  void _showPalmRefillDialog(BuildContext context, GamificationController ctrl) {
+    final currentPalms = ctrl.stock.value.palmStock;
+    const maxPalms = 5;
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Palm Trees',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF1A1A2E),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(maxPalms, (i) {
+                  final active = i < currentPalms;
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 3),
+                    child: SvgPicture.asset(
+                      'assets/nakhlah_design/Palm_Trees.svg',
+                      width: 28,
+                      height: 28,
+                      colorFilter: ColorFilter.mode(
+                        active
+                            ? const Color(0xFF7B3FE4)
+                            : const Color(0xFFD0D0D0),
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                  );
+                }),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '$currentPalms of $maxPalms remaining',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF6B6B80),
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: currentPalms >= maxPalms
+                      ? null
+                      : () async {
+                          Navigator.pop(ctx);
+                          await ctrl.refillPalm();
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF7B3FE4),
+                    foregroundColor: Colors.white,
+                    disabledBackgroundColor: const Color(0xFFD0D0D0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: const Text(
+                    'Refill Palm Trees',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text(
+                  'Close',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF6B6B80),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 }
 
 class _HeaderIconValue extends StatelessWidget {
-  const _HeaderIconValue({required this.icon, required this.value});
+  const _HeaderIconValue({required this.icon, required this.value, this.onTap});
 
   final Widget icon;
   final int value;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return PressableScale(
       scale: .94,
-      child: Container(
-        color: Colors.transparent,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        child: Row(
-          children: [
-            icon,
-            const SizedBox(width: 7),
-            Text(
-              '$value',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.w900,
-                height: 1,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          color: Colors.transparent,
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          child: Row(
+            children: [
+              icon,
+              const SizedBox(width: 7),
+              Text(
+                '$value',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  height: 1,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -376,8 +376,8 @@ class IntroTextField extends StatelessWidget {
             ? IconButton(
                 icon: Icon(
                   (isObscured ?? true)
-                      ? Icons.visibility_rounded
-                      : Icons.visibility_off_rounded,
+                      ? Icons.visibility_off_rounded
+                      : Icons.visibility_rounded,
                   color: AppColors.muted,
                   size: 20,
                 ),

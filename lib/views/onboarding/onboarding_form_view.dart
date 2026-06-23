@@ -1,8 +1,10 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../common/app_motion.dart';
 import '../../common/nakhlah_intro_widgets.dart';
@@ -70,7 +72,10 @@ class _OnboardingFormViewState extends State<OnboardingFormView> {
       case 5:
         return _interestIds.isNotEmpty;
       case 6:
-        return _fullName.trim().length > 1 && _contactNumber.trim().length > 1;
+        final digits = _contactNumber.replaceAll(RegExp(r'[^0-9]'), '');
+        return _fullName.trim().length > 1 &&
+            _contactNumber.trim().length > 1 &&
+            digits.length <= 11;
       case 7:
         return _ageId.isNotEmpty;
       case 8:
@@ -524,7 +529,7 @@ class _SelectionStep extends StatelessWidget {
   }
 }
 
-class _OptionCard extends StatelessWidget {
+class _OptionCard extends StatefulWidget {
   const _OptionCard({
     required this.item,
     required this.isSelected,
@@ -536,10 +541,18 @@ class _OptionCard extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
+  State<_OptionCard> createState() => _OptionCardState();
+}
+
+class _OptionCardState extends State<_OptionCard> {
+  bool _imageReady = false;
+
+  @override
   Widget build(BuildContext context) {
-    final mediaUrl = item.absoluteMediaUrl;
+    final mediaUrl = widget.item.absoluteMediaUrl;
+    final isSelected = widget.isSelected;
     return GestureDetector(
-      onTap: onTap,
+      onTap: widget.onTap,
       child: AnimatedContainer(
         duration: AppMotion.fast,
         curve: AppMotion.out,
@@ -564,12 +577,49 @@ class _OptionCard extends StatelessWidget {
             if (mediaUrl != null)
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  mediaUrl,
+                child: SizedBox(
                   width: 56,
                   height: 56,
-                  fit: BoxFit.contain,
-                  errorBuilder: (_, error, stackTrace) => _fallbackIcon(isSelected),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      if (!_imageReady)
+                        Positioned.fill(
+                          child: Shimmer.fromColors(
+                            baseColor: const Color(0xFFE8E0F0),
+                            highlightColor: const Color(0xFFF8F4FC),
+                            period: const Duration(milliseconds: 1200),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF0ECF5),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                        ),
+                      Positioned.fill(
+                        child: CachedNetworkImage(
+                          imageUrl: mediaUrl,
+                          fit: BoxFit.contain,
+                          memCacheWidth: 112,
+                          fadeInDuration: Duration.zero,
+                          imageBuilder: (_, imageProvider) {
+                            if (!_imageReady) {
+                              WidgetsBinding.instance
+                                  .addPostFrameCallback((_) {
+                                if (mounted) setState(() => _imageReady = true);
+                              });
+                            }
+                            return Image(
+                              image: imageProvider,
+                              fit: BoxFit.contain,
+                            );
+                          },
+                          errorWidget: (_, __, ___) => _fallbackIcon(isSelected),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               )
             else
@@ -578,7 +628,7 @@ class _OptionCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Text(
-                item.title,
+                widget.item.title,
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -817,6 +867,7 @@ class _ProfileInfoStepContent extends StatefulWidget {
 class _ProfileInfoStepContentState extends State<_ProfileInfoStepContent> {
   late final TextEditingController _nameCtrl;
   late final TextEditingController _contactCtrl;
+  bool _contactInvalid = false;
 
   @override
   void initState() {
@@ -824,7 +875,11 @@ class _ProfileInfoStepContentState extends State<_ProfileInfoStepContent> {
     _nameCtrl = TextEditingController(text: widget.fullName);
     _contactCtrl = TextEditingController(text: widget.contactNumber);
     _nameCtrl.addListener(() => widget.onFullNameChanged(_nameCtrl.text));
-    _contactCtrl.addListener(() => widget.onContactChanged(_contactCtrl.text));
+    _contactCtrl.addListener(() {
+      final digits = _contactCtrl.text.replaceAll(RegExp(r'[^0-9]'), '');
+      _contactInvalid = digits.length > 11;
+      widget.onContactChanged(_contactCtrl.text);
+    });
   }
 
   @override
@@ -919,6 +974,17 @@ class _ProfileInfoStepContentState extends State<_ProfileInfoStepContent> {
                 icon: Icons.phone_rounded,
                 keyboardType: TextInputType.phone,
               ),
+              if (_contactInvalid) ...[
+                const SizedBox(height: 6),
+                const Text(
+                  'Invalid number',
+                  style: TextStyle(
+                    color: AppColors.wrongRed,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
             ],
           ),
         ],

@@ -281,40 +281,48 @@ class LessonLearnStepWidget extends StatelessWidget {
       currentStepIndex: currentStepIndex,
       timerText: timerText,
       onClose: onClose,
+      scrollable: false,
       bottomActions: _BottomActions(
         primaryLabel: 'Continue',
         onPrimary: onContinue,
         onSkip: onSkip,
       ),
-      child: Column(
-        children: [
-          const SizedBox(height: 12),
-          _Badge(text: badgeText, useSpeakerIcon: useSpeakerBadge),
-          const SizedBox(height: 12),
-          _StepLabel(
-            label: 'Learn',
-            audioUrl: _audioUrlForLessonStep(currentStepIndex),
-          ),
-          const SizedBox(height: 20),
-          _CharacterImage(imagePath: imagePath),
-          const SizedBox(height: 28),
-          Text(
-            arabicText,
-            textAlign: TextAlign.center,
-            textDirection: TextDirection.rtl,
-            style: AppTheme.arabicTextStyle(fontSize: 34),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            englishText,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final h = constraints.maxHeight;
+          final imgH = (h * 0.38).clamp(80.0, 160.0);
+          final gap = (h * 0.025).clamp(6.0, 14.0);
+          return Column(
+            children: [
+              SizedBox(height: gap),
+              _Badge(text: badgeText, useSpeakerIcon: useSpeakerBadge),
+              SizedBox(height: gap),
+              _StepLabel(
+                label: 'Learn',
+                audioUrl: _audioUrlForLessonStep(currentStepIndex),
+              ),
+              SizedBox(height: gap * 1.2),
+              _CharacterImage(imagePath: imagePath, height: imgH),
+              SizedBox(height: gap * 1.5),
+              Text(
+                arabicText,
+                textAlign: TextAlign.center,
+                textDirection: TextDirection.rtl,
+                style: AppTheme.arabicTextStyle(fontSize: 28),
+              ),
+              SizedBox(height: gap * 0.7),
+              Text(
+                englishText,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -365,6 +373,7 @@ class _LessonMCQStepWidgetState extends State<LessonMCQStepWidget> {
       currentStepIndex: widget.currentStepIndex,
       timerText: widget.timerText,
       onClose: widget.onClose,
+      scrollable: false,
       feedbackBanner: checked
           ? _FeedbackBanner(
               correct: isCorrect,
@@ -385,51 +394,78 @@ class _LessonMCQStepWidgetState extends State<LessonMCQStepWidget> {
             : _checkAnswer,
         onSkip: checked ? null : widget.onSkip,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const SizedBox(height: 12),
-          const _Badge(text: '01'),
-          const SizedBox(height: 12),
-          _StepLabel(
-            label: 'Question',
-            audioUrl: _audioUrlForLessonStep(widget.currentStepIndex),
-          ),
-          const SizedBox(height: 18),
-          Text(
-            widget.question,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: AppColors.textPrimary,
-              fontSize: 20,
-              fontWeight: FontWeight.w900,
-              height: 1.25,
-            ),
-          ),
-          const SizedBox(height: 18),
-          _CharacterImage(imagePath: widget.imagePath, height: 150),
-          const SizedBox(height: 20),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
-              childAspectRatio: 2.25,
-            ),
-            itemCount: widget.options.length,
-            itemBuilder: (context, index) => _McqOption(
-              text: widget.options[index],
-              selected: selectedIndex == index,
-              correct: checked && index == widget.correctIndex,
-              wrong: checked && selectedIndex == index && !isCorrect,
-              onTap: checked
-                  ? null
-                  : () => setState(() => selectedIndex = index),
-            ),
-          ),
-        ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final h = constraints.maxHeight;
+          final imgH = (h * 0.28).clamp(65.0, 120.0);
+          final gap = (h * 0.022).clamp(5.0, 12.0);
+          final questionLines =
+              (widget.question.length / 40).ceil().clamp(1, 3);
+          final questionH = questionLines * 22.0;
+
+          final usedAboveGrid = gap +
+              52 +
+              gap * 0.7 +
+              20 +
+              gap +
+              questionH +
+              gap * 0.8 +
+              imgH +
+              gap;
+          final gridH = h - usedAboveGrid;
+          final gridW = constraints.maxWidth;
+          final cellW = (gridW - 10) / 2;
+          final cellH = (gridH - 10) / 2;
+          final aspectRatio = (cellW / cellH).clamp(1.5, 4.0);
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(height: gap),
+              const _Badge(text: '01'),
+              SizedBox(height: gap * 0.7),
+              _StepLabel(
+                label: 'Question',
+                audioUrl: _audioUrlForLessonStep(widget.currentStepIndex),
+              ),
+              SizedBox(height: gap),
+              Text(
+                widget.question,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: h < 350 ? 15 : 18,
+                  fontWeight: FontWeight.w900,
+                  height: 1.2,
+                ),
+              ),
+              SizedBox(height: gap * 0.8),
+              _CharacterImage(imagePath: widget.imagePath, height: imgH),
+              SizedBox(height: gap),
+              Expanded(
+                child: GridView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 8,
+                    crossAxisSpacing: 8,
+                    childAspectRatio: aspectRatio,
+                  ),
+                  itemCount: widget.options.length,
+                  itemBuilder: (context, index) => _McqOption(
+                    text: widget.options[index],
+                    selected: selectedIndex == index,
+                    correct: checked && index == widget.correctIndex,
+                    wrong: checked && selectedIndex == index && !isCorrect,
+                    onTap: checked
+                        ? null
+                        : () => setState(() => selectedIndex = index),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -860,6 +896,7 @@ class _LessonScaffold extends StatelessWidget {
     required this.child,
     required this.bottomActions,
     this.feedbackBanner,
+    this.scrollable = true,
   });
 
   final int currentStepIndex;
@@ -868,6 +905,7 @@ class _LessonScaffold extends StatelessWidget {
   final Widget child;
   final Widget bottomActions;
   final Widget? feedbackBanner;
+  final bool scrollable;
 
   @override
   Widget build(BuildContext context) {
@@ -882,10 +920,15 @@ class _LessonScaffold extends StatelessWidget {
               onClose: onClose,
             ),
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: child,
-              ),
+              child: scrollable
+                  ? SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: child,
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: child,
+                    ),
             ),
             ?feedbackBanner,
             bottomActions,
@@ -1186,6 +1229,7 @@ class _CharacterImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final dpr = MediaQuery.of(context).devicePixelRatio;
     return Container(
       height: height,
       width: double.infinity,
@@ -1193,6 +1237,7 @@ class _CharacterImage extends StatelessWidget {
       child: Image.asset(
         imagePath,
         height: height,
+        cacheHeight: (height * dpr).round(),
         fit: BoxFit.contain,
         errorBuilder: (_, error, stackTrace) => Icon(
           Icons.person_rounded,
@@ -1490,7 +1535,7 @@ class _StatBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 10),
       decoration: BoxDecoration(
         color: AppColors.card,
         borderRadius: BorderRadius.circular(AppTheme.cardRadius),
@@ -1503,17 +1548,17 @@ class _StatBox extends StatelessWidget {
             textAlign: TextAlign.center,
             style: const TextStyle(
               color: AppColors.textSecondary,
-              fontSize: 12,
+              fontSize: 14,
               fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Text(
             value,
             textAlign: TextAlign.center,
             style: const TextStyle(
               color: AppColors.textPrimary,
-              fontSize: 15,
+              fontSize: 18,
               fontWeight: FontWeight.w900,
             ),
           ),
