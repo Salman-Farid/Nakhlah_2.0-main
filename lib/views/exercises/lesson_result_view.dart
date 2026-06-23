@@ -126,8 +126,8 @@ class LessonResultView extends StatelessWidget {
             value: '${data.palmTreesRemaining}',
             icon: SvgPicture.asset(
               'assets/nakhlah_design/Palm_Trees.svg',
-              width: 20,
-              height: 20,
+              width: 36,
+              height: 36,
             ),
           ),
         ),
@@ -136,7 +136,7 @@ class LessonResultView extends StatelessWidget {
           child: _StatBox(
             label: 'Time',
             value: data.formattedTime,
-            icon: const Icon(Icons.timer_rounded, size: 20, color: AppColors.accent),
+            icon: const Icon(Icons.timer_rounded, size: 36, color: AppColors.accent),
           ),
         ),
         const SizedBox(width: 10),
@@ -144,7 +144,7 @@ class LessonResultView extends StatelessWidget {
           child: _StatBox(
             label: 'Accuracy',
             value: '${data.accuracyPercentage}%',
-            icon: const Icon(Icons.track_changes_rounded, size: 20, color: AppColors.accent),
+            icon: const Icon(Icons.track_changes_rounded, size: 36, color: AppColors.accent),
           ),
         ),
       ],
@@ -190,7 +190,7 @@ class _StatBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 10),
       decoration: BoxDecoration(
         color: AppColors.card,
         borderRadius: BorderRadius.circular(AppTheme.cardRadius),
@@ -198,14 +198,14 @@ class _StatBox extends StatelessWidget {
       ),
       child: Column(
         children: [
-          SizedBox(width: 20, height: 20, child: icon),
-          const SizedBox(height: 6),
+          SizedBox(width: 40, height: 40, child: icon),
+          const SizedBox(height: 8),
           Text(
             label,
             textAlign: TextAlign.center,
             style: const TextStyle(
               color: AppColors.textSecondary,
-              fontSize: 12,
+              fontSize: 14,
               fontWeight: FontWeight.w800,
             ),
           ),
@@ -215,7 +215,7 @@ class _StatBox extends StatelessWidget {
             textAlign: TextAlign.center,
             style: const TextStyle(
               color: AppColors.textPrimary,
-              fontSize: 15,
+              fontSize: 18,
               fontWeight: FontWeight.w900,
             ),
           ),
