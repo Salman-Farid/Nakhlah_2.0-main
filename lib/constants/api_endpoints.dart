@@ -3,7 +3,7 @@ class ApiEndpoints {
 
   ApiEndpoints._();
 
-  static const String baseUrl = 'https://nakhlah-admin.codemonks.dev/api';
+  static const String baseUrl = 'https://test-api.nakhlah.net/api';
   static const String apiPrefix = '';
   static const String signUp = '/users/sign-in';
   static const String login = '/users/login';
