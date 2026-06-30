@@ -93,7 +93,7 @@ class _SplashViewState extends State<SplashView>
                         ),
                         child: Image.asset(
                           'assets/nakhlah_web/Nakhlah_Logo.webp',
-                          width: 320,
+                          width: 1120,
                           fit: BoxFit.contain,
                         ),
                       ),

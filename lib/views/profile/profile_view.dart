@@ -70,7 +70,9 @@ class _ProfileViewState extends State<ProfileView> {
             return const LoadingState();
           }
           return ListView(
-            padding: EdgeInsets.zero,
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top + 16,
+            ),
             children: [
               for (var i = 0; i < 20; i++)
                 PageEnter(
