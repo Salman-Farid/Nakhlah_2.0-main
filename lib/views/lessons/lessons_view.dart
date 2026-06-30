@@ -401,74 +401,69 @@ class _LessonTile extends StatelessWidget {
         : isExam
         ? 'Test ${order.toString().padLeft(2, '0')}'
         : 'Lesson ${order.toString().padLeft(2, '0')}';
-    final color = locked
-        ? const Color(0xFFE5E7EB)
-        : isExam
-        ? AppColors.date
-        : AppColors.palm;
+    final color = isExam ? AppColors.date : AppColors.palm;
 
-    return PressableScale(
+    Widget tile = PressableScale(
       scale: locked ? 1 : .97,
-      child: Opacity(
-        opacity: locked ? .72 : 1,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(22),
-            border: Border.all(
-              color: locked
-                  ? const Color(0xFFD1D5DB)
-                  : color.withValues(alpha: .25),
-            ),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x0F000000),
-                blurRadius: 12,
-                offset: Offset(0, 4),
-              ),
-            ],
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(
+            color: locked
+                ? const Color(0xFFD1D5DB)
+                : color.withValues(alpha: .25),
           ),
-          child: ListTile(
-            enabled: !locked && lesson != null,
-            onTap: onTap,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 8,
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x0F000000),
+              blurRadius: 12,
+              offset: Offset(0, 4),
             ),
-            leading: CircleAvatar(
-              radius: 25,
-              backgroundColor: color,
-              foregroundColor: locked ? AppColors.muted : Colors.white,
-              child: Icon(
-                locked
-                    ? Icons.lock_rounded
-                    : isExam
-                    ? Icons.quiz_rounded
-                    : Icons.play_arrow_rounded,
-              ),
-            ),
-            title: Text(
-              title,
-              style: TextStyle(
-                fontWeight: FontWeight.w900,
-                color: locked ? AppColors.muted : AppColors.ink,
-              ),
-            ),
-            subtitle: Text(
+          ],
+        ),
+        child: ListTile(
+          enabled: !locked && lesson != null,
+          onTap: onTap,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 8,
+          ),
+          leading: CircleAvatar(
+            radius: 25,
+            backgroundColor: locked ? const Color(0xFFE5E7EB) : color,
+            foregroundColor: locked ? const Color(0xFF9CA3AF) : Colors.white,
+            child: Icon(
               locked
-                  ? 'Locked lesson'
+                  ? Icons.lock_rounded
                   : isExam
-                  ? 'Test'
-                  : 'Tap to open lesson content',
-              style: const TextStyle(color: AppColors.muted),
+                  ? Icons.quiz_rounded
+                  : Icons.play_arrow_rounded,
             ),
-            trailing: Icon(
-              locked ? Icons.lock_outline_rounded : Icons.chevron_right_rounded,
-              color: locked ? AppColors.muted : color,
+          ),
+          title: Text(
+            title,
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+              color: locked ? const Color(0xFF9CA3AF) : AppColors.ink,
             ),
+          ),
+          subtitle: Text(
+            locked
+                ? 'Locked lesson'
+                : isExam
+                ? 'Test'
+                : 'Tap to open lesson content',
+            style: const TextStyle(color: AppColors.muted),
+          ),
+          trailing: Icon(
+            locked ? Icons.lock_outline_rounded : Icons.chevron_right_rounded,
+            color: locked ? const Color(0xFF9CA3AF) : color,
           ),
         ),
       ),
     );
+
+    return tile;
   }
 }

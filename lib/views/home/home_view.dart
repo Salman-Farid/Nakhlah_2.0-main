@@ -1225,7 +1225,9 @@ class _CurrentHeader {
 
 void _showLessonChooserDialog(BuildContext context, String taskId) {
   final content = Get.find<ContentController>();
+  final profileCtrl = Get.find<ProfileController>();
   content.loadLessons(taskId);
+  profileCtrl.load();
 
   showDialog(
     context: context,
@@ -1242,148 +1244,153 @@ void _showLessonChooserDialog(BuildContext context, String taskId) {
             borderRadius: BorderRadius.circular(24),
           ),
           clipBehavior: Clip.antiAlias,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Purple header
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.fromLTRB(24, 20, 16, 18),
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF7D49DF), Color(0xFF5B2CB0)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+          child: Obx(() {
+            final lessons = [...content.lessons]
+              ..sort((a, b) => a.lessonOrder.compareTo(b.lessonOrder));
+            final profile = Get.find<ProfileController>().profile.value;
+            final progress = profile?.currentProgress;
+
+            final allCompleted = lessons.isNotEmpty &&
+                lessons.every((l) => _isLessonCompleted(l, progress));
+
+            final headerSubtitle = allCompleted
+                ? 'All lessons unlocked'
+                : 'Start learning';
+            final footerText = allCompleted
+                ? 'ALL CONTENT IS AVAILABLE TO PRACTICE'
+                : 'SELECT AN AVAILABLE BLOCK TO BEGIN';
+
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Purple header
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(24, 20, 16, 18),
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Color(0xFF7D49DF), Color(0xFF5B2CB0)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                   ),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: const [
-                          Text(
-                            'Choose a Lesson',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                          SizedBox(height: 3),
-                          Text(
-                            'All lessons unlocked',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Material(
-                      color: Colors.white.withValues(alpha: .18),
-                      shape: const CircleBorder(),
-                      clipBehavior: Clip.antiAlias,
-                      child: InkWell(
-                        onTap: () => Navigator.of(ctx).pop(),
-                        child: const SizedBox(
-                          width: 36,
-                          height: 36,
-                          child: Icon(Icons.close_rounded, color: Colors.white, size: 22),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // Lesson grid
-              Flexible(
-                child: Obx(() {
-                  final lessons = [...content.lessons]
-                    ..sort((a, b) => a.lessonOrder.compareTo(b.lessonOrder));
-                  final profile = Get.find<ProfileController>().profile.value;
-                  final progress = profile?.currentProgress;
-
-                  if (content.loading.value && lessons.isEmpty) {
-                    return const Padding(
-                      padding: EdgeInsets.all(48),
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          color: Color(0xFF7D49DF),
-                          strokeWidth: 3,
-                        ),
-                      ),
-                    );
-                  }
-
-                  if (lessons.isEmpty) {
-                    return const Padding(
-                      padding: EdgeInsets.all(32),
-                      child: Center(
-                        child: Text(
-                          'No lessons available yet.',
-                          style: TextStyle(
-                            color: Color(0xFF846F61),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    );
-                  }
-
-                  return Column(
-                    mainAxisSize: MainAxisSize.min,
+                  child: Row(
                     children: [
-                      Flexible(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                          child: GridView.builder(
-                            shrinkWrap: true,
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              mainAxisSpacing: 12,
-                              crossAxisSpacing: 12,
-                              childAspectRatio: 0.95,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'Choose a Lesson',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w900,
+                              ),
                             ),
-                            itemCount: lessons.length,
-                            itemBuilder: (_, i) {
-                              final lesson = lessons[i];
-                              final completed = _isLessonCompleted(
-                                lesson, progress,
-                              );
-                              return _LessonDialogCard(
-                                lesson: lesson,
-                                completed: completed,
-                                taskId: taskId,
-                              );
-                            },
-                          ),
+                            const SizedBox(height: 3),
+                            Text(
+                              headerSubtitle,
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      // Footer
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(24, 4, 24, 16),
-                        child: Text(
-                          'ALL CONTENT IS AVAILABLE TO PRACTICE',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: WebHomeColors.mutedForeground,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: .6,
+                      Material(
+                        color: Colors.white.withValues(alpha: .18),
+                        shape: const CircleBorder(),
+                        clipBehavior: Clip.antiAlias,
+                        child: InkWell(
+                          onTap: () => Navigator.of(ctx).pop(),
+                          child: const SizedBox(
+                            width: 36,
+                            height: 36,
+                            child: Icon(Icons.close_rounded, color: Colors.white, size: 22),
                           ),
                         ),
                       ),
                     ],
-                  );
-                }),
-              ),
-            ],
-          ),
+                  ),
+                ),
+                // Lesson grid
+                if (content.loading.value && lessons.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.all(48),
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFF7D49DF),
+                        strokeWidth: 3,
+                      ),
+                    ),
+                  )
+                else if (lessons.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.all(32),
+                    child: Center(
+                      child: Text(
+                        'No lessons available yet.',
+                        style: TextStyle(
+                          color: Color(0xFF846F61),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  )
+                else ...[
+                  Flexible(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                      child: GridView.builder(
+                        shrinkWrap: true,
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 12,
+                          crossAxisSpacing: 12,
+                          childAspectRatio: 0.95,
+                        ),
+                        itemCount: lessons.length,
+                        itemBuilder: (_, i) {
+                          final lesson = lessons[i];
+                          final completed = _isLessonCompleted(
+                            lesson, progress,
+                          );
+                          final available = _isLessonAvailable(
+                            lesson, i, lessons, progress,
+                          );
+                          return _LessonDialogCard(
+                            lesson: lesson,
+                            completed: completed,
+                            locked: !available,
+                            taskId: taskId,
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  // Footer
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 4, 24, 16),
+                    child: Text(
+                      footerText,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: WebHomeColors.mutedForeground,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: .6,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            );
+          }),
         ),
       );
     },
@@ -1405,38 +1412,69 @@ bool _isLessonCompleted(LessonModel lesson, ProgressModel? progress) {
           lesson.taskOrder < progress.taskOrder);
 }
 
+bool _isLessonAvailable(
+  LessonModel lesson,
+  int index,
+  List<LessonModel> sortedLessons,
+  ProgressModel? progress,
+) {
+  if (lesson.active) return true;
+  if (index == 0) return true;
+  for (var i = 0; i < index; i++) {
+    if (!_isLessonCompleted(sortedLessons[i], progress)) {
+      return false;
+    }
+  }
+  return true;
+}
+
 class _LessonDialogCard extends StatelessWidget {
   const _LessonDialogCard({
     required this.lesson,
     required this.completed,
+    required this.locked,
     required this.taskId,
   });
 
   final LessonModel lesson;
   final bool completed;
+  final bool locked;
   final String taskId;
 
   @override
   Widget build(BuildContext context) {
-    return PressableScale(
-      scale: .95,
+    final lessonTitle = lesson.title.trim().isNotEmpty
+        ? lesson.title
+        : lesson.isExam
+            ? 'Test ${lesson.lessonOrder.toString().padLeft(2, '0')}'
+            : 'Lesson ${lesson.lessonOrder.toString().padLeft(2, '0')}';
+
+    Widget card = PressableScale(
+      scale: locked ? 1.0 : .95,
       child: GestureDetector(
-        onTap: () {
-          Navigator.of(context).pop();
-          Get.toNamed(
-            Routes.exercise,
-            arguments: LessonEngineArgs(
-              lessonId: lesson.id,
-              taskId: taskId,
-              isExamLesson: lesson.isExam,
-            ),
-          );
-        },
+        onTap: locked
+            ? null
+            : () {
+                Navigator.of(context).pop();
+                Get.toNamed(
+                  Routes.exercise,
+                  arguments: LessonEngineArgs(
+                    lessonId: lesson.id,
+                    taskId: taskId,
+                    isExamLesson: lesson.isExam,
+                  ),
+                );
+              },
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.transparent,
+            color: locked ? const Color(0xFFF0F0F0) : Colors.transparent,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFE8D9F8), width: 3),
+            border: Border.all(
+              color: locked
+                  ? const Color(0xFFBDBDBD)
+                  : const Color(0xFFE8D9F8),
+              width: 3,
+            ),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -1444,33 +1482,41 @@ class _LessonDialogCard extends StatelessWidget {
               Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  Container(
+                  SizedBox(
                     width: 95,
                     height: 95,
-                    child: SvgPicture.asset(
-                      'assets/nakhlah_design/book_svg.svg',
-                      fit: BoxFit.contain,
-                    ),
+                    child: locked
+                        ? ColorFiltered(
+                            colorFilter: const ColorFilter.matrix([
+                              0.2126, 0.7152, 0.0722, 0, 0,
+                              0.2126, 0.7152, 0.0722, 0, 0,
+                              0.2126, 0.7152, 0.0722, 0, 0,
+                              0,      0,      0,      1, 0,
+                            ]),
+                            child: SvgPicture.asset(
+                              'assets/nakhlah_design/book_svg.svg',
+                              fit: BoxFit.contain,
+                            ),
+                          )
+                        : SvgPicture.asset(
+                            'assets/nakhlah_design/book_svg.svg',
+                            fit: BoxFit.contain,
+                          ),
                   ),
-                   if (completed)
+                  if (completed)
                     Positioned(
                       top: -10,
                       right: -20,
-                      //bottom: -4,
                       child: Container(
                         width: 20,
                         height: 20,
                         decoration: BoxDecoration(
                           color: const Color(0xFFF1F8F1),
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.green.shade200, width: 2),
-                          // boxShadow: const [
-                          //   BoxShadow(
-                          //     color: Color(0x33000000),
-                          //     blurRadius: 4,
-                          //     offset: Offset(0, 2),
-                          //   ),
-                          // ],
+                          border: Border.all(
+                            color: Colors.green.shade200,
+                            width: 2,
+                          ),
                         ),
                         child: Icon(
                           Icons.check_rounded,
@@ -1479,23 +1525,42 @@ class _LessonDialogCard extends StatelessWidget {
                         ),
                       ),
                     ),
+                  if (locked)
+                    Positioned(
+                      top: -10,
+                      right: -20,
+                      child: Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF3F4F6),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: const Color(0xFFD1D5DB),
+                            width: 2,
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.lock_rounded,
+                          color: Color(0xFF9CA3AF),
+                          size: 12,
+                        ),
+                      ),
+                    ),
                 ],
               ),
               const SizedBox(height: 10),
-              // Lesson name
               Text(
-                lesson.title.trim().isNotEmpty
-                    ? lesson.title
-                    : lesson.isExam
-                        ? 'Test ${lesson.lessonOrder.toString().padLeft(2, '0')}'
-                        : 'Lesson ${lesson.lessonOrder.toString().padLeft(2, '0')}',
+                lessonTitle,
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF30261D),
+                  color: locked
+                      ? const Color(0xFF9CA3AF)
+                      : const Color(0xFF30261D),
                   height: 1.25,
                 ),
               ),
@@ -1504,6 +1569,8 @@ class _LessonDialogCard extends StatelessWidget {
         ),
       ),
     );
+
+    return card;
   }
 }
 
