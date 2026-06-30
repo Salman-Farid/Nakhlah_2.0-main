@@ -52,16 +52,20 @@ Future<void> _refreshSessionOnStartup() async {
 class NakhlahApp extends StatelessWidget {
   const NakhlahApp({super.key});
   @override
-  Widget build(BuildContext context) => GetMaterialApp(
-    debugShowCheckedModeBanner: false,
-    title: 'Nakhlah 2.0',
-    initialBinding: InitialBinding(),
-    initialRoute: Routes.splash,
-    getPages: AppPages.pages,
-    theme: AppTheme.light,
-    darkTheme: AppTheme.dark,
-    themeMode: ThemeMode.light,
-    defaultTransition: Transition.cupertino,
-    transitionDuration: AppMotion.page,
-  );
+  Widget build(BuildContext context) {
+    final storage = Get.find<StorageService>();
+    final startRoute = storage.isLoggedIn ? Routes.shell : Routes.getStarted;
+    return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Nakhlah 2.0',
+      initialBinding: InitialBinding(),
+      initialRoute: startRoute,
+      getPages: AppPages.pages,
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: ThemeMode.light,
+      defaultTransition: Transition.cupertino,
+      transitionDuration: AppMotion.page,
+    );
+  }
 }

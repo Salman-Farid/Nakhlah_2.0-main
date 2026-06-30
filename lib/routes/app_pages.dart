@@ -28,7 +28,6 @@ import '../views/settings/legal_view.dart';
 import '../views/settings/settings_view.dart';
 import '../views/settings/terms_view.dart';
 import '../views/profile/stats_view.dart';
-import '../views/splash/splash_view.dart';
 import 'app_routes.dart';
 import 'game_page_transition.dart';
 
@@ -43,7 +42,6 @@ class AppPages {
   );
 
   static final pages = <GetPage>[
-    _page(Routes.splash, () => const SplashView()),
     _page(Routes.getStarted, () => const GetStartedView()),
     _page(Routes.arabicLessonFlow, () => const ArabicLessonFlowView()),
     _page(Routes.onboarding, () => const OnboardingView()),
